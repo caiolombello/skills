@@ -14,8 +14,11 @@ A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instr
 | [`gh-cli-workflows`](./gh-cli-workflows) | Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. Pre-flight checks, remote → account mapping, secret set from `pass-cli`. |
 | [`git-hygiene`](./git-hygiene) | Baseline git safety: read-before-write, Conventional Commits, safe push/force-push rules, amend guardrails, recovery via reflog, secret checks before commit. |
 | [`handoff`](./handoff) | Produces a concise handoff briefing summarising what was done in the session, what is pending, and important context. |
+| [`investigate-before-editing`](./investigate-before-editing) | Forces the agent to read the relevant code and learn repo conventions before changing anything. Match the house style, never invent symbols, search for prior art before adding helpers. |
 | [`kubectl-workflows`](./kubectl-workflows) | Safety rules for `kubectl`: explicit `--context`/`--namespace`, server-side dry-run + diff before apply, `kubectl debug` over `exec`, safe deletes, minimal secret exposure. |
+| [`no-docs-unless-asked`](./no-docs-unless-asked) | Blocks the reflex to create `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, etc. "to be helpful". Updates to existing docs and inline code comments are fine. |
 | [`pass-cli-secrets`](./pass-cli-secrets) | Enforces secrets hygiene: pass-cli (Proton Pass) for local creds, AWS Secrets Manager / SSM for workloads. AI-blind piping so the value never enters the agent's context. |
+| [`pr-workflow`](./pr-workflow) | Opens PRs / MRs that reviewers can actually review. Title + body structure, draft vs ready, pre-flight checklist, merge strategies. Host-agnostic (GitHub, GitLab, Bitbucket). |
 | [`rtk-token-optimized-cli`](./rtk-token-optimized-cli) | When to use [RTK](https://github.com/sigoden/rtk) to compress noisy CLI output (git diff, kubectl logs, test runners, aws cli, etc.) and reduce token usage. |
 | [`terraform-iac-expert`](./terraform-iac-expert) | Opinionated Terraform guidance: module design, project structure, state, testing, governance. Ships with a detailed knowledge base in `references/best-practices.md`. |
 
@@ -30,8 +33,9 @@ git clone https://github.com/caiolombello/skills.git
 cd skills
 mkdir -p ~/.claude/skills
 for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
-         gh-cli-workflows git-hygiene handoff kubectl-workflows \
-         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+         gh-cli-workflows git-hygiene handoff investigate-before-editing \
+         kubectl-workflows no-docs-unless-asked pass-cli-secrets pr-workflow \
+         rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
 done
 ```
@@ -41,8 +45,9 @@ done
 ```bash
 mkdir -p ~/.config/opencode/skill
 for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
-         gh-cli-workflows git-hygiene handoff kubectl-workflows \
-         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+         gh-cli-workflows git-hygiene handoff investigate-before-editing \
+         kubectl-workflows no-docs-unless-asked pass-cli-secrets pr-workflow \
+         rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
 done
 ```
@@ -52,8 +57,9 @@ done
 ```bash
 mkdir -p ~/.codex/skills
 for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
-         gh-cli-workflows git-hygiene handoff kubectl-workflows \
-         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+         gh-cli-workflows git-hygiene handoff investigate-before-editing \
+         kubectl-workflows no-docs-unless-asked pass-cli-secrets pr-workflow \
+         rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
 done
 ```
