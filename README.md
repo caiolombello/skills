@@ -8,10 +8,13 @@ A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instr
 
 | Skill | What it does |
 |-------|--------------|
+| [`awscli-workflows`](./awscli-workflows) | Safety and workflow rules for `aws`: explicit `--profile`/`--region`, read-before-write, dry-run patterns, IAM key rotation order, assume-role chains, and destructive-command checklist. |
 | [`backstage-scaffolder-architect`](./backstage-scaffolder-architect) | Generates Backstage Scaffolder templates (template.yaml + skeleton) with correct `${{ ... }}` syntax across all three contexts (parameters / steps / values), conditional parameters, multi-env patterns, and a validation checklist. |
 | [`codex-claude-resume`](./codex-claude-resume) | Lists, inspects and imports local Claude Code sessions so you can continue the work in another agent. |
 | [`gh-cli-workflows`](./gh-cli-workflows) | Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. Pre-flight checks, remote → account mapping, secret set from `pass-cli`. |
+| [`git-hygiene`](./git-hygiene) | Baseline git safety: read-before-write, Conventional Commits, safe push/force-push rules, amend guardrails, recovery via reflog, secret checks before commit. |
 | [`handoff`](./handoff) | Produces a concise handoff briefing summarising what was done in the session, what is pending, and important context. |
+| [`kubectl-workflows`](./kubectl-workflows) | Safety rules for `kubectl`: explicit `--context`/`--namespace`, server-side dry-run + diff before apply, `kubectl debug` over `exec`, safe deletes, minimal secret exposure. |
 | [`pass-cli-secrets`](./pass-cli-secrets) | Enforces secrets hygiene: pass-cli (Proton Pass) for local creds, AWS Secrets Manager / SSM for workloads. AI-blind piping so the value never enters the agent's context. |
 | [`rtk-token-optimized-cli`](./rtk-token-optimized-cli) | When to use [RTK](https://github.com/sigoden/rtk) to compress noisy CLI output (git diff, kubectl logs, test runners, aws cli, etc.) and reduce token usage. |
 | [`terraform-iac-expert`](./terraform-iac-expert) | Opinionated Terraform guidance: module design, project structure, state, testing, governance. Ships with a detailed knowledge base in `references/best-practices.md`. |
@@ -26,8 +29,9 @@ Skills are just folders. Symlink them into the skills directory of the agent you
 git clone https://github.com/caiolombello/skills.git
 cd skills
 mkdir -p ~/.claude/skills
-for s in backstage-scaffolder-architect codex-claude-resume gh-cli-workflows \
-         handoff pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
+         gh-cli-workflows git-hygiene handoff kubectl-workflows \
+         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
 done
 ```
@@ -36,8 +40,9 @@ done
 
 ```bash
 mkdir -p ~/.config/opencode/skill
-for s in backstage-scaffolder-architect codex-claude-resume gh-cli-workflows \
-         handoff pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
+         gh-cli-workflows git-hygiene handoff kubectl-workflows \
+         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
 done
 ```
@@ -46,8 +51,9 @@ done
 
 ```bash
 mkdir -p ~/.codex/skills
-for s in backstage-scaffolder-architect codex-claude-resume gh-cli-workflows \
-         handoff pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
+         gh-cli-workflows git-hygiene handoff kubectl-workflows \
+         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
 done
 ```
