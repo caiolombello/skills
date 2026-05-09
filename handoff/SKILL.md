@@ -1,13 +1,13 @@
 ---
 name: handoff
-description: "Resuma o que foi feito nesta sessao de forma concisa:"
+description: Summarize what was done in this session so it can be pasted into a fresh conversation to continue the work.
 ---
 
-Resuma o que foi feito nesta sessao de forma concisa:
+Summarize what was done in this session in a concise way:
 
-1. **Arquivos modificados**: Liste todos os arquivos criados, editados ou deletados
-2. **O que foi implementado/corrigido**: Descreva as mudancas principais
-3. **O que ainda precisa ser feito**: Liste tarefas pendentes ou proximos passos
-4. **Contexto importante**: Mencione decisoes tomadas, problemas encontrados, ou informacoes que a proxima sessao precisa saber
+1. **Files changed**: list every file created, edited or deleted.
+2. **What was implemented/fixed**: describe the main changes.
+3. **What is still pending**: list open tasks or next steps.
+4. **Important context**: decisions made, problems hit, or any information the next session needs to know.
 
-Formate como um briefing que eu possa colar em uma nova conversa para continuar o trabalho.
+Format the output as a briefing that can be pasted into a new conversation to continue the work.

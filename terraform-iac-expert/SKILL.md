@@ -5,64 +5,65 @@ description: Expert guidance on Terraform Infrastructure as Code (IaC) best prac
 
 # Terraform IaC Expert
 
-Fornece orientação especializada sobre Terraform Infrastructure as Code, cobrindo desde design de módulos até governança e segurança.
+Provides specialist guidance on Terraform Infrastructure as Code, covering module design, project structure, state management, testing, governance and security.
 
-## Como usar esta skill
+## How to use this skill
 
-1. **Identifique o problema ou cenário**
-   - Qual é a questão principal (design de módulo, estrutura de projeto, state management, etc.)?
-   - Há contexto específico (cloud provider, setup atual)?
+1. **Identify the problem or scenario**
+   - What is the core question (module design, project structure, state management, etc.)?
+   - Is there specific context (cloud provider, current setup)?
 
-2. **Consulte as best practices relevantes**
-   - Referencie best practices estabelecidas (HashiCorp docs, Gruntwork, Terraform Registry)
-   - Se existir um `references/best-practices.md` no repo, consulte-o
+2. **Consult the relevant best practices**
+   - Read `references/best-practices.md` for detailed guidance (project structure, module design, state, testing, governance, anti-patterns, module templates).
+   - Fall back to upstream references (HashiCorp docs, Gruntwork, Terraform Registry) when needed.
 
-3. **Forneça resposta estruturada**
-   - Responda diretamente à questão do usuário
-   - Referencie best practices específicas do knowledge base
-   - Forneça recomendações concretas e acionáveis
-   - Inclua exemplos de código ou estrutura de arquivos quando relevante
-   - Ofereça um plano de ação ou checklist priorizado
+3. **Provide a structured answer**
+   - Answer the user's question directly.
+   - Reference specific best practices from the knowledge base.
+   - Provide concrete, actionable recommendations.
+   - Include code examples or file-structure diagrams when relevant.
+   - Offer a prioritized action plan or checklist.
 
-## Estrutura da resposta
+## Response structure
 
-Ao responder perguntas sobre Terraform, siga este formato:
+When answering Terraform questions, follow this format:
 
-### 1. Análise (interna)
+### 1. Analysis (internal)
 
-Antes de responder, identifique:
-- Problema central
-- Best practices relevantes do knowledge base
-- Contexto de cloud provider e setup atual
-- Estrutura da resposta
+Before answering, identify:
+- Core problem
+- Relevant best practices from the knowledge base
+- Cloud provider and current-setup context
+- Structure of the response
 
-### 2. Resposta completa
+### 2. Full answer
 
-Inclua:
-- **Resposta direta** ao problema
-- **Referências específicas** às best practices
-- **Recomendações concretas e acionáveis**
-- **Exemplos de código/estrutura** quando aplicável
-- **Plano de ação priorizado**
-- **Considerações específicas** do cloud provider/setup
+Include:
+- **Direct answer** to the problem
+- **Specific references** to best practices
+- **Concrete, actionable recommendations**
+- **Code / structure examples** when applicable
+- **Prioritized action plan**
+- **Provider- or setup-specific considerations**
 
-### 3. Para design de módulos
+### 3. For module design
 
-Quando a pergunta pedir design de módulo ou blueprint, forneça estrutura completa:
-- Variáveis sugeridas (com tipos e validações)
-- Outputs recomendados
-- Estrutura de arquivos
-- Exemplo de uso em stack "live"
-- Naming conventions e tags
+When the question asks for a module design or blueprint, provide the full structure:
+- Suggested variables (with types and validations)
+- Recommended outputs
+- File layout
+- Usage example in a "live" stack
+- Naming conventions and tags
 
-## Quando NÃO usar esta skill
+## When NOT to use this skill
 
-- Perguntas sobre outras ferramentas de IaC (CloudFormation, Pulumi, etc.) - a menos que seja comparação
-- Implementação específica de recursos cloud sem contexto Terraform
-- Debugging de problemas não relacionados a arquitetura ou best practices
+- Questions about other IaC tools (CloudFormation, Pulumi, etc.) — unless the user wants a comparison.
+- Specific cloud-resource implementation questions without a Terraform context.
+- Debugging problems unrelated to architecture or best practices.
 
-## Referências
+## References
 
+- `references/best-practices.md` — local knowledge base with full structure, module design, state, testing, security, and anti-patterns.
 - HashiCorp Terraform docs: https://developer.hashicorp.com/terraform
 - Terraform Registry: https://registry.terraform.io
 - Gruntwork style guide: https://docs.gruntwork.io/guides/style/terraform-style-guide
