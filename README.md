@@ -10,6 +10,7 @@ A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instr
 |-------|--------------|
 | [`backstage-scaffolder-architect`](./backstage-scaffolder-architect) | Generates Backstage Scaffolder templates (template.yaml + skeleton) with correct `${{ ... }}` syntax across all three contexts (parameters / steps / values), conditional parameters, multi-env patterns, and a validation checklist. |
 | [`codex-claude-resume`](./codex-claude-resume) | Lists, inspects and imports local Claude Code sessions so you can continue the work in another agent. |
+| [`gh-cli-workflows`](./gh-cli-workflows) | Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. Pre-flight checks, remote → account mapping, secret set from `pass-cli`. |
 | [`handoff`](./handoff) | Produces a concise handoff briefing summarising what was done in the session, what is pending, and important context. |
 | [`pass-cli-secrets`](./pass-cli-secrets) | Enforces secrets hygiene: pass-cli (Proton Pass) for local creds, AWS Secrets Manager / SSM for workloads. AI-blind piping so the value never enters the agent's context. |
 | [`rtk-token-optimized-cli`](./rtk-token-optimized-cli) | When to use [RTK](https://github.com/sigoden/rtk) to compress noisy CLI output (git diff, kubectl logs, test runners, aws cli, etc.) and reduce token usage. |
@@ -25,8 +26,8 @@ Skills are just folders. Symlink them into the skills directory of the agent you
 git clone https://github.com/caiolombello/skills.git
 cd skills
 mkdir -p ~/.claude/skills
-for s in backstage-scaffolder-architect codex-claude-resume handoff \
-         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+for s in backstage-scaffolder-architect codex-claude-resume gh-cli-workflows \
+         handoff pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
 done
 ```
@@ -35,8 +36,8 @@ done
 
 ```bash
 mkdir -p ~/.config/opencode/skill
-for s in backstage-scaffolder-architect codex-claude-resume handoff \
-         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+for s in backstage-scaffolder-architect codex-claude-resume gh-cli-workflows \
+         handoff pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
 done
 ```
@@ -45,8 +46,8 @@ done
 
 ```bash
 mkdir -p ~/.codex/skills
-for s in backstage-scaffolder-architect codex-claude-resume handoff \
-         pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
+for s in backstage-scaffolder-architect codex-claude-resume gh-cli-workflows \
+         handoff pass-cli-secrets rtk-token-optimized-cli terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
 done
 ```
