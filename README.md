@@ -22,6 +22,7 @@ A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instr
 | [`pr-workflow`](./pr-workflow) | Opens PRs / MRs that reviewers can actually review. Title + body structure, draft vs ready, pre-flight checklist, merge strategies. Host-agnostic (GitHub, GitLab, Bitbucket). |
 | [`rtk-token-optimized-cli`](./rtk-token-optimized-cli) | When to use [RTK](https://github.com/sigoden/rtk) to compress noisy CLI output (git diff, kubectl logs, test runners, aws cli, etc.) and reduce token usage. |
 | [`skill-creator`](./skill-creator) | Official Anthropic skill for creating and iteratively improving skills (draft → test → evaluate → refine loop, with benchmarking and description optimization). Vendored from [anthropics/skills](https://github.com/anthropics/skills) under Apache 2.0. |
+| [`skill-creator-opencode`](./skill-creator-opencode) | Adapter that runs the skill-creator trigger-eval loop against OpenCode (`opencode run --format json`) instead of `claude -p`. Uses whichever model you pass via `--model provider/model`. |
 | [`terraform-iac-expert`](./terraform-iac-expert) | Opinionated Terraform guidance: module design, project structure, state, testing, governance. Ships with a detailed knowledge base in `references/best-practices.md`. |
 
 ## Installing
@@ -38,7 +39,7 @@ for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
          container-image-hardening gh-cli-workflows git-hygiene handoff \
          investigate-before-editing kubectl-workflows no-docs-unless-asked \
          pass-cli-secrets pr-workflow rtk-token-optimized-cli skill-creator \
-         terraform-iac-expert; do
+         skill-creator-opencode terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
 done
 ```
@@ -51,7 +52,7 @@ for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
          container-image-hardening gh-cli-workflows git-hygiene handoff \
          investigate-before-editing kubectl-workflows no-docs-unless-asked \
          pass-cli-secrets pr-workflow rtk-token-optimized-cli skill-creator \
-         terraform-iac-expert; do
+         skill-creator-opencode terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
 done
 ```
@@ -64,7 +65,7 @@ for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
          container-image-hardening gh-cli-workflows git-hygiene handoff \
          investigate-before-editing kubectl-workflows no-docs-unless-asked \
          pass-cli-secrets pr-workflow rtk-token-optimized-cli skill-creator \
-         terraform-iac-expert; do
+         skill-creator-opencode terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
 done
 ```
@@ -77,7 +78,7 @@ for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
          container-image-hardening gh-cli-workflows git-hygiene handoff \
          investigate-before-editing kubectl-workflows no-docs-unless-asked \
          pass-cli-secrets pr-workflow rtk-token-optimized-cli skill-creator \
-         terraform-iac-expert; do
+         skill-creator-opencode terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
 done
 ```
