@@ -30,6 +30,7 @@ Skills inspired by this project:
 | `incremental-implementation` | `incremental-implementation` |
 | `code-simplification` | `code-simplification` (which itself cites Anthropic's code-simplifier plugin) |
 | `spec-first-planning` | `spec-driven-development` + `planning-and-task-breakdown` |
+| `performance-optimization` | `performance-optimization` |
 | `diagnose` | `debugging-and-error-recovery` |
 | `test-driven-development` | `test-driven-development` |
 | `code-review` | `code-review-and-quality` |
@@ -71,13 +72,17 @@ Reviewed during research; no skills currently adapted from this project (its sco
 
 ## Skills with no upstream inspiration
 
-The following skills were written from scratch based on SRE / DevOps best practices (Google SRE Book, DORA, OpenTelemetry specs, OWASP, AWS / GCP / Azure official docs, vendor documentation), not adapted from any of the upstream projects above. They are noted here only for completeness:
+The following skills were written from scratch based on SRE / DevOps / API-design best practices (Google SRE Book, DORA, OpenTelemetry specs, OWASP, RFC 9457 Problem Details, semver.org, Helm / ArgoCD / GitLab / GitHub official docs), not adapted from any of the upstream projects above. They are noted here only for completeness:
 
 - `incident-response`
 - `observability`
 - `deploy-safety`
 - `architecture-decision-records` (format follows MADR — [adr.github.io/madr](https://adr.github.io/madr/))
-- `github-actions-workflows` (format follows GitHub's own documentation)
+- `github-actions-workflows` (follows GitHub's own documentation)
+- `gitlab-ci-workflows` (follows GitLab's own documentation)
+- `helm-workflows` (follows Helm's official chart best-practices + ArgoCD / Helmfile docs)
+- `runbook-authoring` (Google SRE Book's runbook guidance + RFC 8594 / 9745 Deprecation/Sunset headers)
+- `api-and-interface-design` (RFC 9457 Problem Details, Semver.org, Relay Cursor Connections, gRPC + Protobuf style guides)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
 
 ## Vendored verbatim (distinct from the above)
