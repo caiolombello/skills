@@ -69,6 +69,17 @@ Commit referenced: `7a95d94`.
 
 Reviewed during research; no skills currently adapted from this project (its scope is agent-building / multi-agent systems, orthogonal to the coding-workflow focus of this repo). We may revisit later.
 
+## Skills with no upstream inspiration
+
+The following skills were written from scratch based on SRE / DevOps best practices (Google SRE Book, DORA, OpenTelemetry specs, OWASP, AWS / GCP / Azure official docs, vendor documentation), not adapted from any of the upstream projects above. They are noted here only for completeness:
+
+- `incident-response`
+- `observability`
+- `deploy-safety`
+- `architecture-decision-records` (format follows MADR — [adr.github.io/madr](https://adr.github.io/madr/))
+- `github-actions-workflows` (format follows GitHub's own documentation)
+- `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
+
 ## Vendored verbatim (distinct from the above)
 
 Some skills in this repository are **vendored verbatim** from upstream projects under their original license. Those directories include the upstream `LICENSE` and a `README.md` documenting modifications (if any). As of this writing:

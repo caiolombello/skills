@@ -47,6 +47,16 @@ All skills in this repo are written to be **provider-agnostic** — they work in
 | [`terraform-iac-expert`](./terraform-iac-expert) | Opinionated Terraform guidance: module design, project structure, state, testing, governance. Detailed knowledge base in `references/best-practices.md`. |
 | [`container-image-hardening`](./container-image-hardening) | Secure, fast, small container images. Dockerfile structure, BuildKit cache mounts, multi-arch, Trivy/Grype scan, Syft SBOM, cosign, Copacetic. |
 
+### Release & production operations (SRE)
+
+| Skill | What it does |
+|-------|--------------|
+| [`github-actions-workflows`](./github-actions-workflows) | Design GitHub Actions workflows with security (OIDC, SHA-pinned actions, least-privilege permissions) and performance (caching, concurrency, path filters, composite vs reusable). |
+| [`deploy-safety`](./deploy-safety) | Progressive delivery: canary / blue-green / rolling / feature flags. Rollback-first, SLO-gated, DB expand-contract migrations, Kubernetes probe discipline. |
+| [`observability`](./observability) | Golden signals, SLIs/SLOs, burn-rate alerts, cardinality control, structured logs, OpenTelemetry traces, dashboards that work at 3am. |
+| [`incident-response`](./incident-response) | Live incident discipline: declare → triage → stabilize → communicate → resolve → blameless postmortem. Stabilize first; root-cause later. |
+| [`architecture-decision-records`](./architecture-decision-records) | Capture significant decisions as short, immutable ADRs (MADR format). Supersede instead of edit. Linked from the rules file. |
+
 ### Secrets & services
 
 | Skill | What it does |
@@ -74,12 +84,15 @@ Skills are just folders. Symlink them into the skills directory of the agent you
 git clone https://github.com/caiolombello/skills.git
 cd skills
 mkdir -p ~/.claude/skills
-for s in awscli-workflows backstage-scaffolder-architect code-review \
+for s in architecture-decision-records awscli-workflows \
+         backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering diagnose docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         incremental-implementation investigate-before-editing \
-         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         context-engineering deploy-safety diagnose docs-verified-coding \
+         doubt-driven-review gh-cli-workflows git-hygiene \
+         github-actions-workflows handoff \
+         incident-response incremental-implementation \
+         investigate-before-editing kubectl-workflows \
+         llm-coding-discipline no-docs-unless-asked observability \
          pass-cli-secrets pr-workflow project-rules-file \
          rtk-token-optimized-cli security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
@@ -93,12 +106,15 @@ done
 
 ```bash
 mkdir -p ~/.config/opencode/skill
-for s in awscli-workflows backstage-scaffolder-architect code-review \
+for s in architecture-decision-records awscli-workflows \
+         backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering diagnose docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         incremental-implementation investigate-before-editing \
-         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         context-engineering deploy-safety diagnose docs-verified-coding \
+         doubt-driven-review gh-cli-workflows git-hygiene \
+         github-actions-workflows handoff \
+         incident-response incremental-implementation \
+         investigate-before-editing kubectl-workflows \
+         llm-coding-discipline no-docs-unless-asked observability \
          pass-cli-secrets pr-workflow project-rules-file \
          rtk-token-optimized-cli security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
@@ -112,12 +128,15 @@ done
 
 ```bash
 mkdir -p ~/.codex/skills
-for s in awscli-workflows backstage-scaffolder-architect code-review \
+for s in architecture-decision-records awscli-workflows \
+         backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering diagnose docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         incremental-implementation investigate-before-editing \
-         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         context-engineering deploy-safety diagnose docs-verified-coding \
+         doubt-driven-review gh-cli-workflows git-hygiene \
+         github-actions-workflows handoff \
+         incident-response incremental-implementation \
+         investigate-before-editing kubectl-workflows \
+         llm-coding-discipline no-docs-unless-asked observability \
          pass-cli-secrets pr-workflow project-rules-file \
          rtk-token-optimized-cli security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
@@ -131,12 +150,15 @@ done
 
 ```bash
 mkdir -p ~/.kiro/skills
-for s in awscli-workflows backstage-scaffolder-architect code-review \
+for s in architecture-decision-records awscli-workflows \
+         backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering diagnose docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         incremental-implementation investigate-before-editing \
-         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         context-engineering deploy-safety diagnose docs-verified-coding \
+         doubt-driven-review gh-cli-workflows git-hygiene \
+         github-actions-workflows handoff \
+         incident-response incremental-implementation \
+         investigate-before-editing kubectl-workflows \
+         llm-coding-discipline no-docs-unless-asked observability \
          pass-cli-secrets pr-workflow project-rules-file \
          rtk-token-optimized-cli security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
