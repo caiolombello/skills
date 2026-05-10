@@ -24,6 +24,11 @@ Skills inspired by this project:
 |-----------|-------------------|
 | `llm-coding-discipline` | `using-agent-skills` (Core Operating Behaviors) |
 | `project-rules-file` | `context-engineering` (Level 1: Rules Files) |
+| `context-engineering` | `context-engineering` |
+| `docs-verified-coding` | `source-driven-development` |
+| `security-hardening` | `security-and-hardening` |
+| `incremental-implementation` | `incremental-implementation` |
+| `code-simplification` | `code-simplification` (which itself cites Anthropic's code-simplifier plugin) |
 | `diagnose` | `debugging-and-error-recovery` |
 | `test-driven-development` | `test-driven-development` |
 | `code-review` | `code-review-and-quality` |
@@ -40,6 +45,7 @@ Skills inspired by this project:
 |-----------|-------------------|
 | `diagnose` | `engineering/diagnose` |
 | `test-driven-development` | `engineering/tdd` |
+| `incremental-implementation` | tracer-bullet principle in `engineering/tdd` |
 
 ### [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) — MIT
 
