@@ -72,7 +72,7 @@ Reviewed during research; no skills currently adapted from this project (its sco
 
 ## Skills with no upstream inspiration
 
-The following skills were written from scratch based on SRE / DevOps / API-design best practices (Google SRE Book, DORA, OpenTelemetry specs, OWASP, RFC 9457 Problem Details, semver.org, Helm / ArgoCD / GitLab / GitHub official docs), not adapted from any of the upstream projects above. They are noted here only for completeness:
+The following skills were written from scratch based on SRE / DevOps / API-design best practices (Google SRE Book, DORA, OpenTelemetry specs, OWASP, RFC 9457 Problem Details, semver.org, Helm / ArgoCD / GitLab / GitHub official docs, AWS Well-Architected Framework, FinOps Foundation principles), not adapted from any of the upstream projects above. They are noted here only for completeness:
 
 - `incident-response`
 - `observability`
@@ -80,9 +80,14 @@ The following skills were written from scratch based on SRE / DevOps / API-desig
 - `architecture-decision-records` (format follows MADR — [adr.github.io/madr](https://adr.github.io/madr/))
 - `github-actions-workflows` (follows GitHub's own documentation)
 - `gitlab-ci-workflows` (follows GitLab's own documentation)
+- `glab-cli-workflows` (follows GitLab CLI's own documentation)
 - `helm-workflows` (follows Helm's official chart best-practices + ArgoCD / Helmfile docs)
 - `runbook-authoring` (Google SRE Book's runbook guidance + RFC 8594 / 9745 Deprecation/Sunset headers)
 - `api-and-interface-design` (RFC 9457 Problem Details, Semver.org, Relay Cursor Connections, gRPC + Protobuf style guides)
+- `database-migrations` (expand/contract pattern; pt-osc, gh-ost, Atlas, Alembic, Flyway, Liquibase docs)
+- `disaster-recovery` (AWS Well-Architected DR pillar + Google SRE discipline for backup testing)
+- `cost-optimization-aws` (FinOps Foundation principles + AWS CUR + AWS Cost Optimization Pillar)
+- `monorepo-strategy` (Turborepo / Nx / Bazel official docs + pnpm / Yarn / uv / Cargo workspace docs)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
 
 ## Vendored verbatim (distinct from the above)

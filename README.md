@@ -38,6 +38,7 @@ All skills in this repo are written to be **provider-agnostic** — they work in
 | [`git-hygiene`](./git-hygiene) | Read-before-write, Conventional Commits, safe push/force-push rules, amend guardrails, reflog recovery, secret checks before commit. |
 | [`setup-pre-commit`](./setup-pre-commit) | Install pre-commit hooks (`pre-commit` / lefthook / Husky). Format, lint, typecheck, secret-scan before every commit. |
 | [`gh-cli-workflows`](./gh-cli-workflows) | Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. |
+| [`glab-cli-workflows`](./glab-cli-workflows) | GitLab CLI companion — correct host + account selection, multi-instance, token scoping, CI token vs developer PAT. |
 | [`pr-workflow`](./pr-workflow) | PRs / MRs that reviewers can actually review. Title + body structure, draft vs ready, pre-flight checklist, merge strategies. Host-agnostic. |
 
 ### Infra & cloud
@@ -45,10 +46,12 @@ All skills in this repo are written to be **provider-agnostic** — they work in
 | Skill | What it does |
 |-------|--------------|
 | [`awscli-workflows`](./awscli-workflows) | Safety rules for `aws`: explicit `--profile`/`--region`, read-before-write, dry-run patterns, IAM key rotation, assume-role chains, destructive-command checklist. |
+| [`cost-optimization-aws`](./cost-optimization-aws) | FinOps discipline for AWS: visibility (CUR + tagging), right-sizing, Savings Plans, NAT/data-transfer waste, CloudWatch Logs hygiene, bill-anomaly runbook. |
 | [`kubectl-workflows`](./kubectl-workflows) | Safety rules for `kubectl`: explicit `--context`/`--namespace`, server-side dry-run + diff before apply, `kubectl debug` over `exec`, safe deletes. |
 | [`helm-workflows`](./helm-workflows) | Chart authoring + safe operation. `helm diff` before upgrade, `--atomic --wait`, values hierarchy, subcharts, OCI publishing, ArgoCD/Helmfile patterns. |
 | [`terraform-iac-expert`](./terraform-iac-expert) | Opinionated Terraform guidance: module design, project structure, state, testing, governance. Detailed knowledge base in `references/best-practices.md`. |
 | [`container-image-hardening`](./container-image-hardening) | Secure, fast, small container images. Dockerfile structure, BuildKit cache mounts, multi-arch, Trivy/Grype scan, Syft SBOM, cosign, Copacetic. |
+| [`monorepo-strategy`](./monorepo-strategy) | Task runner + affected-graph + remote cache + boundary enforcement. Turborepo / Nx / Bazel / pnpm-Yarn-uv-Cargo workspaces. Polyglot-ready. |
 
 ### Release & production operations (SRE)
 
@@ -57,6 +60,8 @@ All skills in this repo are written to be **provider-agnostic** — they work in
 | [`github-actions-workflows`](./github-actions-workflows) | Design GitHub Actions workflows with security (OIDC, SHA-pinned actions, least-privilege permissions) and performance (caching, concurrency, path filters, composite vs reusable). |
 | [`gitlab-ci-workflows`](./gitlab-ci-workflows) | Design GitLab pipelines with `rules:` + `needs:` DAGs, OIDC federated cloud auth, `include:` templates, parent-child pipelines for monorepos, built-in security scanners. |
 | [`deploy-safety`](./deploy-safety) | Progressive delivery: canary / blue-green / rolling / feature flags. Rollback-first, SLO-gated, DB expand-contract migrations, Kubernetes probe discipline. |
+| [`database-migrations`](./database-migrations) | Safe production schema changes. Expand/contract, online DDL, `CONCURRENTLY`, `NOT VALID`, throttled backfills, lock timeouts, ORM + `pt-osc` / `gh-ost` / Atlas. |
+| [`disaster-recovery`](./disaster-recovery) | Backups that restore, RTO/RPO per domain, 3-2-1-1-0, restore tests as SLIs, quarterly drills, ransomware-specific hardening. |
 | [`observability`](./observability) | Golden signals, SLIs/SLOs, burn-rate alerts, cardinality control, structured logs, OpenTelemetry traces, dashboards that work at 3am. |
 | [`incident-response`](./incident-response) | Live incident discipline: declare → triage → stabilize → communicate → resolve → blameless postmortem. Stabilize first; root-cause later. |
 | [`runbook-authoring`](./runbook-authoring) | Write runbooks that on-call can follow at 3am. Scoped per alert, copy-paste commands, verify-after-action, escalation on top. |
@@ -92,16 +97,18 @@ mkdir -p ~/.claude/skills
 for s in api-and-interface-design architecture-decision-records \
          awscli-workflows backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering deploy-safety diagnose docs-verified-coding \
+         context-engineering cost-optimization-aws database-migrations \
+         deploy-safety diagnose disaster-recovery docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows handoff helm-workflows \
+         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
+         handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
-         llm-coding-discipline no-docs-unless-asked observability \
-         pass-cli-secrets performance-optimization pr-workflow \
-         project-rules-file rtk-token-optimized-cli runbook-authoring \
-         security-hardening setup-pre-commit skill-creator \
-         skill-creator-opencode spec-first-planning \
+         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
+         observability pass-cli-secrets performance-optimization \
+         pr-workflow project-rules-file rtk-token-optimized-cli \
+         runbook-authoring security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
          throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
@@ -115,16 +122,18 @@ mkdir -p ~/.config/opencode/skill
 for s in api-and-interface-design architecture-decision-records \
          awscli-workflows backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering deploy-safety diagnose docs-verified-coding \
+         context-engineering cost-optimization-aws database-migrations \
+         deploy-safety diagnose disaster-recovery docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows handoff helm-workflows \
+         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
+         handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
-         llm-coding-discipline no-docs-unless-asked observability \
-         pass-cli-secrets performance-optimization pr-workflow \
-         project-rules-file rtk-token-optimized-cli runbook-authoring \
-         security-hardening setup-pre-commit skill-creator \
-         skill-creator-opencode spec-first-planning \
+         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
+         observability pass-cli-secrets performance-optimization \
+         pr-workflow project-rules-file rtk-token-optimized-cli \
+         runbook-authoring security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
          throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
@@ -138,16 +147,18 @@ mkdir -p ~/.codex/skills
 for s in api-and-interface-design architecture-decision-records \
          awscli-workflows backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering deploy-safety diagnose docs-verified-coding \
+         context-engineering cost-optimization-aws database-migrations \
+         deploy-safety diagnose disaster-recovery docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows handoff helm-workflows \
+         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
+         handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
-         llm-coding-discipline no-docs-unless-asked observability \
-         pass-cli-secrets performance-optimization pr-workflow \
-         project-rules-file rtk-token-optimized-cli runbook-authoring \
-         security-hardening setup-pre-commit skill-creator \
-         skill-creator-opencode spec-first-planning \
+         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
+         observability pass-cli-secrets performance-optimization \
+         pr-workflow project-rules-file rtk-token-optimized-cli \
+         runbook-authoring security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
          throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
@@ -161,16 +172,18 @@ mkdir -p ~/.kiro/skills
 for s in api-and-interface-design architecture-decision-records \
          awscli-workflows backstage-scaffolder-architect code-review \
          code-simplification codex-claude-resume container-image-hardening \
-         context-engineering deploy-safety diagnose docs-verified-coding \
+         context-engineering cost-optimization-aws database-migrations \
+         deploy-safety diagnose disaster-recovery docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows handoff helm-workflows \
+         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
+         handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
-         llm-coding-discipline no-docs-unless-asked observability \
-         pass-cli-secrets performance-optimization pr-workflow \
-         project-rules-file rtk-token-optimized-cli runbook-authoring \
-         security-hardening setup-pre-commit skill-creator \
-         skill-creator-opencode spec-first-planning \
+         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
+         observability pass-cli-secrets performance-optimization \
+         pr-workflow project-rules-file rtk-token-optimized-cli \
+         runbook-authoring security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
          throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
