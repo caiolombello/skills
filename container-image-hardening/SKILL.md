@@ -1,6 +1,6 @@
 ---
 name: container-image-hardening
-description: Canonical workflow for writing secure, fast, small container images. Use WHENEVER the agent is about to (1) write or edit a Dockerfile / Containerfile; (2) change CI that builds images; (3) discuss image size, build cache, multi-arch, SBOM, signing, provenance, or CVE patching; (4) run or suggest buildx/kaniko/nerdctl/podman build; (5) integrate trivy, grype, syft, cosign, copacetic, dive, or similar tooling. Covers Dockerfile structure, multi-stage, non-root, base image choice, cache mounts, multi-arch, SBOM, signing, CVE scan, and in-place patching.
+description: Canonical workflow for writing secure, fast, small container images. Use WHENEVER the agent is about to (1) write or edit a Dockerfile / Containerfile; (2) change CI that builds images; (3) discuss image size, build cache, multi-arch, SBOM, signing, provenance, OCI labels, HEALTHCHECK, STOPSIGNAL, PID-1/init, or CVE patching; (4) run or suggest buildx/kaniko/nerdctl/podman build; (5) integrate trivy, grype, syft, cosign, copacetic, hadolint, dive, or similar tooling. Covers Dockerfile structure, multi-stage, non-root, base image choice, cache mounts, multi-arch, OCI labels/annotations, init/signals, SBOM, signing, CVE scan, in-place patching, reproducibility, and runtime securityContext pairing.
 ---
 
 # container-image-hardening
@@ -63,10 +63,27 @@ COPY src/ ./src/
 # ---------- Stage 2: runtime ----------
 FROM gcr.io/distroless/python3-debian12:nonroot@sha256:<digest> AS runtime
 
-# Copy only what the runtime needs
+# Build args for labels (passed from CI: --build-arg VERSION=... etc.)
+ARG VERSION=dev
+ARG REVISION=unknown
+ARG BUILD_DATE
+
+# OCI image labels — single source of truth for provenance
+LABEL org.opencontainers.image.title="my-service" \
+      org.opencontainers.image.description="What this service does in one line." \
+      org.opencontainers.image.source="https://github.com/<org>/<repo>" \
+      org.opencontainers.image.url="https://github.com/<org>/<repo>" \
+      org.opencontainers.image.documentation="https://github.com/<org>/<repo>/blob/main/README.md" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.vendor="<org>" \
+      org.opencontainers.image.licenses="Apache-2.0"
+
+# Copy runtime artifacts with explicit ownership matching the nonroot user
 WORKDIR /app
-COPY --from=builder /build/.venv /app/.venv
-COPY --from=builder /build/src /app/src
+COPY --from=builder --chown=nonroot:nonroot /build/.venv /app/.venv
+COPY --from=builder --chown=nonroot:nonroot /build/src /app/src
 
 ENV PATH="/app/.venv/bin:${PATH}" \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -75,7 +92,14 @@ ENV PATH="/app/.venv/bin:${PATH}" \
 # Non-root (distroless:nonroot provides uid 65532)
 USER nonroot
 
-# Declare port for documentation; does not open it
+# Graceful shutdown signal; default is SIGTERM, set explicitly when the app expects something else.
+STOPSIGNAL SIGTERM
+
+# Container-level liveness. Orchestrators (k8s, ECS) usually prefer their own probes,
+# but the HEALTHCHECK directive is read by Docker Compose, Swarm, and some registries.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD ["python", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).status==200 else sys.exit(1)"]
+
 EXPOSE 8000
 
 ENTRYPOINT ["python", "-m", "src.main"]
@@ -90,10 +114,195 @@ Rules embedded in that structure:
 - Deps copied **before** source (cache survives source edits).
 - `&& rm -rf /var/lib/apt/lists/*` and `--no-install-recommends` keep layer small when apt is used.
 - Multi-stage: build deps never reach runtime.
+- `ARG VERSION/REVISION/BUILD_DATE` + `LABEL org.opencontainers.image.*` put provenance on the image, queryable via `docker inspect` and most registries.
+- `COPY --chown=<user>:<group>` when switching `USER` later, so files are readable by the runtime user without `RUN chown` (which would add a layer and duplicate the copied bytes).
 - `ENV` set in the final stage only with runtime-needed vars; no secrets.
 - `USER nonroot` (or explicit numeric uid) before `ENTRYPOINT`.
+- `STOPSIGNAL` explicit when the app's default signal is not `SIGTERM` (nginx wants `SIGQUIT`, some JVMs want `SIGINT`).
+- `HEALTHCHECK` declared even when the orchestrator (k8s, ECS) overrides it — it documents intent and Docker Compose / Swarm consume it directly.
 - `ENTRYPOINT` as JSON array (exec form), so signals propagate correctly.
 - No `CMD` with shell form if `ENTRYPOINT` handles it.
+
+## OCI labels and annotations
+
+Two places metadata can live on an image:
+
+- **Labels** (`LABEL` in Dockerfile) — stored in the image *config* blob. Travel with `docker pull` / `docker save`. Visible via `docker inspect`.
+- **Annotations** — stored in the image *manifest* (or *index* for multi-arch). Registry-facing metadata (e.g., for UIs, policy engines). Set via `buildx` `--annotation`.
+
+Both use the `org.opencontainers.image.*` namespace. Prefer labels for anything a running container or a pulled image should carry; prefer annotations for registry-facing metadata that does not need to roundtrip through `docker save`.
+
+### Canonical label set
+
+| Label | Meaning | Example |
+|---|---|---|
+| `org.opencontainers.image.title` | Short human-readable name | `api-gateway` |
+| `org.opencontainers.image.description` | One-line purpose | `Edge HTTP gateway for the X platform` |
+| `org.opencontainers.image.source` | Source repo URL | `https://github.com/org/repo` |
+| `org.opencontainers.image.url` | Project homepage | `https://github.com/org/repo` |
+| `org.opencontainers.image.documentation` | Docs URL | `https://.../README.md` |
+| `org.opencontainers.image.version` | Version (semver / tag / sha) | `1.4.2` |
+| `org.opencontainers.image.revision` | Commit SHA | `abc123...` |
+| `org.opencontainers.image.created` | RFC 3339 build timestamp | `2024-05-09T22:30:00Z` |
+| `org.opencontainers.image.vendor` | Organization | `my-org` |
+| `org.opencontainers.image.licenses` | SPDX license expression | `Apache-2.0` or `Apache-2.0 OR MIT` |
+| `org.opencontainers.image.authors` | Maintainers | `team@example.com` |
+| `org.opencontainers.image.ref.name` | Tag / ref name | `main` |
+| `org.opencontainers.image.base.name` | Base image tag used | `gcr.io/distroless/python3-debian12:nonroot` |
+| `org.opencontainers.image.base.digest` | Base image digest used | `sha256:...` |
+
+GitHub's `docker/metadata-action` emits most of these automatically when fed the right inputs:
+
+```yaml
+- id: meta
+  uses: docker/metadata-action@v5
+  with:
+    images: ghcr.io/${{ github.repository }}
+    tags: |
+      type=sha,format=long
+      type=ref,event=branch
+      type=semver,pattern={{version}}
+    labels: |
+      org.opencontainers.image.title=<service>
+      org.opencontainers.image.description=<one-line>
+      org.opencontainers.image.licenses=Apache-2.0
+      org.opencontainers.image.vendor=<org>
+```
+
+Then pass `labels: ${{ steps.meta.outputs.labels }}` to `docker/build-push-action`.
+
+### Organization-specific labels
+
+Add your own under a namespace you own. Common pattern: `<domain>.<field>`. Examples:
+
+```dockerfile
+LABEL com.example.team="platform" \
+      com.example.env="production" \
+      com.example.cost-center="<value>" \
+      com.example.pii="none"
+```
+
+Treat these the same way you'd treat Kubernetes labels — pick a small, stable set; avoid ad-hoc labels per image. Keep values short; `docker inspect` output bloats quickly.
+
+### Annotations (buildx)
+
+```bash
+docker buildx build \
+  --annotation "index:org.opencontainers.image.source=https://github.com/org/repo" \
+  --annotation "manifest:org.opencontainers.image.title=api" \
+  --tag <registry>/<repo>:<tag> \
+  --push .
+```
+
+Prefixes: `manifest:`, `manifest-descriptor:`, `index:`, `index-descriptor:`. Use `manifest:` for per-arch manifests (most common case) and `index:` for the multi-arch index.
+
+## Runtime init and signal handling
+
+Containers run the entrypoint as PID 1. PID 1 has two special responsibilities: reaping zombie children and receiving kernel signals. Many application runtimes fail at one or both.
+
+### When to use `tini` / `dumb-init`
+
+Add a minimal init when:
+
+- The entrypoint spawns child processes and zombies can accumulate (common with Node, Python multiprocessing, shell-based wrappers).
+- The entrypoint is a shell script — shells swallow or proxy signals unpredictably.
+- The app does not install its own `SIGTERM` handler and you see containers hanging for the full termination grace period.
+
+### Option A — use the distro's init
+
+Distroless publishes `gcr.io/distroless/base:nonroot` with `tini` built in as `/usr/bin/tini`. Wolfi has `tini`. Alpine: `RUN apk add --no-cache tini`.
+
+```dockerfile
+FROM cgr.dev/chainguard/python:latest AS runtime
+# ... copy artifacts ...
+ENTRYPOINT ["/usr/bin/tini", "--", "python", "-m", "src.main"]
+```
+
+### Option B — let Docker inject `tini`
+
+`docker run --init ...` (and `containerd` with `--init` equivalent) wraps the container with `tini` without touching the image. Fine for local dev; not always available in production orchestrators.
+
+### When **not** to use an init
+
+- The app (Go, Rust, compiled binaries) already handles signals correctly and spawns no child processes. Extra process adds nothing.
+- Using `s6-overlay` or any supervisor already — they do init duties.
+
+## `HEALTHCHECK` directives
+
+`HEALTHCHECK` is interpreted by Docker Engine, Compose, Swarm, Podman, and most registry UIs. Kubernetes ignores it and uses its own probes — but the directive still documents the app's health contract.
+
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:8000/healthz || exit 1
+```
+
+Rules:
+
+- `--start-period` covers slow app startup; during it, failures don't count against `--retries`.
+- Use `CMD` (exec form preferred). Never shell out to heavy commands; probe should be cheap.
+- For distroless images without `curl`, use a language-native probe:
+  ```dockerfile
+  HEALTHCHECK CMD ["/app/.venv/bin/python", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:8000/healthz',timeout=3).status==200 else sys.exit(1)"]
+  ```
+- When the orchestrator is Kubernetes, define the probe in the Pod spec too — `HEALTHCHECK` is ignored there.
+
+## Reproducible builds
+
+Enable reproducibility when images need to be auditable or when SLSA requires bit-identical rebuilds:
+
+- Pin **everything** by digest or lockfile: base image, OS packages (e.g., `apt-get install pkg=version`), language deps via lockfiles (`uv.lock`, `package-lock.json`, `Cargo.lock`, `go.sum`).
+- Set `SOURCE_DATE_EPOCH` to a fixed value (usually the commit timestamp) so timestamps in layers are deterministic:
+  ```bash
+  export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+  docker buildx build --build-arg SOURCE_DATE_EPOCH ...
+  ```
+- Use BuildKit's `--output type=image,rewrite-timestamp=true` (available in recent buildx) to rewrite layer mtimes.
+- Avoid `RUN` steps that embed entropy (random ids, temp filenames with `$$`).
+
+Reproducibility is a spectrum. Bit-for-bit is hard; byte-equivalent content where it matters is achievable and usually enough.
+
+## Security hardening — runtime side (k8s Pod spec)
+
+The image is one half of the story. When deploying, pair with:
+
+```yaml
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532          # matches distroless:nonroot
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
+volumes:
+  - name: tmp
+    emptyDir: {}
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+```
+
+`readOnlyRootFilesystem: true` combined with `tmpfs` mounts for `/tmp` and any app write paths catches a surprising amount of runtime drift and limits exploit blast radius. If the app cannot run on a read-only rootfs, that is itself a finding worth tracking.
+
+## Linting — `hadolint`
+
+Adds static checks specifically for Dockerfiles that Trivy's config scan doesn't cover.
+
+```bash
+hadolint Dockerfile
+hadolint --ignore DL3008 Dockerfile     # ignore "pin apt versions" when base is Wolfi/chainguard
+hadolint --failure-threshold error Dockerfile
+```
+
+Run it alongside `trivy config` in CI:
+
+```yaml
+- uses: hadolint/hadolint-action@v3
+  with:
+    dockerfile: Dockerfile
+    failure-threshold: error
+```
 
 ## Build acceleration
 
@@ -425,6 +634,10 @@ Adapt to GitLab CI, CircleCI, Buildkite as needed — the structure (build → s
 - `EXPOSE 80` + binding inside the container to a port < 1024 (requires capabilities).
 - Baking env-specific config (`ENV STAGE=prod`) into the image; pass at runtime.
 - Using `latest` for the scanner image (`trivy:latest`) and skipping db updates — pin the scanner too.
+- Omitting `HEALTHCHECK` in images destined for Compose / Swarm / Podman (K8s uses its own probes, but for everything else the directive is what orchestrators read).
+- Dropping OCI labels and then wondering which commit a registry image came from — `org.opencontainers.image.revision` is free provenance.
+- Shell-form `ENTRYPOINT` (`ENTRYPOINT python app.py`) — the app runs under `/bin/sh -c`, signals don't reach it, and you get stuck containers on shutdown.
+- Running as non-root in the image but deploying with `runAsUser: 0` in the Pod — the image discipline is wasted.
 
 ## Pre-flight checklist
 
@@ -433,13 +646,21 @@ Before pushing / publishing an image:
 - [ ] Base image pinned by digest.
 - [ ] Multi-stage build; final stage has no compilers / build tools / test deps.
 - [ ] Final `USER` is non-root (numeric uid or `nonroot`).
+- [ ] `COPY --chown=<user>:<group>` used when files need to be owned by the runtime user.
+- [ ] OCI labels present: at minimum `title`, `description`, `source`, `revision`, `version`, `created`, `licenses`.
+- [ ] `HEALTHCHECK` declared (even if the orchestrator overrides it).
+- [ ] `STOPSIGNAL` correct for the app when not `SIGTERM`.
+- [ ] `ENTRYPOINT` in exec form; init (`tini` / `dumb-init`) present if the app needs PID-1 help.
 - [ ] No secrets visible in `docker history <image>` output.
 - [ ] `.dockerignore` excludes `.git`, vendor dirs, build artifacts, `.env*`.
 - [ ] BuildKit cache mounts used for package manager installs.
 - [ ] Build is reproducible (`docker buildx build` runs cleanly in a fresh clone).
+- [ ] `hadolint` passes at `error` threshold.
 - [ ] Trivy (or Grype) scan passes the chosen threshold (HIGH/CRITICAL, fixed only).
+- [ ] `trivy config .` run against the Dockerfile for misconfigs.
 - [ ] SBOM attached as OCI attestation (or exported artifact).
 - [ ] Signature attached via cosign (keyless if in CI).
 - [ ] Provenance (`--provenance=mode=max`) attached when using buildx.
 - [ ] Image referenced by digest in downstream manifests, not by tag.
+- [ ] Deploy manifests set `runAsNonRoot`, `readOnlyRootFilesystem`, `capabilities.drop: [ALL]`.
 - [ ] For patching: `copa patch` considered before a full rebuild.
