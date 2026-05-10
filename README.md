@@ -11,6 +11,7 @@ A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instr
 | [`awscli-workflows`](./awscli-workflows) | Safety and workflow rules for `aws`: explicit `--profile`/`--region`, read-before-write, dry-run patterns, IAM key rotation order, assume-role chains, and destructive-command checklist. |
 | [`backstage-scaffolder-architect`](./backstage-scaffolder-architect) | Generates Backstage Scaffolder templates (template.yaml + skeleton) with correct `${{ ... }}` syntax across all three contexts (parameters / steps / values), conditional parameters, multi-env patterns, and a validation checklist. |
 | [`codex-claude-resume`](./codex-claude-resume) | Lists, inspects and imports local Claude Code sessions so you can continue the work in another agent. |
+| [`container-image-hardening`](./container-image-hardening) | Canonical workflow for secure, fast, small container images. Dockerfile structure, BuildKit cache mounts, multi-arch, Trivy/Grype scan, Syft SBOM, cosign signing, Copacetic in-place CVE patching. |
 | [`gh-cli-workflows`](./gh-cli-workflows) | Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. Pre-flight checks, remote → account mapping, secret set from `pass-cli`. |
 | [`git-hygiene`](./git-hygiene) | Baseline git safety: read-before-write, Conventional Commits, safe push/force-push rules, amend guardrails, recovery via reflog, secret checks before commit. |
 | [`handoff`](./handoff) | Produces a concise handoff briefing summarising what was done in the session, what is pending, and important context. |
@@ -33,9 +34,10 @@ git clone https://github.com/caiolombello/skills.git
 cd skills
 mkdir -p ~/.claude/skills
 for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
-         gh-cli-workflows git-hygiene handoff investigate-before-editing \
-         kubectl-workflows no-docs-unless-asked pass-cli-secrets pr-workflow \
-         rtk-token-optimized-cli terraform-iac-expert; do
+         container-image-hardening gh-cli-workflows git-hygiene handoff \
+         investigate-before-editing kubectl-workflows no-docs-unless-asked \
+         pass-cli-secrets pr-workflow rtk-token-optimized-cli \
+         terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
 done
 ```
@@ -45,9 +47,10 @@ done
 ```bash
 mkdir -p ~/.config/opencode/skill
 for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
-         gh-cli-workflows git-hygiene handoff investigate-before-editing \
-         kubectl-workflows no-docs-unless-asked pass-cli-secrets pr-workflow \
-         rtk-token-optimized-cli terraform-iac-expert; do
+         container-image-hardening gh-cli-workflows git-hygiene handoff \
+         investigate-before-editing kubectl-workflows no-docs-unless-asked \
+         pass-cli-secrets pr-workflow rtk-token-optimized-cli \
+         terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
 done
 ```
@@ -57,9 +60,10 @@ done
 ```bash
 mkdir -p ~/.codex/skills
 for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
-         gh-cli-workflows git-hygiene handoff investigate-before-editing \
-         kubectl-workflows no-docs-unless-asked pass-cli-secrets pr-workflow \
-         rtk-token-optimized-cli terraform-iac-expert; do
+         container-image-hardening gh-cli-workflows git-hygiene handoff \
+         investigate-before-editing kubectl-workflows no-docs-unless-asked \
+         pass-cli-secrets pr-workflow rtk-token-optimized-cli \
+         terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
 done
 ```
