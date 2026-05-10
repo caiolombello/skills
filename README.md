@@ -1,6 +1,6 @@
 # skills
 
-Personal collection of LLM agent skills used across Claude Code, OpenCode and Codex CLI.
+Personal collection of LLM agent skills used across Claude Code, OpenCode, Codex CLI and Kiro.
 
 A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instructions) and optional scripts / references. When the agent recognizes the task matches the skill `description`, it loads the content as extra context.
 
@@ -26,7 +26,7 @@ A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instr
 
 ## Installing
 
-Skills are just folders. Symlink them into the skills directory of the agent you use. Same skills work across all three agents below.
+Skills are just folders. Symlink them into the skills directory of the agent you use. Same skills work across all four agents below.
 
 ### Claude Code — `~/.claude/skills/`
 
@@ -66,6 +66,19 @@ for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
          pass-cli-secrets pr-workflow rtk-token-optimized-cli skill-creator \
          terraform-iac-expert; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
+done
+```
+
+### Kiro — `~/.kiro/skills/`
+
+```bash
+mkdir -p ~/.kiro/skills
+for s in awscli-workflows backstage-scaffolder-architect codex-claude-resume \
+         container-image-hardening gh-cli-workflows git-hygiene handoff \
+         investigate-before-editing kubectl-workflows no-docs-unless-asked \
+         pass-cli-secrets pr-workflow rtk-token-optimized-cli skill-creator \
+         terraform-iac-expert; do
+  ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
 done
 ```
 
