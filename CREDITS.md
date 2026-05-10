@@ -29,6 +29,7 @@ Skills inspired by this project:
 | `security-hardening` | `security-and-hardening` |
 | `incremental-implementation` | `incremental-implementation` |
 | `code-simplification` | `code-simplification` (which itself cites Anthropic's code-simplifier plugin) |
+| `spec-first-planning` | `spec-driven-development` + `planning-and-task-breakdown` |
 | `diagnose` | `debugging-and-error-recovery` |
 | `test-driven-development` | `test-driven-development` |
 | `code-review` | `code-review-and-quality` |
@@ -46,6 +47,9 @@ Skills inspired by this project:
 | `diagnose` | `engineering/diagnose` |
 | `test-driven-development` | `engineering/tdd` |
 | `incremental-implementation` | tracer-bullet principle in `engineering/tdd` |
+| `zoom-out` | `engineering/zoom-out` |
+| `throwaway-prototype` | `engineering/prototype` |
+| `setup-pre-commit` | `misc/setup-pre-commit` |
 
 ### [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) — MIT
 

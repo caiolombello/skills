@@ -15,6 +15,9 @@ All skills in this repo are written to be **provider-agnostic** — they work in
 | [`llm-coding-discipline`](./llm-coding-discipline) | Baseline behaviors to prevent the common LLM failure modes: silent assumptions, sycophancy, overengineering, scope creep, skipped verification. Apply before anything non-trivial. |
 | [`project-rules-file`](./project-rules-file) | Create, audit, and maintain `AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` and friends — the single highest-leverage context for any coding agent. |
 | [`context-engineering`](./context-engineering) | Curate the right context at the right time. Hierarchy from rules file → spec → source → errors → history. Anti-patterns for context starvation / flooding / staleness. |
+| [`spec-first-planning`](./spec-first-planning) | Specify → Plan → Tasks → Implement. Lightweight spec, dependency map, ordered verifiable tasks. For anything non-trivial. |
+| [`zoom-out`](./zoom-out) | Produce a higher-level map of an area of code — modules, callers, gotchas — before diving in. |
+| [`throwaway-prototype`](./throwaway-prototype) | Build a disposable prototype to answer one design question. Logic branch (terminal) or UI branch (variants on one route). |
 | [`docs-verified-coding`](./docs-verified-coding) | Detect version → fetch official docs → implement as documented → cite the source. Prevents the "library API invented from memory" failure mode. |
 | [`investigate-before-editing`](./investigate-before-editing) | Forces the agent to read relevant code and learn repo conventions before changing anything. Match house style, never invent symbols. |
 | [`incremental-implementation`](./incremental-implementation) | Build in thin vertical slices — implement, test, verify, commit, expand. Tracer-bullet first. Prevents 1000-line-PR failure mode. |
@@ -31,6 +34,7 @@ All skills in this repo are written to be **provider-agnostic** — they work in
 | Skill | What it does |
 |-------|--------------|
 | [`git-hygiene`](./git-hygiene) | Read-before-write, Conventional Commits, safe push/force-push rules, amend guardrails, reflog recovery, secret checks before commit. |
+| [`setup-pre-commit`](./setup-pre-commit) | Install pre-commit hooks (`pre-commit` / lefthook / Husky). Format, lint, typecheck, secret-scan before every commit. |
 | [`gh-cli-workflows`](./gh-cli-workflows) | Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. |
 | [`pr-workflow`](./pr-workflow) | PRs / MRs that reviewers can actually review. Title + body structure, draft vs ready, pre-flight checklist, merge strategies. Host-agnostic. |
 
@@ -71,13 +75,16 @@ git clone https://github.com/caiolombello/skills.git
 cd skills
 mkdir -p ~/.claude/skills
 for s in awscli-workflows backstage-scaffolder-architect code-review \
-         codex-claude-resume container-image-hardening diagnose \
+         code-simplification codex-claude-resume container-image-hardening \
+         context-engineering diagnose docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         investigate-before-editing kubectl-workflows llm-coding-discipline \
-         no-docs-unless-asked pass-cli-secrets pr-workflow \
-         project-rules-file rtk-token-optimized-cli skill-creator \
-         skill-creator-opencode terraform-iac-expert \
-         test-driven-development; do
+         incremental-implementation investigate-before-editing \
+         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         pass-cli-secrets pr-workflow project-rules-file \
+         rtk-token-optimized-cli security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
+         terraform-iac-expert test-driven-development \
+         throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
 done
 ```
@@ -87,13 +94,16 @@ done
 ```bash
 mkdir -p ~/.config/opencode/skill
 for s in awscli-workflows backstage-scaffolder-architect code-review \
-         codex-claude-resume container-image-hardening diagnose \
+         code-simplification codex-claude-resume container-image-hardening \
+         context-engineering diagnose docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         investigate-before-editing kubectl-workflows llm-coding-discipline \
-         no-docs-unless-asked pass-cli-secrets pr-workflow \
-         project-rules-file rtk-token-optimized-cli skill-creator \
-         skill-creator-opencode terraform-iac-expert \
-         test-driven-development; do
+         incremental-implementation investigate-before-editing \
+         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         pass-cli-secrets pr-workflow project-rules-file \
+         rtk-token-optimized-cli security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
+         terraform-iac-expert test-driven-development \
+         throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
 done
 ```
@@ -103,13 +113,16 @@ done
 ```bash
 mkdir -p ~/.codex/skills
 for s in awscli-workflows backstage-scaffolder-architect code-review \
-         codex-claude-resume container-image-hardening diagnose \
+         code-simplification codex-claude-resume container-image-hardening \
+         context-engineering diagnose docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         investigate-before-editing kubectl-workflows llm-coding-discipline \
-         no-docs-unless-asked pass-cli-secrets pr-workflow \
-         project-rules-file rtk-token-optimized-cli skill-creator \
-         skill-creator-opencode terraform-iac-expert \
-         test-driven-development; do
+         incremental-implementation investigate-before-editing \
+         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         pass-cli-secrets pr-workflow project-rules-file \
+         rtk-token-optimized-cli security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
+         terraform-iac-expert test-driven-development \
+         throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
 done
 ```
@@ -119,13 +132,16 @@ done
 ```bash
 mkdir -p ~/.kiro/skills
 for s in awscli-workflows backstage-scaffolder-architect code-review \
-         codex-claude-resume container-image-hardening diagnose \
+         code-simplification codex-claude-resume container-image-hardening \
+         context-engineering diagnose docs-verified-coding \
          doubt-driven-review gh-cli-workflows git-hygiene handoff \
-         investigate-before-editing kubectl-workflows llm-coding-discipline \
-         no-docs-unless-asked pass-cli-secrets pr-workflow \
-         project-rules-file rtk-token-optimized-cli skill-creator \
-         skill-creator-opencode terraform-iac-expert \
-         test-driven-development; do
+         incremental-implementation investigate-before-editing \
+         kubectl-workflows llm-coding-discipline no-docs-unless-asked \
+         pass-cli-secrets pr-workflow project-rules-file \
+         rtk-token-optimized-cli security-hardening setup-pre-commit \
+         skill-creator skill-creator-opencode spec-first-planning \
+         terraform-iac-expert test-driven-development \
+         throwaway-prototype zoom-out; do
   ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
 done
 ```
