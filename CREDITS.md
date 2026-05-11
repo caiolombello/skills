@@ -9,7 +9,7 @@ This repository is a curated, provider-agnostic library of Agent Skills. Several
 
 Rewriting — not vendoring — keeps the library maintainable and self-consistent. The upstream authors deserve credit regardless.
 
-All upstream projects used are under the MIT license. Our modifications are MIT as well (see [LICENSE](LICENSE)). MIT does not require attribution on derivative work, but we choose to acknowledge the sources because it is the right thing to do.
+All non-vendored upstream projects used as inspiration are under the MIT license. Our modifications are MIT as well (see [LICENSE](LICENSE)). Vendored projects retain their original license; see [Vendored verbatim](#vendored-verbatim-distinct-from-the-above) below. MIT does not require attribution on derivative work, but we choose to acknowledge the sources because it is the right thing to do.
 
 ## Upstream projects referenced
 
@@ -63,6 +63,23 @@ Skills inspired by this project:
 |-----------|-------------------|
 | `llm-coding-discipline` | `karpathy-guidelines` |
 
+### [obra/superpowers](https://github.com/obra/superpowers) — MIT
+
+Copyright (c) Jesse Vincent and contributors.
+Commit referenced: `f2cbfbe`.
+
+Skills inspired by this project:
+
+| Our skill | Upstream skill(s) |
+|-----------|-------------------|
+| `brainstorming` | `brainstorming` |
+| `using-git-worktrees` | `using-git-worktrees` |
+| `executing-plans` | `executing-plans` |
+| `dispatching-parallel-agents` | `dispatching-parallel-agents` + `subagent-driven-development` |
+| `receiving-code-review` | `receiving-code-review` |
+| `finishing-a-development-branch` | `finishing-a-development-branch` |
+| `verification-before-completion` | `verification-before-completion` |
+
 ### [muratcankoylan/Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) — MIT
 
 Copyright (c) 2025 Context Engineering Agent Skills Contributors.
@@ -103,7 +120,7 @@ The difference matters: vendored projects keep their upstream license file and w
 Each inspired skill carries an HTML comment just below the frontmatter:
 
 ```
-<!-- Inspired by <upstream>/<project> (MIT). See ../CREDITS.md -->
+<!-- Inspired by <upstream>/<project> <upstream-skill(s)> (MIT). See ../CREDITS.md -->
 ```
 
 This keeps attribution discoverable without cluttering the skill content.
