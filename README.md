@@ -1,6 +1,6 @@
 # skills
 
-A provider-agnostic library of **45 agent skills** for LLM coding assistants. Works across Claude Code, OpenCode, Codex CLI, Kiro, and any other agent that reads `SKILL.md`-style skills.
+A provider-agnostic library of **53 agent skills** for LLM coding assistants. Works across Claude Code, OpenCode, Codex CLI, Kiro, and any other agent that reads `SKILL.md`-style skills.
 
 ## What this is, in 30 seconds
 
@@ -74,27 +74,36 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`llm-coding-discipline`](./llm-coding-discipline) | Baseline behaviors to prevent the common LLM failure modes: silent assumptions, sycophancy, overengineering, scope creep, skipped verification. Apply before anything non-trivial. |
 | [`project-rules-file`](./project-rules-file) | Create, audit, and maintain `AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` and friends — the single highest-leverage context for any coding agent. |
 | [`context-engineering`](./context-engineering) | Curate the right context at the right time. Hierarchy from rules file → spec → source → errors → history. Anti-patterns for context starvation / flooding / staleness. |
+| [`brainstorming`](./brainstorming) | Refine rough ideas before planning or coding. Socratic questions, option tradeoffs, explicit assumptions, recommended next artifact. |
 | [`spec-first-planning`](./spec-first-planning) | Specify → Plan → Tasks → Implement. Lightweight spec, dependency map, ordered verifiable tasks. For anything non-trivial. |
 | [`zoom-out`](./zoom-out) | Produce a higher-level map of an area of code — modules, callers, gotchas — before diving in. |
 | [`throwaway-prototype`](./throwaway-prototype) | Build a disposable prototype to answer one design question. Logic branch (terminal) or UI branch (variants on one route). |
 | [`docs-verified-coding`](./docs-verified-coding) | Detect version → fetch official docs → implement as documented → cite the source. Prevents the "library API invented from memory" failure mode. |
 | [`investigate-before-editing`](./investigate-before-editing) | Forces the agent to read relevant code and learn repo conventions before changing anything. Match house style, never invent symbols. |
 | [`incremental-implementation`](./incremental-implementation) | Build in thin vertical slices — implement, test, verify, commit, expand. Tracer-bullet first. Prevents 1000-line-PR failure mode. |
+| [`executing-plans`](./executing-plans) | Execute an approved plan task-by-task with TDD, verification, and checkpoints. Stops when the plan conflicts with reality. |
 | [`test-driven-development`](./test-driven-development) | Red-green-refactor with vertical slices. Bug fixes via the Prove-It pattern (reproduce with a test before fixing). |
+| [`verification-before-completion`](./verification-before-completion) | Prove work is complete before saying done. Records exact checks run, skipped checks, and evidence quality. |
 | [`api-and-interface-design`](./api-and-interface-design) | Stable API design — REST / GraphQL / gRPC / webhooks / events / SDK. Versioning, deprecation lifecycle, error shapes, contract testing. |
 | [`diagnose`](./diagnose) | Disciplined debug loop: feedback-loop-first, reproduce, hypothesise, instrument, fix, regression-test, cleanup. For hard bugs, flaky tests, perf regressions. |
 | [`performance-optimization`](./performance-optimization) | Measure → identify → fix → verify → guard. Profile before optimizing. Frontend, backend, DB, build. |
 | [`code-review`](./code-review) | Multi-axis review across correctness, readability, architecture, security, performance. Before merging any non-trivial change. |
+| [`receiving-code-review`](./receiving-code-review) | Process PR/MR review feedback: classify accept/clarify/defer/reject, apply surgically, verify, and respond with evidence. |
 | [`code-simplification`](./code-simplification) | Reduce complexity while preserving exact behavior. Chesterton's Fence; rule of three; refactor split from feature work. |
 | [`security-hardening`](./security-hardening) | Application-layer security — OWASP Top 10 patterns for input validation, authn/authz, injection, SSRF, CSP. Separate from container/IaC/secret storage. |
 | [`doubt-driven-review`](./doubt-driven-review) | In-flight adversarial fresh-context review of non-trivial decisions, BEFORE the PR is open. Provider-agnostic. |
+| [`dispatching-parallel-agents`](./dispatching-parallel-agents) | Coordinate parallel subagents or sessions safely with tight briefs, file ownership, worktree isolation, and result synthesis. |
 | [`no-docs-unless-asked`](./no-docs-unless-asked) | Blocks the reflex to create `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md` etc. "to be helpful". Updates to existing docs are fine. |
+
+Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-planning` to create the plan, `executing-plans` while working through approved tasks, `verification-before-completion` before saying done, and `finishing-a-development-branch` when preparing PR/merge/handoff or worktree cleanup.
 
 ### Git & version control
 
 | Skill | What it does |
 |-------|--------------|
 | [`git-hygiene`](./git-hygiene) | Read-before-write, Conventional Commits, safe push/force-push rules, amend guardrails, reflog recovery, secret checks before commit. |
+| [`using-git-worktrees`](./using-git-worktrees) | Isolate parallel branches and risky experiments with git worktrees. Explicit base branch, no secret copying, safe cleanup. |
+| [`finishing-a-development-branch`](./finishing-a-development-branch) | Final branch wrap-up: inspect diff, run required checks, summarize evidence, and present merge/PR/keep/discard options. |
 | [`setup-pre-commit`](./setup-pre-commit) | Install pre-commit hooks (`pre-commit` / lefthook / Husky). Format, lint, typecheck, secret-scan before every commit. |
 | [`gh-cli-workflows`](./gh-cli-workflows) | **tooling-specific: requires `gh`.** Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. |
 | [`glab-cli-workflows`](./glab-cli-workflows) | **tooling-specific: requires `glab`.** GitLab CLI companion — correct host + account selection, multi-instance, token scoping. |
@@ -155,22 +164,24 @@ git clone https://github.com/caiolombello/skills.git
 cd skills
 mkdir -p ~/.claude/skills
 for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect code-review \
+         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
          code-simplification codex-claude-resume container-image-hardening \
          context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene \
+         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
+         docs-verified-coding doubt-driven-review executing-plans \
+         gh-cli-workflows git-hygiene \
          github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         handoff helm-workflows \
+         finishing-a-development-branch handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
          llm-coding-discipline monorepo-strategy no-docs-unless-asked \
          observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file rtk-token-optimized-cli \
-         runbook-authoring security-hardening setup-pre-commit \
+         pr-workflow project-rules-file receiving-code-review \
+         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
-         throwaway-prototype zoom-out; do
+         throwaway-prototype using-git-worktrees verification-before-completion \
+         zoom-out; do
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
 done
 ```
@@ -180,24 +191,28 @@ done
 <summary><strong>OpenCode — <code>~/.config/opencode/skill/</code></strong></summary>
 
 ```bash
+git clone https://github.com/caiolombello/skills.git
+cd skills
 mkdir -p ~/.config/opencode/skill
 for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect code-review \
+         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
          code-simplification codex-claude-resume container-image-hardening \
          context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene \
+         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
+         docs-verified-coding doubt-driven-review executing-plans \
+         gh-cli-workflows git-hygiene \
          github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         handoff helm-workflows \
+         finishing-a-development-branch handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
          llm-coding-discipline monorepo-strategy no-docs-unless-asked \
          observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file rtk-token-optimized-cli \
-         runbook-authoring security-hardening setup-pre-commit \
+         pr-workflow project-rules-file receiving-code-review \
+         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
-         throwaway-prototype zoom-out; do
+         throwaway-prototype using-git-worktrees verification-before-completion \
+         zoom-out; do
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
 done
 ```
@@ -207,24 +222,28 @@ done
 <summary><strong>Codex CLI — <code>~/.codex/skills/</code></strong></summary>
 
 ```bash
+git clone https://github.com/caiolombello/skills.git
+cd skills
 mkdir -p ~/.codex/skills
 for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect code-review \
+         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
          code-simplification codex-claude-resume container-image-hardening \
          context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene \
+         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
+         docs-verified-coding doubt-driven-review executing-plans \
+         gh-cli-workflows git-hygiene \
          github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         handoff helm-workflows \
+         finishing-a-development-branch handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
          llm-coding-discipline monorepo-strategy no-docs-unless-asked \
          observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file rtk-token-optimized-cli \
-         runbook-authoring security-hardening setup-pre-commit \
+         pr-workflow project-rules-file receiving-code-review \
+         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
-         throwaway-prototype zoom-out; do
+         throwaway-prototype using-git-worktrees verification-before-completion \
+         zoom-out; do
   ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
 done
 ```
@@ -234,24 +253,28 @@ done
 <summary><strong>Kiro — <code>~/.kiro/skills/</code></strong></summary>
 
 ```bash
+git clone https://github.com/caiolombello/skills.git
+cd skills
 mkdir -p ~/.kiro/skills
 for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect code-review \
+         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
          code-simplification codex-claude-resume container-image-hardening \
          context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery docs-verified-coding \
-         doubt-driven-review gh-cli-workflows git-hygiene \
+         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
+         docs-verified-coding doubt-driven-review executing-plans \
+         gh-cli-workflows git-hygiene \
          github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         handoff helm-workflows \
+         finishing-a-development-branch handoff helm-workflows \
          incident-response incremental-implementation \
          investigate-before-editing kubectl-workflows \
          llm-coding-discipline monorepo-strategy no-docs-unless-asked \
          observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file rtk-token-optimized-cli \
-         runbook-authoring security-hardening setup-pre-commit \
+         pr-workflow project-rules-file receiving-code-review \
+         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
          skill-creator skill-creator-opencode spec-first-planning \
          terraform-iac-expert test-driven-development \
-         throwaway-prototype zoom-out; do
+         throwaway-prototype using-git-worktrees verification-before-completion \
+         zoom-out; do
   ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
 done
 ```
@@ -268,11 +291,11 @@ done
 
 The `description` field in the frontmatter is the trigger: keep it specific so the agent only loads the skill when relevant. Use `skill-creator` + `skill-creator-opencode` to iteratively evaluate and improve descriptions.
 
-See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md) for the latest trigger quality report across the library.
+See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md) for an earlier trigger quality report. The newly added Superpowers-inspired workflow skills still need a dedicated trigger smoke pass.
 
 ## Credits
 
-Several skills here are **inspired by** excellent upstream projects — rewritten to be provider-agnostic and consistent with the rest of the library. See [CREDITS.md](CREDITS.md) for attribution to [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), [mattpocock/skills](https://github.com/mattpocock/skills), [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), and [anthropics/skills](https://github.com/anthropics/skills).
+Several skills here are **inspired by** excellent upstream projects — rewritten to be provider-agnostic and consistent with the rest of the library. See [CREDITS.md](CREDITS.md) for attribution to [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), [mattpocock/skills](https://github.com/mattpocock/skills), [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), [obra/superpowers](https://github.com/obra/superpowers), and [anthropics/skills](https://github.com/anthropics/skills).
 
 ## Contributing
 
