@@ -33,19 +33,22 @@ If a critical input is missing, assume safe defaults and list them explicitly at
 
 ## 3. Syntax (critical — most common source of bugs)
 
-There are **three distinct contexts** and they do **not** share the same syntax.
+There are **four distinct contexts** and they do **not** share the same syntax. Mixing them is the #1 cause of templates that produce raw placeholders instead of resolved values.
 
 | Context | Where | Syntax | Example |
 |---|---|---|---|
-| Scaffolder input | Inside `steps:` / `output:` of `template.yaml` | `${{ parameters.X }}` | `name: ${{ parameters.serviceName }}` |
-| Scaffolder step output | Inside later `steps:` / `output:` | `${{ steps['step-id'].output.Y }}` | `url: ${{ steps['publish'].output.remoteUrl }}` |
-| Scaffolder runtime context | Inside `steps:` / `output:` | `${{ user.entity.spec.profile.displayName }}` | user info, templateInfo, etc. |
-| Skeleton rendering | Inside `.njk` files processed by `fetch:template` | `${{ values.X }}` | `name: ${{ values.serviceName }}` |
+| Scaffolder expressions | Inside `template.yaml` (`steps:`, `output:`, `if:`) | `${{ parameters.X }}` | `name: ${{ parameters.serviceName }}` |
+| Scaffolder step outputs | Inside later `steps:` / `output:` | `${{ steps['step-id'].output.Y }}` | `url: ${{ steps['publish'].output.remoteUrl }}` |
+| Scaffolder runtime context | Inside `template.yaml` | `${{ user.entity.spec.profile.displayName }}` | user info, templateInfo, etc. |
+| Skeleton **file/directory names** | Names of files/folders in the skeleton tree | `${{ values.X }}` | `microservices/${{ values.spokeLower }}/...` |
+| Skeleton **file content** (`.njk`) | Inside `.njk` files rendered by `fetch:template` | `{{ values.X }}` | `namespace: {{ values.serviceName }}` |
 
 ### Rules
 
-1. Always use `${{ ... }}` — **never** `{{ ... }}` for interpolation. Missing `$` is the single most common mistake.
-2. Inside skeleton files, Nunjucks control blocks use `{% ... %}` **without** `$`:
+1. **Inside `template.yaml` — always `${{ ... }}`.** Never `{{ ... }}`. Missing `$` is the single most common mistake.
+2. **Inside `.njk` file *content* — always `{{ values.X }}` (no `$`).** The Nunjucks engine used by `fetch:template` does **not** recognise `${{ ... }}` as a variable expression. Using it leaves raw placeholders in the generated files, which breaks downstream pipelines (e.g. Terraform, Helm, GitHub Actions).
+3. **Inside `.njk` file *names* / directory names — use `${{ values.X }}`.** Backstage resolves these before invoking the template engine, so the `$` is required.
+4. Nunjucks **control blocks** (`if`, `for`, `set`, `raw`) use `{% ... %}` **without** `$` everywhere (both in content and in file names is irrelevant — they only exist inside file content):
 
     ```njk
     {% if values.enableIngress %}
@@ -57,17 +60,18 @@ There are **three distinct contexts** and they do **not** share the same syntax.
     {% endif %}
 
     {% for env in values.environments %}
-    - name: ${{ env }}
+    - name: {{ env }}
     {% endfor %}
 
     {% set slug = values.name | lower %}
     ```
 
-3. Equality is `==`, not `===`.
-4. Scaffolder supports a short-circuit ternary pattern: `${{ cond and "A" or "B" }}`.
-5. Supported filters include `| lower`, `| upper`, `| title`, `| replace('a','b')`, `| join(', ')`.
-6. To emit a literal `${{` (for example, a generated GitHub Actions workflow), wrap with `{% raw %}...{% endraw %}` **or** exclude the file from rendering via `copyWithoutRender`.
-7. Files that must be rendered should end in `.njk` and the step must set `templateFileExtension: .njk`. The `.njk` suffix is stripped on output.
+5. Equality is `==`, not `===`.
+6. Scaffolder expressions support a short-circuit ternary: `${{ cond and "A" or "B" }}`.
+   Inside `.njk` content the same logic works with Nunjucks: `{{ cond and "A" or "B" }}`.
+7. Supported filters include `| lower`, `| upper`, `| title`, `| replace('a','b')`, `| join(', ')`.
+8. To emit a literal `${{` inside `.njk` content (for example, a generated GitHub Actions workflow), wrap with `{% raw %}...{% endraw %}` **or** exclude the file from rendering via `copyWithoutRender`.
+9. Files that must be rendered should end in `.njk` and the step must set `templateFileExtension: .njk`. The `.njk` suffix is stripped on output.
 
 ## 4. Parameters you should model
 
@@ -236,28 +240,28 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ${{ values.name }}
-  description: ${{ values.description }}
+  name: {{ values.name }}
+  description: {{ values.description }}
   annotations:
     backstage.io/techdocs-ref: dir:.
-    myorg/created-by: ${{ values.createdBy }}
+    myorg/created-by: {{ values.createdBy }}
 spec:
   type: service
   lifecycle: production
-  owner: ${{ values.owner }}
+  owner: {{ values.owner }}
 {% if values.system %}
-  system: ${{ values.system }}
+  system: {{ values.system }}
 {% endif %}
 ```
 
 ### `skeleton/README.md.njk`
 
 ```njk
-# ${{ values.name }}
+# {{ values.name }}
 
-${{ values.description }}
+{{ values.description }}
 
-Owner: ${{ values.owner }}
+Owner: {{ values.owner }}
 ```
 
 ### `skeleton/.github/workflows/ci.yml.njk`
@@ -296,7 +300,9 @@ Note the two ways to emit literal `${{ ... }}` inside a generated GitHub Actions
 
 Before handing off the template, verify:
 
-- [ ] All interpolations use `${{ ... }}` (no bare `{{ ... }}` outside Nunjucks control blocks).
+- [ ] `template.yaml` expressions use `${{ ... }}` (never bare `{{ ... }}`).
+- [ ] Skeleton `.njk` **content** uses `{{ values.X }}` (no `$`).
+- [ ] Skeleton **directory/file names** use `${{ values.X }}` (with `$`).
 - [ ] Every renderable skeleton file ends in `.njk`.
 - [ ] The `fetch:template` step sets `templateFileExtension: .njk`.
 - [ ] Nunjucks control blocks use `{% if %}` / `{% for %}` / `{% set %}` with no `$`.
