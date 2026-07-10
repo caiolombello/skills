@@ -174,6 +174,7 @@ Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-plann
 | Skill | What it does |
 |-------|--------------|
 | [`pass-cli-secrets`](./pass-cli-secrets) | **tooling-specific: references Proton Pass CLI.** Secrets hygiene: local creds via pass-cli, AWS Secrets Manager / SSM for workloads. Swap the CLI layer for your own secret backend if different (1Password CLI, `pass`, HashiCorp Vault CLI, etc.) — the discipline ("AI-blind piping", "never echo the value") transfers. |
+| [`ax`](./ax) | **tooling-specific: requires [`ax`](https://ax.yusuke.run).** AI-era curl — fetch/discover/extract web pages as structured, token-cheap output instead of curl + throwaway parsers. |
 
 ### Productivity & meta
 
@@ -262,7 +263,7 @@ See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencod
 
 ## Credits
 
-Several skills here are **inspired by** excellent upstream projects — rewritten to be provider-agnostic and consistent with the rest of the library. See [CREDITS.md](CREDITS.md) for attribution to [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), [mattpocock/skills](https://github.com/mattpocock/skills), [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), [obra/superpowers](https://github.com/obra/superpowers), and [anthropics/skills](https://github.com/anthropics/skills).
+Several skills here are **inspired by** excellent upstream projects — rewritten to be provider-agnostic and consistent with the rest of the library. See [CREDITS.md](CREDITS.md) for attribution to [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), [mattpocock/skills](https://github.com/mattpocock/skills), [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), [obra/superpowers](https://github.com/obra/superpowers), and [anthropics/skills](https://github.com/anthropics/skills), and [yusukebe/ax](https://github.com/yusukebe/ax).
 
 ## Contributing
 

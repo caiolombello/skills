@@ -103,6 +103,7 @@ The following skills were written from scratch based on SRE / DevOps / API-desig
 - `api-and-interface-design` (RFC 9457 Problem Details, Semver.org, Relay Cursor Connections, gRPC + Protobuf style guides)
 - `database-migrations` (expand/contract pattern; pt-osc, gh-ost, Atlas, Alembic, Flyway, Liquibase docs)
 - `disaster-recovery` (AWS Well-Architected DR pillar + Google SRE discipline for backup testing)
+- `karpenter-workflows` (follows Karpenter core + provider docs, especially NodePools, NodeClasses, disruption, drift, consolidation, and provider-specific node supply)
 - `cost-optimization-aws` (FinOps Foundation principles + AWS CUR + AWS Cost Optimization Pillar)
 - `monorepo-strategy` (Turborepo / Nx / Bazel official docs + pnpm / Yarn / uv / Cargo workspace docs)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
@@ -124,3 +125,9 @@ Each inspired skill carries an HTML comment just below the frontmatter:
 ```
 
 This keeps attribution discoverable without cluttering the skill content.
+
+## ax
+
+- Source: [yusukebe/ax](https://github.com/yusukebe/ax) (MIT)
+- Site: https://ax.yusuke.run/
+- Local skill: [`ax/`](./ax) — vendored skill wrapper for the `ax` CLI (fetch/discover/extract for agents).
