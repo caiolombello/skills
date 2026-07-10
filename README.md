@@ -73,6 +73,21 @@ See [`install-manifests/codex-on-demand.txt`](./install-manifests/codex-on-deman
 ln -sfn "$PWD/deploy-safety" ~/.agents/skills/deploy-safety
 ```
 
+
+### Migrate from an old bulk install
+
+If Claude/OpenCode/Gemini/Kiro still have dozens of skills from a previous "install everything", prune **only** symlinks that point into this repo and are not in the keep manifests (real dirs and external skills are preserved):
+
+```bash
+# dry-run
+./install-manifests/prune-stale-installs.sh
+
+# apply
+./install-manifests/prune-stale-installs.sh --apply
+```
+
+Then re-link the keep-set from `install-manifests/codex-keep.txt` (+ optional `codex-keep.local.txt`).
+
 ### Anti-pattern: install everything
 
 **Do not bulk-symlink the whole library into Codex.** That recreates description truncation and skill omission. The repo is the library; the agent path is a curated projection.
