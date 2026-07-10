@@ -1,8 +1,7 @@
 ---
 name: pr-workflow
-description: How to open a Pull Request / Merge Request that reviewers can actually review. Use WHENEVER the agent is about to run `gh pr create`, `glab mr create`, equivalent API call, or any command that opens a PR/MR. Covers title and body structure, draft vs ready, reviewer selection, required checks, commit scope, and the pre-flight that avoids "author forgot tests" style comments. Host-agnostic: works for GitHub, GitLab, Bitbucket and self-hosted variants.
+description: Use when opening a PR/MR with gh pr create, glab mr create, or equivalent. Title/body structure, draft vs ready, pre-flight checks; host-agnostic.
 ---
-
 # pr-workflow
 
 Opening a PR/MR is the handoff between the author and every reviewer, CI job, and future reader of the git log. This skill encodes what goes into a good handoff and what to verify before submitting.

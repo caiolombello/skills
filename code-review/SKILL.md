@@ -1,8 +1,7 @@
 ---
 name: code-review
-description: Multi-axis code review across correctness, readability, architecture, security, and performance. Use BEFORE merging any change, WHENEVER (1) a PR / MR / CR is opened or updated; (2) the user asks to review code — theirs, another agent's output, or a teammate's; (3) an agent has just finished writing a non-trivial change and is about to declare done; (4) the user mentions "review", "PR review", "sanity check this", "look for issues"; (5) a bug fix lands — review both the fix and the regression test; (6) inherited legacy code needs an audit pass. The review standard is "does this definitely improve code health" — not perfection. Applies to any language and stack.
+description: Use when reviewing a PR/MR, pre-merge change, just-finished non-trivial edit, bugfix plus test, or legacy audit across correctness, readability, architecture, security, and performance.
 ---
-
 <!-- Inspired by addyosmani/agent-skills code-review-and-quality (MIT). See ../CREDITS.md -->
 
 # Code Review

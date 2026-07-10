@@ -1,8 +1,7 @@
 ---
 name: github-actions-workflows
-description: Design, audit, and maintain GitHub Actions workflows with a focus on security, speed, and maintainability. Use WHENEVER the user (1) writes, edits, or reviews a `.github/workflows/*.yml` file; (2) sets up CI/CD, automated tests, linting, security scanning, container builds, infra deploys, or release automation on GitHub; (3) mentions "GitHub Actions", "GHA", "workflow", "composite action", "reusable workflow", "OIDC to AWS/GCP/Azure", "workflow dispatch", "matrix build", "concurrency group"; (4) the workflow is slow, flaky, expensive, or insecure (pinned `@master`, leaked secrets, unrestricted permissions); (5) setting up branch-protection-required checks. Covers: OIDC federated auth (no long-lived cloud keys), SHA-pinned third-party actions, `permissions:` least-privilege, caching, matrix, reusable workflows vs composite actions, concurrency, path filters, secrets hygiene. Generic CI/CD concepts (stages, gates, artifact promotion) are mentioned briefly; for non-GitHub hosts see platform-specific skills.
+description: Use when writing or reviewing .github/workflows YAML, GHA CI/CD, composite/reusable workflows, OIDC cloud auth, or fixing slow/flaky/insecure Actions (unpinned actions, overbroad permissions).
 ---
-
 # GitHub Actions Workflows
 
 GitHub Actions is where most modern projects run CI/CD. Misconfigured it is a security hole and a cost center; well-configured it is a force multiplier.

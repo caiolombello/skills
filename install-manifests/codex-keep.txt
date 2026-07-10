@@ -1,0 +1,22 @@
+# Public always-on keep-set for Codex/Gemini.
+# Install into ~/.agents/skills/<name> -> this repo (NOT ~/.codex/skills).
+# Leave ~/.codex/skills/.system alone.
+# Machine-local private skills: codex-keep.local.txt (gitignored).
+llm-coding-discipline
+investigate-before-editing
+verification-before-completion
+no-docs-unless-asked
+diagnose
+code-review
+git-hygiene
+gh-cli-workflows
+pr-workflow
+awscli-workflows
+kubectl-workflows
+helm-workflows
+pass-cli-secrets
+atlassian-acli
+terraform-iac-expert
+security-hardening
+incident-response
+incident-triage

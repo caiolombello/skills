@@ -1,8 +1,7 @@
 ---
 name: helm-workflows
-description: Write, audit, install, upgrade, and roll back Helm charts safely. Use WHENEVER the user (1) authors, edits, or reviews a Helm chart (`Chart.yaml`, `values.yaml`, `templates/**`, `helpers.tpl`); (2) installs, upgrades, or rolls back a release (`helm install`, `helm upgrade`, `helm rollback`, `helm uninstall`); (3) manages values hierarchies across environments (`values.yaml` + `values-prod.yaml` + Helmfile / helm-secrets / argo-cd `values:`); (4) debugs a broken release (stuck, immutable-field error, leftover resources); (5) packages, signs, or publishes charts to a registry (ChartMuseum, OCI registry, Harbor, GHCR); (6) mentions `helm template`, `helm lint`, `helm test`, `helm diff`, `helm secrets`, Helmfile, ArgoCD, Flux, chart dependency, subchart, umbrella chart. Pairs with `kubectl-workflows` (the underlying K8s discipline) and `deploy-safety` (progressive rollout shape).
+description: Use when authoring Helm charts, installing/upgrading/rolling back releases, managing values hierarchies, or debugging stuck/failed Helm releases including Helmfile/ArgoCD values.
 ---
-
 # Helm Workflows
 
 Helm is the most common way to package, ship, and upgrade Kubernetes workloads. It is also the most common source of production surprises — because a `values.yaml` bump looks innocuous and a `helm upgrade` can silently rewrite 30 resources.

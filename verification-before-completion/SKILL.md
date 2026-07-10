@@ -1,8 +1,7 @@
 ---
 name: verification-before-completion
-description: Prove the work is actually complete before saying done. Use WHENEVER (1) an agent is about to declare a coding, config, infra, or debugging task complete; (2) tests/build/lint/manual checks need to be selected and run; (3) the user asks "is it fixed?", "are we done?", or "verify it"; (4) a bug fix, plan task, PR, migration, or deployment preparation needs evidence; (5) prior verification failed or was skipped. Forces concrete evidence, explicit non-verified items, and no "looks good" completion claims.
+description: Use before claiming done, fixed, or passing, or before opening a PR. Require concrete verification evidence and list what was not checked.
 ---
-
 <!-- Inspired by obra/superpowers verification-before-completion (MIT). See ../CREDITS.md -->
 
 # Verification Before Completion

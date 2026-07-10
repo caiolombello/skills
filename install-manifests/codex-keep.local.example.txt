@@ -1,0 +1,4 @@
+# Copy to codex-keep.local.txt for machine-local private skills.
+# Only put intentionally private/company-branded skills here.
+# Generic skills (atlassian-acli, incident-triage, etc.) belong in codex-keep.txt + the repo.
+# opsteam-docs

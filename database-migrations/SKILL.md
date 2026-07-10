@@ -1,8 +1,7 @@
 ---
 name: database-migrations
-description: Design, review, and execute production database schema migrations safely. Use WHENEVER the user is about to (1) write a migration file (Alembic, Flyway, Liquibase, Prisma Migrate, Rails, Ecto, Sequelize, golang-migrate, Atlas, Drizzle, TypeORM); (2) change a live database schema — add / drop / rename column or table, add index, change type, add constraint, backfill data; (3) ship a breaking schema change alongside a code change; (4) run a migration on a database large enough that naive `ALTER` locks are unacceptable; (5) mention "expand contract", "online DDL", "zero-downtime migration", "backfill", "pt-online-schema-change", "gh-ost", "CONCURRENTLY", "NOT VALID", "lock timeout", "migration rollback"; (6) plan a PII / GDPR deletion or masking migration. Covers Postgres, MySQL, SQL Server, and ORM frameworks. Pairs with `deploy-safety` (the rollout shape) and `incident-response` (when a migration causes damage).
+description: Use when writing or running production schema migrations (expand/contract, online DDL, backfills, ORM migrators) or pairing a breaking schema change with a code deploy.
 ---
-
 # Database Migrations
 
 A migration is code that runs against a live database. It can **lock tables for hours, corrupt data, or hang replication** if written carelessly. The canonical safe pattern is **expand / contract**:

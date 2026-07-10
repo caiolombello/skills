@@ -1,8 +1,7 @@
 ---
 name: gh-cli-workflows
-description: Canonical workflows for the GitHub CLI (`gh`) when multiple accounts are configured on the same machine. Use WHENEVER (1) the user asks to create/list/merge PRs, issues, releases, or gists via `gh`; (2) a command must run against a specific GitHub account and the repo has SSH remote aliases (e.g. `git@github-<alias>:...`); (3) the active `gh` account might not match the git remote host alias; (4) the user mentions multiple GitHub accounts, SSH aliases, `gh auth switch`, or unexpected `403`/`permission denied` on push.
+description: Use when running gh on a multi-account machine, or when active gh auth may not match the repo SSH host alias (403 or permission denied on push).
 ---
-
 # gh CLI workflows
 
 Encodes the patterns that keep `gh` commands pointed at the right GitHub account when the machine has multiple accounts and the repositories use SSH host aliases.

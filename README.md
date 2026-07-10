@@ -1,14 +1,14 @@
 # skills
 
-A provider-agnostic library of **53 agent skills** for LLM coding assistants. Works across Claude Code, OpenCode, Codex CLI, Kiro, and any other agent that reads `SKILL.md`-style skills.
+A provider-agnostic library of **agent skills** for LLM coding assistants. Works across Claude Code, OpenCode, Codex CLI, Kiro, Gemini, and any agent that reads `SKILL.md`-style skills.
 
 ## What this is, in 30 seconds
 
-A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instructions) plus optional scripts or references. The agent reads the frontmatter `description` on every turn and, if the task matches, loads the full content as extra context. Think of each skill as an on-demand expert the agent consults only when relevant.
+A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instructions) plus optional scripts or references. Agents typically inject only `name + description + path` at session start (**progressive disclosure**). When a task matches, the agent loads the full body.
 
-**Why this library exists**: most public skill collections are Claude-specific and assume subagents, personas, or slash commands that do not exist in other tools. The skills here were written or rewritten to drop those assumptions, use plural rules-file vocabulary (`AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` / `.windsurfrules`), and trigger reliably across providers.
+**Why this library exists**: most public skill collections are Claude-specific and assume subagents, personas, or slash commands that do not exist in other tools. The skills here drop those assumptions, use plural rules-file vocabulary (`AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` / `.windsurfrules`), and are written to trigger reliably across providers.
 
-If you have ever watched an AI coding agent hallucinate a library API, ignore your project's conventions, or commit without tests — these skills are the shape of what you wish the agent had read **before** starting.
+**Catalog budget (Codex-class agents):** the initial skill list is capped around **2% of context** (fallback **~8000 characters** for the whole list). If you install dozens of long descriptions, the agent truncates descriptions and then **omits skills**. Prefer a small always-on keep-set; keep the rest in the repo for on-demand install.
 
 ## Quickstart (5 minutes)
 
@@ -18,50 +18,66 @@ If you have ever watched an AI coding agent hallucinate a library API, ignore yo
    cd skills
    ```
 
-2. Symlink **one** skill into your agent's skills directory to smoke-test:
+2. Install the **public always-on keep-set** (not everything):
    ```bash
-   # Claude Code
-   mkdir -p ~/.claude/skills && ln -sfn "$PWD/project-rules-file" ~/.claude/skills/project-rules-file
+   # Codex / Gemini shared path (recommended for Codex)
+   mkdir -p ~/.agents/skills
+   while IFS= read -r s; do
+     [[ -z "$s" || "$s" =~ ^# ]] && continue
+     ln -sfn "$PWD/$s" ~/.agents/skills/"$s"
+   done < install-manifests/codex-keep.txt
 
-   # OpenCode
-   mkdir -p ~/.config/opencode/skill && ln -sfn "$PWD/project-rules-file" ~/.config/opencode/skill/project-rules-file
+   # Optional machine-local private skills (create from example if needed)
+   # cp install-manifests/codex-keep.local.example.txt install-manifests/codex-keep.local.txt
+   # edit, then:
+   if [[ -f install-manifests/codex-keep.local.txt ]]; then
+     while IFS= read -r s; do
+       [[ -z "$s" || "$s" =~ ^# ]] && continue
+       [[ -d "$PWD/$s" ]] || { echo "skip missing private skill: $s"; continue; }
+       ln -sfn "$PWD/$s" ~/.agents/skills/"$s"
+     done < install-manifests/codex-keep.local.txt
+   fi
    ```
 
-3. Open your agent in any repo and try:
-   > *"audit our AGENTS.md for stale or missing rules"*
+3. Smoke-test in your agent:
+   > *"review this PR for correctness and security"*
 
-   If `project-rules-file` loads and the agent walks through the audit loop, you're good. Install more skills from the [Suggested starter set](#suggested-starter-set) or go all-in with the [Install everything](#install-everything) loops below.
+   If `code-review` loads, the keep-set is working.
 
-## Suggested starter set
+### Install paths by agent
 
-New to skills? These seven are universal across languages, stacks, and agents. Start here; add more as you notice gaps.
+| Agent | Always-on install path | Notes |
+|-------|------------------------|-------|
+| **Codex CLI / Gemini** | `~/.agents/skills/` | Official shared path. **Do not** also install user skills into `~/.codex/skills` (leave `.system` alone). |
+| Claude Code | `~/.claude/skills/` | Symlink keep-set; avoid bulk install if you also use Codex. |
+| OpenCode | `~/.config/opencode/skill/` | Same keep-set discipline. |
+| Kiro | `~/.kiro/skills/` | Same. |
+
+### Suggested starter set (universal)
 
 | Skill | One-liner |
 |-------|-----------|
-| [`llm-coding-discipline`](./llm-coding-discipline) | Baseline anti-failure-mode behaviors (assumptions, scope, verification). |
-| [`project-rules-file`](./project-rules-file) | Generate & audit the project's `AGENTS.md` / `CLAUDE.md`. |
+| [`llm-coding-discipline`](./llm-coding-discipline) | Baseline anti-failure-mode behaviors. |
 | [`investigate-before-editing`](./investigate-before-editing) | Read code + conventions before editing. |
-| [`diagnose`](./diagnose) | Disciplined bug / flaky-test debugging loop. |
-| [`code-review`](./code-review) | Five-axis review before merge. |
+| [`diagnose`](./diagnose) | Disciplined bug / flaky-test loop. |
+| [`code-review`](./code-review) | Multi-axis review before merge. |
 | [`git-hygiene`](./git-hygiene) | Safe git defaults, Conventional Commits. |
-| [`no-docs-unless-asked`](./no-docs-unless-asked) | Stop the reflex to create unrequested README / CHANGELOG files. |
+| [`no-docs-unless-asked`](./no-docs-unless-asked) | Stop unrequested README/CHANGELOG creation. |
+| [`verification-before-completion`](./verification-before-completion) | Prove done with evidence. |
 
-Symlink just these seven to try the library with a small footprint:
+### On-demand (install when the domain is active)
+
+See [`install-manifests/codex-on-demand.txt`](./install-manifests/codex-on-demand.txt) for situational skills (`deploy-safety`, CI workflows, migrations, FinOps, observability, planning, …). Symlink individual folders only when you need them:
 
 ```bash
-cd skills   # this repo
-for s in llm-coding-discipline project-rules-file investigate-before-editing \
-         diagnose code-review git-hygiene no-docs-unless-asked; do
-  # Claude Code
-  mkdir -p ~/.claude/skills && ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
-  # OpenCode
-  mkdir -p ~/.config/opencode/skill && ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
-  # Codex CLI
-  mkdir -p ~/.codex/skills && ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
-  # Kiro
-  mkdir -p ~/.kiro/skills && ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
-done
+ln -sfn "$PWD/deploy-safety" ~/.agents/skills/deploy-safety
 ```
+
+### Anti-pattern: install everything
+
+**Do not bulk-symlink the whole library into Codex.** That recreates description truncation and skill omission. The repo is the library; the agent path is a curated projection.
+
+If you truly need a large set in Claude/OpenCode (no hard 8k list budget), still prefer the keep-set first and grow deliberately.
 
 ## Full catalog
 
@@ -107,6 +123,7 @@ Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-plann
 | [`setup-pre-commit`](./setup-pre-commit) | Install pre-commit hooks (`pre-commit` / lefthook / Husky). Format, lint, typecheck, secret-scan before every commit. |
 | [`gh-cli-workflows`](./gh-cli-workflows) | **tooling-specific: requires `gh`.** Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. |
 | [`glab-cli-workflows`](./glab-cli-workflows) | **tooling-specific: requires `glab`.** GitLab CLI companion — correct host + account selection, multi-instance, token scoping. |
+| [`atlassian-acli`](./atlassian-acli) | **tooling-specific: requires `acli`.** Jira/Confluence Cloud via Atlassian CLI — Markdown bodies, no hand-pasted ADF, multi-account OAuth. |
 | [`pr-workflow`](./pr-workflow) | PRs / MRs that reviewers can actually review. Title + body structure, draft vs ready, pre-flight checklist, merge strategies. Host-agnostic. |
 
 ### Infra & cloud
@@ -116,6 +133,7 @@ Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-plann
 | [`awscli-workflows`](./awscli-workflows) | **tooling-specific: requires `aws`.** Safety rules: explicit `--profile`/`--region`, read-before-write, dry-run patterns, IAM key rotation, assume-role chains. |
 | [`cost-optimization-aws`](./cost-optimization-aws) | FinOps discipline for AWS: visibility (CUR + tagging), right-sizing, Savings Plans, NAT/data-transfer waste, CloudWatch Logs hygiene. |
 | [`kubectl-workflows`](./kubectl-workflows) | **tooling-specific: requires `kubectl`.** Explicit `--context`/`--namespace`, server-side dry-run + diff, `kubectl debug` over `exec`, safe deletes. |
+| [`karpenter-workflows`](./karpenter-workflows) | **tooling-specific: requires `kubectl`; provider docs required; cloud CLI may be needed for provider-side verification.** Safe design, tuning, and troubleshooting of Karpenter `NodePool` / `NodeClass` capacity control. |
 | [`helm-workflows`](./helm-workflows) | **tooling-specific: requires `helm`.** Chart authoring + safe upgrade. `helm diff` before upgrade, `--atomic --wait`, values hierarchy, ArgoCD/Helmfile patterns. |
 | [`terraform-iac-expert`](./terraform-iac-expert) | **tooling-specific: requires Terraform/OpenTofu.** Module design, project structure, state, testing, governance. Detailed knowledge base in `references/best-practices.md`. |
 | [`container-image-hardening`](./container-image-hardening) | Secure, fast, small container images. Dockerfile structure, BuildKit cache mounts, multi-arch, Trivy/Grype scan, Syft SBOM, cosign, Copacetic. |
@@ -132,6 +150,7 @@ Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-plann
 | [`disaster-recovery`](./disaster-recovery) | Backups that restore, RTO/RPO per domain, 3-2-1-1-0, restore tests as SLIs, quarterly drills, ransomware-specific hardening. |
 | [`observability`](./observability) | Golden signals, SLIs/SLOs, burn-rate alerts, cardinality control, structured logs, OpenTelemetry traces, dashboards that work at 3am. |
 | [`incident-response`](./incident-response) | Live incident discipline: declare → triage → stabilize → communicate → resolve → blameless postmortem. Stabilize first; root-cause later. |
+| [`incident-triage`](./incident-triage) | First-response from a pasted PagerDuty/Alertmanager/monitoring alert — normalize, scope, gather Grafana/kubectl/AWS evidence. Not full IC command (use `incident-response`). |
 | [`runbook-authoring`](./runbook-authoring) | Write runbooks that on-call can follow at 3am. Scoped per alert, copy-paste commands, verify-after-action, escalation on top. |
 | [`architecture-decision-records`](./architecture-decision-records) | Capture significant decisions as short, immutable ADRs (MADR format). Supersede instead of edit. Linked from the rules file. |
 
@@ -152,146 +171,79 @@ Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-plann
 | [`skill-creator`](./skill-creator) | Official Anthropic skill for creating and iteratively improving skills. Vendored from [anthropics/skills](https://github.com/anthropics/skills) under Apache 2.0. |
 | [`skill-creator-opencode`](./skill-creator-opencode) | Adapter that runs the skill-creator trigger-eval loop against OpenCode instead of `claude -p`. Works with any provider / model. |
 
-## Install everything
+## Install (tiered)
 
-Same skills work in all four agents below. Clone once; symlink into the agent(s) you use. Symlinks mean a single `git pull` updates every agent at once.
+Use the manifests under [`install-manifests/`](./install-manifests/):
 
-<details>
-<summary><strong>Claude Code — <code>~/.claude/skills/</code></strong></summary>
+| File | Purpose |
+|------|---------|
+| `codex-keep.txt` | Public always-on subset (safe default for Codex budget) |
+| `codex-on-demand.txt` | Situational skills — install per domain |
+| `codex-keep.local.txt` | Gitignored private/company skills (see `.example`) |
+
+### Codex / Gemini (`~/.agents/skills`)
 
 ```bash
 git clone https://github.com/caiolombello/skills.git
 cd skills
+mkdir -p ~/.agents/skills
+while IFS= read -r s; do
+  [[ -z "$s" || "$s" =~ ^# ]] && continue
+  ln -sfn "$PWD/$s" ~/.agents/skills/"$s"
+done < install-manifests/codex-keep.txt
+```
+
+Leave `~/.codex/skills` for Codex `.system` skills only. Installing the same user skills into both paths creates duplicates in the catalog.
+
+### Claude Code / OpenCode / Kiro
+
+Same keep-set, different directory:
+
+```bash
+# Claude
 mkdir -p ~/.claude/skills
-for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
-         code-simplification codex-claude-resume container-image-hardening \
-         context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
-         docs-verified-coding doubt-driven-review executing-plans \
-         gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         finishing-a-development-branch handoff helm-workflows \
-         incident-response incremental-implementation \
-         investigate-before-editing kubectl-workflows \
-         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
-         observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file receiving-code-review \
-         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
-         skill-creator skill-creator-opencode spec-first-planning \
-         terraform-iac-expert test-driven-development \
-         throwaway-prototype using-git-worktrees verification-before-completion \
-         zoom-out; do
+while IFS= read -r s; do
+  [[ -z "$s" || "$s" =~ ^# ]] && continue
   ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
-done
-```
-</details>
+done < install-manifests/codex-keep.txt
 
-<details>
-<summary><strong>OpenCode — <code>~/.config/opencode/skill/</code></strong></summary>
-
-```bash
-git clone https://github.com/caiolombello/skills.git
-cd skills
+# OpenCode
 mkdir -p ~/.config/opencode/skill
-for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
-         code-simplification codex-claude-resume container-image-hardening \
-         context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
-         docs-verified-coding doubt-driven-review executing-plans \
-         gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         finishing-a-development-branch handoff helm-workflows \
-         incident-response incremental-implementation \
-         investigate-before-editing kubectl-workflows \
-         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
-         observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file receiving-code-review \
-         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
-         skill-creator skill-creator-opencode spec-first-planning \
-         terraform-iac-expert test-driven-development \
-         throwaway-prototype using-git-worktrees verification-before-completion \
-         zoom-out; do
+while IFS= read -r s; do
+  [[ -z "$s" || "$s" =~ ^# ]] && continue
   ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
-done
-```
-</details>
+done < install-manifests/codex-keep.txt
 
-<details>
-<summary><strong>Codex CLI — <code>~/.codex/skills/</code></strong></summary>
-
-```bash
-git clone https://github.com/caiolombello/skills.git
-cd skills
-mkdir -p ~/.codex/skills
-for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
-         code-simplification codex-claude-resume container-image-hardening \
-         context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
-         docs-verified-coding doubt-driven-review executing-plans \
-         gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         finishing-a-development-branch handoff helm-workflows \
-         incident-response incremental-implementation \
-         investigate-before-editing kubectl-workflows \
-         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
-         observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file receiving-code-review \
-         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
-         skill-creator skill-creator-opencode spec-first-planning \
-         terraform-iac-expert test-driven-development \
-         throwaway-prototype using-git-worktrees verification-before-completion \
-         zoom-out; do
-  ln -sfn "$PWD/$s" ~/.codex/skills/"$s"
-done
-```
-</details>
-
-<details>
-<summary><strong>Kiro — <code>~/.kiro/skills/</code></strong></summary>
-
-```bash
-git clone https://github.com/caiolombello/skills.git
-cd skills
+# Kiro
 mkdir -p ~/.kiro/skills
-for s in api-and-interface-design architecture-decision-records \
-         awscli-workflows backstage-scaffolder-architect brainstorming code-review \
-         code-simplification codex-claude-resume container-image-hardening \
-         context-engineering cost-optimization-aws database-migrations \
-         deploy-safety diagnose disaster-recovery dispatching-parallel-agents \
-         docs-verified-coding doubt-driven-review executing-plans \
-         gh-cli-workflows git-hygiene \
-         github-actions-workflows gitlab-ci-workflows glab-cli-workflows \
-         finishing-a-development-branch handoff helm-workflows \
-         incident-response incremental-implementation \
-         investigate-before-editing kubectl-workflows \
-         llm-coding-discipline monorepo-strategy no-docs-unless-asked \
-         observability pass-cli-secrets performance-optimization \
-         pr-workflow project-rules-file receiving-code-review \
-         rtk-token-optimized-cli runbook-authoring security-hardening setup-pre-commit \
-         skill-creator skill-creator-opencode spec-first-planning \
-         terraform-iac-expert test-driven-development \
-         throwaway-prototype using-git-worktrees verification-before-completion \
-         zoom-out; do
+while IFS= read -r s; do
+  [[ -z "$s" || "$s" =~ ^# ]] && continue
   ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
-done
+done < install-manifests/codex-keep.txt
 ```
-</details>
+
+Symlinks mean a single `git pull` updates every agent at once.
 
 ## Skill anatomy
 
 ```
 <skill-name>/
   SKILL.md          # YAML frontmatter (name + description) and instructions
-  <script>.py       # optional helper scripts
+  scripts/          # optional helpers
   references/       # optional longer docs loaded on demand
 ```
 
-The `description` field in the frontmatter is the trigger: keep it specific so the agent only loads the skill when relevant. Use `skill-creator` + `skill-creator-opencode` to iteratively evaluate and improve descriptions.
+### Description rules (summary)
 
-See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md) for an earlier trigger quality report. The newly added Superpowers-inspired workflow skills still need a dedicated trigger smoke pass.
+- Trigger = **when**, not a workflow essay.
+- Distinct branches only; no synonym lists.
+- Prefer ~120–220 chars for always-on skills; hard max 1024.
+- YAML-safe (quote if needed); no `<`/`>`.
+- Aggregate catalog budget matters more than per-skill max — see CONTRIBUTING.
+
+Validate with `skill-creator/scripts/quick_validate.py` and optional trigger evals via `skill-creator-opencode/`.
+
+See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md) for an earlier trigger quality report.
 
 ## Credits
 
@@ -299,7 +251,7 @@ Several skills here are **inspired by** excellent upstream projects — rewritte
 
 ## Contributing
 
-PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions (skill layout, description style, how to propose a new skill, how to suggest cuts or merges).
+PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions (skill layout, description style, install tiers, how to propose a new skill, how to suggest cuts or merges).
 
 ## License
 

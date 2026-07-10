@@ -16,3 +16,8 @@ __pycache__/
 *.pem
 *.key
 credentials*
+# Private / company-specific skills (avoid leaking to public repo)
+opsteam-docs/
+
+# Local install overrides
+install-manifests/codex-keep.local.txt

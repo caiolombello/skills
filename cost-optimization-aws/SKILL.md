@@ -1,8 +1,7 @@
 ---
 name: cost-optimization-aws
-description: Find and cut wasteful AWS spend — without breaking production. FinOps discipline: visibility first, then optimization, then governance. Use WHENEVER the user (1) asks to reduce AWS costs, optimize a bill, or explain a cost spike; (2) mentions "FinOps", "Cost Explorer", "CUR", "Reserved Instances", "Savings Plans", "right-sizing", "spot", "S3 Intelligent-Tiering", "EBS gp2 to gp3", "NAT Gateway cost", "cross-AZ traffic", "data transfer cost", "CloudWatch Logs cost"; (3) audits a workload for idle / orphaned resources (unattached EBS volumes, old snapshots, Elastic IPs, unused load balancers, forgotten dev accounts); (4) reviews the cost of a new architecture before it ships; (5) plans a Savings Plan / Reserved Instance purchase; (6) sees a bill spike and needs to find the cause fast. Covers EC2, RDS, S3, EBS, data transfer, CloudWatch, NAT, and the process layer (tagging, budgets, alerts, CUR analysis). Generic FinOps principles apply beyond AWS, but this skill is AWS-specific.
+description: 'Use when reducing AWS spend, explaining a bill spike, right-sizing, finding idle/orphaned resources, or reviewing cost before a new architecture ships. FinOps: visibility then optimize.'
 ---
-
 # AWS Cost Optimization (FinOps)
 
 Every AWS bill has waste. The question is how much and where. This skill is about finding it, cutting it safely, and keeping it from coming back.

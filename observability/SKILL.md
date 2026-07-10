@@ -1,8 +1,7 @@
 ---
 name: observability
-description: Design and maintain observability for production systems — metrics, logs, traces, SLIs, SLOs, alerts, dashboards. Use WHENEVER (1) the user is instrumenting a service with Prometheus, Grafana, OpenTelemetry, Datadog, New Relic, CloudWatch, or any observability stack; (2) defining, reviewing, or tuning SLIs, SLOs, error budgets, or alerts; (3) an alert is noisy, flaky, or missing (alert fatigue); (4) a dashboard is cluttered, stale, or lies about reality; (5) the user mentions "SLO", "SLI", "error budget", "golden signals", "RED/USE method", "p99", "burn rate", "cardinality", "alert fatigue", "what should we monitor"; (6) cost of logs/metrics is exploding (high cardinality, retention mismatch); (7) debugging an incident and asking "why did we not know sooner?". Based on Google SRE discipline (SLI/SLO/burn rate), OpenTelemetry conventions, and the RED / USE methods for instrumenting services.
+description: Use when instrumenting metrics/logs/traces, defining SLIs/SLOs/alerts, fixing noisy or missing alerts, high-cardinality cost, or choosing what to monitor. Not live incident command.
 ---
-
 # Observability
 
 Observability is the ability to ask **new** questions of a running system **without** deploying new code. If every outage forces you to add logs and redeploy to understand what happened, the system is not observable — it is just logged.

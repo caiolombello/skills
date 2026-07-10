@@ -1,8 +1,7 @@
 ---
 name: spec-first-planning
-description: Write a lightweight spec, then break it into ordered verifiable tasks, BEFORE writing code. The spec is the shared source of truth between agent and human. Use WHENEVER (1) starting a new project, feature, or significant change with no spec; (2) requirements are vague, ambiguous, or exist only as a sentence the user typed; (3) the change will touch multiple files or modules; (4) the task would take more than ~30 minutes to implement; (5) the user asks to "plan", "break down", "design", "scope out", "estimate"; (6) work needs to be parallelized across agents or sessions. DOES NOT APPLY to: one-line fixes, typo corrections, rename-only refactors, tasks whose scope is already obvious and self-contained. The gated workflow — specify → plan → tasks → implement — catches misunderstandings while they are cheap to fix.
+description: 'Use when starting a non-trivial or vague feature: write a lightweight spec and ordered tasks before code. Skip one-line fixes, renames, and obvious single-file changes.'
 ---
-
 <!-- Inspired by addyosmani/agent-skills spec-driven-development + planning-and-task-breakdown (MIT). See ../CREDITS.md -->
 
 # Spec-First Planning

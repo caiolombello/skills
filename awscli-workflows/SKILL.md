@@ -1,8 +1,7 @@
 ---
 name: awscli-workflows
-description: Canonical safety and workflow rules for the AWS CLI. Use WHENEVER the agent is about to run `aws` — list, describe, put, delete, create, modify, assume-role, or any write against an AWS account. Enforces explicit `--profile` and `--region`, read-before-write, dry-run or `--no-execute-changeset` where available, safe IAM/Secrets handling, and confirmation before destructive calls.
+description: Use whenever running the AWS CLI. Require explicit --profile and --region, read-before-write, dry-run when available, and confirm before destructive calls.
 ---
-
 # awscli-workflows
 
 Baseline for using the AWS CLI from an agent session. The account and region an AWS CLI call targets are almost always **implicit**, which is where most mistakes come from. This skill makes them explicit.

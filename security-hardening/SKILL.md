@@ -1,8 +1,7 @@
 ---
 name: security-hardening
-description: Application-layer security. Treat every external input as hostile, every secret as sacred, every authorization check as mandatory. Use WHENEVER the agent is about to (1) build or modify anything that accepts user input (forms, API endpoints, query params, webhooks, uploads); (2) implement or change authentication, authorization, sessions, password flows, or token handling; (3) store, transmit, or log sensitive data — PII, payment info, access tokens, connection strings; (4) integrate a new external API or third-party service; (5) add file uploads, redirects, or URL-driven behavior; (6) write database queries with dynamic input; (7) render, serialize, or echo data the user supplied. Covers OWASP Top 10 patterns: injection, broken authn, XSS, IDOR, SSRF, deserialization, outdated dependencies, security misconfiguration, insufficient logging. Does NOT cover container security (see `container-image-hardening`), secret storage (see `pass-cli-secrets`), or IaC security (see `terraform-iac-expert`).
+description: Use when building or changing app code that handles user input, authn/authz, sessions, PII, uploads, redirects, dynamic SQL, or rendering untrusted data. OWASP app-layer, not container/IaC secrets.
 ---
-
 <!-- Inspired by addyosmani/agent-skills security-and-hardening (MIT). See ../CREDITS.md -->
 
 # Security Hardening

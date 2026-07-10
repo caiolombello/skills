@@ -1,8 +1,7 @@
 ---
 name: incident-response
-description: Run a live production incident with discipline — declare, triage, stabilize, communicate, resolve, learn. Use WHENEVER (1) the user reports production is broken, slow, or misbehaving ("site down", "5xx spiking", "DB is hot", "queue backed up", "customers can't log in"); (2) an alert fires and must be acknowledged, triaged, and worked; (3) the user mentions "incident", "outage", "on-call", "paged", "SEV", "P0/P1/P2", "war room", "postmortem"; (4) a deploy just went out and looks like it caused damage; (5) a third party is down and is affecting this service; (6) the user asks to write or lead a postmortem. This skill is for LIVE production ops — not for bug fixing in a dev branch (for that see `diagnose`). The first job is to stop the bleeding; root-cause analysis comes after.
+description: Use for LIVE production incidents (outage, SEV/on-call, bad deploy, dependency down) and postmortems. Stabilize first, then root-cause. Not for dev-branch bugs (use diagnose).
 ---
-
 # Incident Response
 
 When production is on fire, do not debug — **stabilize first, investigate second**.

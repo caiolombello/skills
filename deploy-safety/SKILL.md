@@ -1,8 +1,7 @@
 ---
 name: deploy-safety
-description: Ship changes to production with high confidence and fast recovery. Progressive rollout, readiness gates, health checks, rollback paths, feature flags, database-migration safety. Use WHENEVER the user is about to (1) release, deploy, ship, roll out, or promote a change to production; (2) set up or review a CI/CD deploy stage (canary, blue/green, rolling, feature flags); (3) write or audit Kubernetes Deployment / DaemonSet / StatefulSet, AWS ECS task definitions, Cloud Run revisions, or similar rollout primitives; (4) plan a database migration that will run in production; (5) mention "canary", "blue/green", "rolling deploy", "rollback", "feature flag", "progressive delivery", "zero-downtime", "readiness probe", "liveness probe", "health check", "dark launch"; (6) a just-shipped change is causing damage and rollback is being discussed. Generic across platforms with Kubernetes as the primary example. Pairs with `incident-response` (when deploy causes an incident) and `observability` (SLOs that gate the deploy).
+description: Use when shipping or promoting to production, designing canary/blue-green/rolling rollout, rollback/feature-flag strategy, or production Deployment/ECS/Cloud Run rollout safety. Not routine app code.
 ---
-
 # Deploy Safety
 
 Shipping is a separate skill from building. A change that passed every unit test can still break production — because health checks lie, rollbacks do not exist, the DB migration is irreversible, or the failure mode was outside the test matrix.

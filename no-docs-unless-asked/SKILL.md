@@ -1,8 +1,7 @@
 ---
 name: no-docs-unless-asked
-description: Do not create documentation files unless the user explicitly asks. Use WHENEVER the agent is about to create, propose, or suggest creating a `README.md`, `CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `ARCHITECTURE.md`, docs under `docs/`, a migration guide, a runbook, or any standalone documentation file. Inline code comments are fine. Updating an existing documentation file when the task requires it is fine. Creating a new one "to be helpful" is not.
+description: Use when about to create a new README, CHANGELOG, AGENTS/CLAUDE.md, ARCHITECTURE, or other standalone docs file the user did not request. Updates to existing docs are fine.
 ---
-
 # no-docs-unless-asked
 
 Agents have a reflex to summarize their work by writing documentation. This is almost always wrong: it bloats the repo, the doc drifts the moment code changes, and the user did not ask for it.

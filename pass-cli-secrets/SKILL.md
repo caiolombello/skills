@@ -1,8 +1,7 @@
 ---
 name: pass-cli-secrets
-description: Canonical source of secrets. Use pass-cli (Proton Pass CLI) for local user credentials; use AWS Secrets Manager / SSM Parameter Store for workloads and AWS IaC. Trigger this skill whenever (1) the user asks for or references a password, token, API key, access key, private key, certificate, connection string, OAuth credential, or anything that functions as a shared secret; (2) generated code, a script, a config file, an IaC resource (Terraform, CloudFormation, Pulumi), a Kubernetes manifest, a Dockerfile, a CI workflow, or a `.env` / `.envrc` needs a secret value; (3) a secret must be exposed as an environment variable, written to a file, or passed on a command line; (4) the user mentions Proton Pass, a password manager, vault, cofre, secret, credential, AWS Secrets Manager, SSM, Parameter Store, External Secrets, SOPS, Vault, or Doppler; (5) the agent is about to `echo`, `cat`, `printenv`, `git commit`, or otherwise potentially expose a secret; (6) rotating, generating, or bootstrapping a credential. Trigger this skill even when the user does not explicitly ask for secret-handling — any workflow that touches a credential qualifies. Never write literal secrets into files, commits, commands, or responses.
+description: Use when the user needs a password, token, or credential, or generated code/IaC/CI/env will hold a secret. Prefer pass-cli for local creds and AWS SM/SSM for workloads; never echo or commit secrets.
 ---
-
 # pass-cli (Proton Pass CLI) — single source of secrets
 
 The user has `pass-cli` installed and logged in. All secrets (passwords, tokens, API keys, SSH keys, certificates) **must** come from `pass-cli` instead of:

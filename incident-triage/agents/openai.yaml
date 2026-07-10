@@ -1,0 +1,4 @@
+interface:
+  display_name: "Incident Triage"
+  short_description: "Triage PagerDuty and Alertmanager incidents"
+  default_prompt: "Use $incident-triage to investigate this alert and produce a first-response incident analysis."

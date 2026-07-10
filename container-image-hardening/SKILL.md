@@ -1,8 +1,7 @@
 ---
 name: container-image-hardening
-description: Canonical workflow for writing secure, fast, small container images. Use this skill whenever the user is about to (1) write, edit, or review a Dockerfile or Containerfile; (2) change CI that builds or publishes container images; (3) ask how to make an image smaller, safer, more reproducible, or faster to build; (4) discuss base image choice (alpine vs distroless vs slim vs chainguard), multi-stage builds, non-root / rootless users, BuildKit cache or secret mounts, multi-arch, SBOM, image signing, SLSA provenance, OCI labels and annotations, `HEALTHCHECK`, `STOPSIGNAL`, PID-1 / init (tini, dumb-init), reproducible builds, or patching a published image for CVEs in place; (5) integrate trivy, grype, syft, cosign, copacetic, hadolint, or dive; (6) troubleshoot a container that is too big, slow to build, failing a vulnerability scan, leaking secrets in `docker history`, or not shutting down cleanly; (7) push or pull against a registry (ECR, GHCR, GCR, Quay, Docker Hub, Harbor) and need the publish-side discipline. Trigger this skill even when the user does not explicitly say "Dockerfile" — any question about container images, buildx, registries, or container supply-chain security qualifies.
+description: Use when writing or reviewing Dockerfiles/Containerfiles, image build CI, base-image choice, multi-stage/non-root builds, SBOM/signing, or shrinking/CVE-patching images.
 ---
-
 # container-image-hardening
 
 One skill for the four things that usually come together in container work: **correctness, security, build speed, image size**. Use as a checklist when producing or reviewing a Dockerfile and its build pipeline.

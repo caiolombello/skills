@@ -1,8 +1,7 @@
 ---
 name: terraform-iac-expert
-description: Expert guidance on Terraform / OpenTofu Infrastructure as Code. Use this skill whenever the user is about to (1) write, review, or refactor a `.tf` / `.tofu` / `.tfvars` file; (2) design or restructure a Terraform project or repository (modules, stacks, live directories, monorepo vs multi-repo); (3) create, publish, or consume a Terraform module (module API design, inputs/outputs, validations, `for_each` vs `count`, `moved` blocks); (4) work with remote state (S3 + DynamoDB, GCS, Terraform Cloud, state locking, state isolation per environment); (5) set up Terraform governance (CI with `fmt` + `validate` + `tflint` + `tfsec`/Checkov, Policy as Code via OPA/Conftest/Sentinel, plan vs apply separation); (6) write or improve Terraform tests (`terraform test`, Terratest, sandbox pipelines); (7) troubleshoot drift, state surgery, `terraform import`, provider upgrade / version constraint issues, circular module dependencies, or "why is this recreating"; (8) the user mentions HCL, Terraform, OpenTofu, Terragrunt, modules, state, backend, provider aliases, `.terraform.lock.hcl`, workspaces, or `terraform plan`/`apply`/`destroy`. Trigger this skill even when the user just pastes an `.tf` snippet or asks a casual "how do I do X in Terraform" — treat anything that touches HCL as in scope.
+description: Use when writing or reviewing Terraform/OpenTofu (.tf, modules, state), designing module APIs, remote state, or Terraform CI/governance (fmt, validate, tflint, policy-as-code).
 ---
-
 # Terraform IaC Expert
 
 Provides specialist guidance on Terraform Infrastructure as Code, covering module design, project structure, state management, testing, governance and security.

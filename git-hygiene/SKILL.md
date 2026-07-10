@@ -1,8 +1,7 @@
 ---
 name: git-hygiene
-description: Baseline git hygiene for any repository. Use WHENEVER the agent is about to (1) stage, commit, amend, push, rebase, merge, reset, or clean; (2) operate on a branch, tag, or remote; (3) inspect history; (4) execute `git` in a session where the branch, remote, or working-tree state was not explicitly verified. Enforces "read-before-write", non-destructive defaults, conventional commit messages, safe remote operations, and rules for amending, force-pushing, and hook bypass.
+description: Use before any git write (commit, push, rebase, reset, amend) or when branch/remote/worktree state is unverified. Read-before-write, conventional commits, safe force-push rules.
 ---
-
 # git-hygiene
 
 Baseline rules and workflows for safe, auditable git usage inside an agent session. Applies regardless of host (GitHub, GitLab, Bitbucket, self-hosted).

@@ -1,8 +1,7 @@
 ---
 name: kubectl-workflows
-description: Canonical safety and workflow rules for `kubectl` against Kubernetes clusters. Use WHENEVER the agent is about to run `kubectl` — get, describe, apply, patch, replace, delete, scale, exec, logs, port-forward, cp, drain, cordon — or any command against a cluster. Enforces explicit `--context` and `--namespace`, dry-run-before-apply, server-side validation, safe delete and exec rules, and minimal secret exposure.
+description: Use whenever running kubectl against a cluster. Require explicit --context and --namespace, dry-run before apply, and safe delete/exec.
 ---
-
 # kubectl-workflows
 
 Baseline for using `kubectl` from an agent session. Most mistakes come from wrong context or wrong namespace; both are implicit by default. This skill makes them explicit and adds guardrails for destructive operations.

@@ -1,8 +1,7 @@
 ---
 name: llm-coding-discipline
-description: Baseline behaviors that prevent the most common LLM coding failure modes — silent assumptions, sycophancy, overengineering, scope creep, skipped verification. Use WHENEVER the agent is about to (1) write, edit, or refactor non-trivial code in any language; (2) make an architectural choice or pick between implementation options; (3) answer a question about the codebase, a library, or a framework without having read the relevant source or docs; (4) "improve" code that was not part of the task; (5) declare a task complete. Applies to every task unless explicitly overridden by the user.
+description: Use on any non-trivial coding task to block silent assumptions, sycophancy, overengineering, scope creep, and unverified done claims.
 ---
-
 <!-- Inspired by andrej-karpathy-skills (MIT), addyosmani/agent-skills (MIT). See ../CREDITS.md -->
 
 # LLM Coding Discipline

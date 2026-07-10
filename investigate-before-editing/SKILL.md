@@ -1,8 +1,7 @@
 ---
 name: investigate-before-editing
-description: Read the relevant code and understand the repository conventions before changing anything. Trigger this skill whenever the agent is about to (1) edit, add, rename, move, or delete any source file; (2) introduce a new dependency, framework, library, logger, HTTP client, validation lib, test runner, or build tool; (3) add a new pattern, abstraction, helper, utility module, or architectural layer; (4) answer "how does this project do X?" or a question that depends on how something is actually implemented in this repo; (5) start working in an unfamiliar repository, language, or framework, or after resuming a paused session; (6) generate code that calls a library / internal / framework API the agent has not verified — never guess the signature, always open the definition or docs at the pinned version; (7) cross-cutting refactors or renames that touch many call sites. Applies to every language and stack. Trigger even for what seems like a "quick fix" — especially those, because they are where invented APIs slip in. Enforces "match the house style, do not invent a new one", "read the file end-to-end before the first edit", and "search for prior art before adding a helper".
+description: Use before editing code, adding dependencies, or inventing APIs in an unfamiliar or resumed codebase. Read conventions and definitions first; never guess signatures.
 ---
-
 # investigate-before-editing
 
 A code change only lands well if it matches the repository's existing conventions. This skill encodes the minimum investigation an agent must do before writing or modifying code.

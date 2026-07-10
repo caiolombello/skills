@@ -1,8 +1,7 @@
 ---
 name: diagnose
-description: Disciplined diagnosis loop for hard bugs, flaky tests, broken builds, and performance regressions. Reproduce → feedback loop → hypothesise → instrument → fix → regression-test → cleanup. Use WHENEVER (1) a test fails, a build breaks, or runtime behavior does not match expectations; (2) the user says "diagnose", "debug", "fix this bug", or describes something as broken, throwing, crashing, hanging, slow, or flaky; (3) a regression arrives ("this used to work"); (4) an incident / production issue must be root-caused; (5) the agent is about to patch a symptom without a reproducible failure. Applies to any language and stack. Triggers even when the user is only guessing at a cause — the skill starts with reproduction, not with a hypothesis.
+description: Use when tests fail, builds break, behavior is wrong/flaky/slow, a regression appears, or a fix is about to land without a reproducible failure. Reproduce first, then hypothesise.
 ---
-
 <!-- Inspired by mattpocock/skills engineering/diagnose (MIT) and addyosmani/agent-skills debugging-and-error-recovery (MIT). See ../CREDITS.md -->
 
 # Diagnose
