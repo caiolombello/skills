@@ -146,6 +146,8 @@ The user picks a variant (or a combination). Capture the decision — screenshot
 
 ## Interaction with other skills
 
+- [`frontend-design`](../frontend-design) — defines durable user flows, interface decisions, and implementation acceptance criteria. Use this prototype only when uncertainty justifies disposable alternatives.
+- [`frontend-development`](../frontend-development) — implements the selected direction as production code. Rewrite from the learned decision; do not promote prototype code directly.
 - [`spec-first-planning`](../spec-first-planning) — a prototype is what you build when you **do not yet have** the confidence to write a spec. After the prototype, you write the spec.
 - [`incremental-implementation`](../incremental-implementation) — the follow-up to a successful prototype. Plan → slices → ship.
 - [`llm-coding-discipline`](../llm-coding-discipline) — "minimum code that solves the problem" applies: a prototype that grows to 1000 lines is not a prototype any more.

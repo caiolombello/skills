@@ -116,6 +116,8 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`aidlc-workflow`](./aidlc-workflow) | Explicit, on-demand AI-DLC coordinator: compose adaptive phases, depth, gates and traceability from the focused skills already in this library. Defers to a complete native upstream runtime when present. |
 | [`zoom-out`](./zoom-out) | Produce a higher-level map of an area of code — modules, callers, gotchas — before diving in. |
 | [`throwaway-prototype`](./throwaway-prototype) | Build a disposable prototype to answer one design question. Logic branch (terminal) or UI branch (variants on one route). |
+| [`frontend-design`](./frontend-design) | Design or review user-facing web flows, hierarchy, states, responsive behavior, design systems, and accessibility; hand off implementation-ready decisions. |
+| [`frontend-development`](./frontend-development) | Implement production frontend UI in the project’s existing stack and design system, with complete states, accessibility, security, tests, and runtime verification. |
 | [`docs-verified-coding`](./docs-verified-coding) | Detect version → fetch official docs → implement as documented → cite the source. Prevents the "library API invented from memory" failure mode. |
 | [`investigate-before-editing`](./investigate-before-editing) | Forces the agent to read relevant code and learn repo conventions before changing anything. Match house style, never invent symbols. |
 | [`incremental-implementation`](./incremental-implementation) | Build in thin vertical slices — implement, test, verify, commit, expand. Tracer-bullet first. Prevents 1000-line-PR failure mode. |

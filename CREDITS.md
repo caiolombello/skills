@@ -149,7 +149,15 @@ guidance on demand rather than expanding the default catalog.
 
 Latest review snapshot: `6fa20cb`.
 
-Downloaded as a local reference only; no skill from this repository has been adapted into this library yet. It contains a product-design, conversion, retention, pricing and behavioral-science playbook for SaaS/startups. Any future copy or derivative must retain attribution to Richard (@richardrx), preserve the full license terms, and must not be used for gambling, betting, casino, loot-box or real-money-gaming work. See the upstream [LICENSE](https://github.com/heliocosta-dev/revenue-centric-design/blob/main/LICENSE).
+Downloaded as a local reference only; no skill from this repository has been
+adapted into this library. It contains a product-design, conversion, retention,
+pricing and behavioral-science playbook for SaaS/startups. `frontend-design`
+and `frontend-development` are independently written from public web standards
+and official testing documentation; they do not copy this playbook. Any future
+copy or derivative must retain attribution to Richard (@richardrx), preserve
+the full license terms, and must not be used for gambling, betting, casino,
+loot-box or real-money-gaming work. See the upstream
+[LICENSE](https://github.com/heliocosta-dev/revenue-centric-design/blob/main/LICENSE).
 
 ### [modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol) — MIT
 
@@ -179,9 +187,28 @@ parameter logging or message signing, the skill adds secret-safe redaction and
 clarifies that signing is a high-assurance application extension rather than a
 standard interoperable MCP requirement.
 
+### Frontend standards and official testing documentation
+
+`frontend-design` and `frontend-development` were written from scratch using
+the [W3C Web Content Accessibility
+Guidelines](https://www.w3.org/WAI/standards-guidelines/wcag/),
+[WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/),
+[web.dev responsive-design](https://web.dev/learn/design) and
+[Web Vitals](https://web.dev/articles/vitals) guidance, and the official
+[Testing Library](https://testing-library.com/docs/),
+[Playwright](https://playwright.dev/docs/accessibility-testing), and
+[Storybook](https://storybook.js.org/docs/writing-tests/accessibility-testing)
+testing documentation as technical sources. These standards and documents were
+not vendored, and the local skill text is independently written.
+
 ## Skills with no upstream inspiration
 
-The following skills were written from scratch based on SRE / DevOps / API-design best practices (Google SRE Book, DORA, OpenTelemetry specs, OWASP, RFC 9457 Problem Details, semver.org, Helm / ArgoCD / GitLab / GitHub official docs, AWS Well-Architected Framework, FinOps Foundation principles), not adapted from any of the upstream projects above. They are noted here only for completeness:
+The following skills were written from scratch based on SRE, DevOps, API
+design, frontend, accessibility, and testing best practices (Google SRE Book,
+DORA, OpenTelemetry specs, OWASP, W3C standards, web.dev, RFC 9457 Problem
+Details, semver.org, Helm / ArgoCD / GitLab / GitHub official docs, AWS
+Well-Architected Framework, FinOps Foundation principles), not adapted from any
+of the upstream projects above. They are noted here only for completeness:
 
 - `incident-response`
 - `observability`
@@ -198,6 +225,8 @@ The following skills were written from scratch based on SRE / DevOps / API-desig
 - `karpenter-workflows` (follows Karpenter core + provider docs, especially NodePools, NodeClasses, disruption, drift, consolidation, and provider-specific node supply)
 - `cost-optimization-aws` (FinOps Foundation principles + AWS CUR + AWS Cost Optimization Pillar)
 - `monorepo-strategy` (Turborepo / Nx / Bazel official docs + pnpm / Yarn / uv / Cargo workspace docs)
+- `frontend-design` (W3C WCAG, WAI-ARIA Authoring Practices, and web.dev responsive-design guidance)
+- `frontend-development` (W3C WCAG, WAI-ARIA Authoring Practices, web.dev, Testing Library, Playwright, and Storybook documentation)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
 
 ## Vendored verbatim (distinct from the above)

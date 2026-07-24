@@ -1,6 +1,9 @@
 # Symlink into ~/.agents/skills only when the domain needs it (not always-on).
 aidlc-workflow
 mcp-development
+frontend-design
+frontend-development
+throwaway-prototype
 deploy-safety
 github-actions-workflows
 container-image-hardening

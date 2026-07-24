@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Development"
+  short_description: "Implement reliable, accessible frontend UI"
+  default_prompt: "Use $frontend-development to implement this interface in the project’s existing frontend stack and design system."

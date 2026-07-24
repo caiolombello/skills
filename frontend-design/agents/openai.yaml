@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Design"
+  short_description: "Design usable, accessible product interfaces"
+  default_prompt: "Use $frontend-design to design or review this interface with explicit user flows, states, accessibility, and visual hierarchy."
