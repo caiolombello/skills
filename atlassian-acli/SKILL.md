@@ -8,17 +8,17 @@ The user has `acli` (Atlassian CLI) installed and authenticated globally via OAu
 
 ## Auth model
 
-- OAuth session is **global**, not per-repo. `acli auth status` shows the active account; `acli auth switch` moves between accounts.
-- Running a subcommand without an active session returns:
-  `✗ Error: unauthorized: use 'acli auth login' to authenticate`
-  → pause and tell the user to run `acli auth login`; do not try to work around it.
+- Jira authentication is product-scoped. Use `acli jira auth login` to authenticate, `acli jira auth status` to show the active Jira account, and `acli jira auth switch` to move between Jira accounts.
+- The session is global to the machine, not per-repo. Switching accounts affects future Jira invocations outside the current shell too.
+- If a Jira command returns `unauthorized`, pause and tell the user to run `acli jira auth login`; do not try to work around it.
+- Some versions expose top-level `acli auth ...` compatibility commands for global OAuth. Do not substitute them for the canonical `acli jira auth ...` workflow.
 
 ## Top-level shape
 
 ```
 acli
-├── auth        login/logout/status/switch
 ├── jira
+│   ├── auth       login/logout/status/switch
 │   ├── workitem   view/search/create/edit/transition/comment/link/assign/...
 │   ├── project    list/view/create/update/archive
 │   ├── sprint     create/update/view/list-workitems
@@ -27,6 +27,7 @@ acli
 │   ├── field
 │   └── filter
 ├── confluence
+│   ├── auth       login/logout/status/switch
 │   ├── page       view
 │   ├── blog
 │   └── space
@@ -342,11 +343,11 @@ For bulk operations, always run the same JQL through `search --count` first and 
 
 1. **Status names vary per project.** "In Progress" in one project may be "Doing" in another. Always `view` an existing item in the same project to learn the vocabulary.
 2. **Assignee is by email or account ID, not display name.** `--assignee "John Doe"` fails; `--assignee "john.doe@example.com"` works.
-3. **`@me` resolves to the active acli account**, not to the requestor if multiple accounts are logged in. Check `acli auth status`.
+3. **`@me` resolves to the active Jira account**, not to the requestor if multiple accounts are logged in. Check `acli jira auth status`.
 4. **Labels cannot contain spaces.** Hyphens or camelCase.
 5. **`--json` is the stable contract.** Human-readable output can change between `acli` versions; JSON shape is stable.
-6. **OAuth tokens can expire mid-session.** If a command that worked 10 minutes ago suddenly returns `unauthorized`, tell the user to `acli auth login` rather than retrying.
-7. **Global switching has side effects.** `acli auth switch` changes the active account for all future `acli` invocations in the machine, not just the current shell. If you switched accounts, switch back when done.
+6. **OAuth tokens can expire mid-session.** If a command that worked 10 minutes ago suddenly returns `unauthorized`, tell the user to run `acli jira auth login` rather than retrying.
+7. **Account switching has side effects.** `acli jira auth switch` changes the active Jira account for future `acli` invocations on the machine, not just the current shell. If you switched accounts, switch back when done.
 8. **Epic vs issue parent.** "Epic Link" is a custom field on older Jira projects; next-gen projects use the native `parent` field. If `--parent` fails, try setting the Epic Link via `edit --from-json` with the proper custom field.
 9. **ADF on round-trip.** `view --fields description` returns ADF-rendered text. If you pipe it back into `edit --description`, re-write it as Markdown; do not paste the rendered JSON structure.
 
@@ -354,7 +355,7 @@ For bulk operations, always run the same JQL through `search --count` first and 
 
 Before any write operation (create / edit / transition / comment / delete):
 
-- [ ] `acli auth status` shows the correct active account.
+- [ ] `acli jira auth status` shows the correct active Jira account.
 - [ ] The target key exists (`acli jira workitem view <key>` returns OK).
 - [ ] For bulk ops, JQL was validated with `search --count` first.
 - [ ] Description / comment is plain Markdown, not ADF JSON.
