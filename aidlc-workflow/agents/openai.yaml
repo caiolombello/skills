@@ -1,0 +1,6 @@
+interface:
+  display_name: "AI-DLC Workflow (Adapted)"
+  short_description: "Run an adaptive, gated development lifecycle"
+  default_prompt: "Use $aidlc-workflow to compose and run an adaptive lifecycle for this work."
+policy:
+  allow_implicit_invocation: false

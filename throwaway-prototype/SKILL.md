@@ -37,6 +37,7 @@ If the question is genuinely ambiguous and the user is not reachable, default by
 6. **Delete or absorb when done.** When the prototype has answered the question, either:
    - **Delete it** and fold the validated decision into the real code, or
    - **Absorb it** — rewrite it as production code via `spec-first-planning` + `incremental-implementation`.
+   - If the experiment is valuable evidence that should remain inspectable, preserve it on a throwaway branch or worktree, record the branch/path and verdict in the issue or handoff, and keep it out of the production branch.
    - Never leave prototypes rotting in the repo.
 
 ## LOGIC branch — runnable terminal / script

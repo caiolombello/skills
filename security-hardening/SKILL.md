@@ -1,6 +1,6 @@
 ---
 name: security-hardening
-description: Use when building or changing app code that handles user input, authn/authz, sessions, PII, uploads, redirects, dynamic SQL, or rendering untrusted data. OWASP app-layer, not container/IaC secrets.
+description: Use when app code handles user input, authn/authz, sessions, PII, uploads, redirects, dynamic SQL, or untrusted rendering. OWASP app layer; not AWS architecture, posture, or incidents.
 ---
 <!-- Inspired by addyosmani/agent-skills security-and-hardening (MIT). See ../CREDITS.md -->
 
@@ -9,6 +9,12 @@ description: Use when building or changing app code that handles user input, aut
 Application-layer security. Every external input is hostile. Every secret is sacred. Every authorization check is mandatory. Security is a constraint on every line that touches user data, authentication, or external systems — not a phase at the end.
 
 This skill covers the app layer. Adjacent skills:
+- [`aws-security-architecture`](../aws-security-architecture) — AWS account,
+  identity, network, data, logging, and workload architecture.
+- [`aws-security-posture`](../aws-security-posture) — Security Hub CSPM and
+  compliance-control governance.
+- [`aws-security-incident-response`](../aws-security-incident-response) —
+  suspected AWS compromise.
 - [`container-image-hardening`](../container-image-hardening) — image supply chain, non-root users, SBOM, signing.
 - [`pass-cli-secrets`](../pass-cli-secrets) — where secrets live and how to pipe them without leaking.
 - [`terraform-iac-expert`](../terraform-iac-expert) — IaC security posture.

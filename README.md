@@ -4,7 +4,13 @@ A provider-agnostic library of **agent skills** for LLM coding assistants. Works
 
 ## What this is, in 30 seconds
 
-A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instructions) plus optional scripts or references. Agents typically inject only `name + description + path` at session start (**progressive disclosure**). When a task matches, the agent loads the full body.
+A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter +
+instructions) plus optional scripts or references. The format follows the
+[Open Agent Skills specification](https://agentskills.io/specification) and the
+[Codex skill-authoring guidance](https://learn.chatgpt.com/docs/build-skills).
+Agents typically inject only `name + description + path` at session start
+(**progressive disclosure**). When a task matches, the agent loads the full
+body.
 
 **Why this library exists**: most public skill collections are Claude-specific and assume subagents, personas, or slash commands that do not exist in other tools. The skills here drop those assumptions, use plural rules-file vocabulary (`AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` / `.windsurfrules`), and are written to trigger reliably across providers.
 
@@ -67,7 +73,7 @@ A "skill" is a self-contained folder with a `SKILL.md` (YAML frontmatter + instr
 
 ### On-demand (install when the domain is active)
 
-See [`install-manifests/codex-on-demand.txt`](./install-manifests/codex-on-demand.txt) for situational skills (`deploy-safety`, CI workflows, migrations, FinOps, observability, planning, …). Symlink individual folders only when you need them:
+See [`install-manifests/codex-on-demand.txt`](./install-manifests/codex-on-demand.txt) for situational skills (`aidlc-workflow`, `mcp-development`, `deploy-safety`, CI workflows, migrations, FinOps, observability, AWS security, planning, …). Symlink individual folders only when you need them:
 
 ```bash
 ln -sfn "$PWD/deploy-safety" ~/.agents/skills/deploy-safety
@@ -107,6 +113,7 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`context-engineering`](./context-engineering) | Curate the right context at the right time. Hierarchy from rules file → spec → source → errors → history. Anti-patterns for context starvation / flooding / staleness. |
 | [`brainstorming`](./brainstorming) | Refine rough ideas before planning or coding. Socratic questions, option tradeoffs, explicit assumptions, recommended next artifact. |
 | [`spec-first-planning`](./spec-first-planning) | Specify → Plan → Tasks → Implement. Lightweight spec, dependency map, ordered verifiable tasks. For anything non-trivial. |
+| [`aidlc-workflow`](./aidlc-workflow) | Explicit, on-demand AI-DLC coordinator: compose adaptive phases, depth, gates and traceability from the focused skills already in this library. Defers to a complete native upstream runtime when present. |
 | [`zoom-out`](./zoom-out) | Produce a higher-level map of an area of code — modules, callers, gotchas — before diving in. |
 | [`throwaway-prototype`](./throwaway-prototype) | Build a disposable prototype to answer one design question. Logic branch (terminal) or UI branch (variants on one route). |
 | [`docs-verified-coding`](./docs-verified-coding) | Detect version → fetch official docs → implement as documented → cite the source. Prevents the "library API invented from memory" failure mode. |
@@ -116,6 +123,7 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`test-driven-development`](./test-driven-development) | Red-green-refactor with vertical slices. Bug fixes via the Prove-It pattern (reproduce with a test before fixing). |
 | [`verification-before-completion`](./verification-before-completion) | Prove work is complete before saying done. Records exact checks run, skipped checks, and evidence quality. |
 | [`api-and-interface-design`](./api-and-interface-design) | Stable API design — REST / GraphQL / gRPC / webhooks / events / SDK. Versioning, deprecation lifecycle, error shapes, contract testing. |
+| [`mcp-development`](./mcp-development) | Secure MCP client/server development — protocol and SDK selection, trust boundaries, strict tool contracts, per-call authorization, sandboxing, poisoning defenses, and adversarial tests. |
 | [`diagnose`](./diagnose) | Disciplined debug loop: feedback-loop-first, reproduce, hypothesise, instrument, fix, regression-test, cleanup. For hard bugs, flaky tests, perf regressions. |
 | [`performance-optimization`](./performance-optimization) | Measure → identify → fix → verify → guard. Profile before optimizing. Frontend, backend, DB, build. |
 | [`code-review`](./code-review) | Multi-axis review across correctness, readability, architecture, security, performance. Before merging any non-trivial change. |
@@ -126,7 +134,13 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`dispatching-parallel-agents`](./dispatching-parallel-agents) | Coordinate parallel subagents or sessions safely with tight briefs, file ownership, worktree isolation, and result synthesis. |
 | [`no-docs-unless-asked`](./no-docs-unless-asked) | Blocks the reflex to create `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md` etc. "to be helpful". Updates to existing docs are fine. |
 
-Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-planning` to create the plan, `executing-plans` while working through approved tasks, `verification-before-completion` before saying done, and `finishing-a-development-branch` when preparing PR/merge/handoff or worktree cleanup.
+Workflow precedence: use `brainstorming` to shape vague ideas,
+`spec-first-planning` to create the plan, `executing-plans` while working
+through approved tasks, `verification-before-completion` before saying done,
+and `finishing-a-development-branch` when preparing PR/merge/handoff or
+worktree cleanup. Invoke `aidlc-workflow` only when the user explicitly asks
+for AI-DLC or an auditable end-to-end lifecycle; it coordinates these skills
+rather than replacing them.
 
 ### Git & version control
 
@@ -146,6 +160,9 @@ Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-plann
 | Skill | What it does |
 |-------|--------------|
 | [`awscli-workflows`](./awscli-workflows) | **tooling-specific: requires `aws`.** Safety rules: explicit `--profile`/`--region`, read-before-write, dry-run patterns, IAM key rotation, assume-role chains. |
+| [`aws-security-architecture`](./aws-security-architecture) | Preventive AWS security architecture and review across accounts, identity, network, data, logging, workloads, and cross-account automation. |
+| [`aws-security-posture`](./aws-security-posture) | Security Hub CSPM and compliance-control governance: validate findings, prioritize contextual risk, manage exceptions, plan remediation, and revalidate. |
+| [`aws-security-incident-response`](./aws-security-incident-response) | AWS compromise response for GuardDuty/IAM/root/compute/S3/container/data events: preserve evidence, contain reversibly, eradicate, recover, and improve detections. |
 | [`cost-optimization-aws`](./cost-optimization-aws) | FinOps discipline for AWS: visibility (CUR + tagging), right-sizing, Savings Plans, NAT/data-transfer waste, CloudWatch Logs hygiene. |
 | [`kubectl-workflows`](./kubectl-workflows) | **tooling-specific: requires `kubectl`.** Explicit `--context`/`--namespace`, server-side dry-run + diff, `kubectl debug` over `exec`, safe deletes. |
 | [`karpenter-workflows`](./karpenter-workflows) | **tooling-specific: requires `kubectl`; provider docs required; cloud CLI may be needed for provider-side verification.** Safe design, tuning, and troubleshooting of Karpenter `NodePool` / `NodeClass` capacity control. |
@@ -164,7 +181,7 @@ Workflow precedence: use `brainstorming` to shape vague ideas, `spec-first-plann
 | [`database-migrations`](./database-migrations) | Safe production schema changes. Expand/contract, online DDL, `CONCURRENTLY`, `NOT VALID`, throttled backfills, lock timeouts, ORM + `pt-osc` / `gh-ost` / Atlas. |
 | [`disaster-recovery`](./disaster-recovery) | Backups that restore, RTO/RPO per domain, 3-2-1-1-0, restore tests as SLIs, quarterly drills, ransomware-specific hardening. |
 | [`observability`](./observability) | Golden signals, SLIs/SLOs, burn-rate alerts, cardinality control, structured logs, OpenTelemetry traces, dashboards that work at 3am. |
-| [`incident-response`](./incident-response) | Live incident discipline: declare → triage → stabilize → communicate → resolve → blameless postmortem. Stabilize first; root-cause later. |
+| [`incident-response`](./incident-response) | Live incident command: declare → triage → stabilize → communicate → resolve → blameless postmortem. Pair with `aws-security-incident-response` for AWS compromise. |
 | [`incident-triage`](./incident-triage) | First-response from a pasted PagerDuty/Alertmanager/monitoring alert — normalize, scope, gather Grafana/kubectl/AWS evidence. Not full IC command (use `incident-response`). |
 | [`runbook-authoring`](./runbook-authoring) | Write runbooks that on-call can follow at 3am. Scoped per alert, copy-paste commands, verify-after-action, escalation on top. |
 | [`architecture-decision-records`](./architecture-decision-records) | Capture significant decisions as short, immutable ADRs (MADR format). Supersede instead of edit. Linked from the rules file. |
@@ -245,6 +262,8 @@ Symlinks mean a single `git pull` updates every agent at once.
 ```
 <skill-name>/
   SKILL.md          # YAML frontmatter (name + description) and instructions
+  agents/
+    openai.yaml     # optional Codex/ChatGPT UI metadata and dependencies
   scripts/          # optional helpers
   references/       # optional longer docs loaded on demand
 ```
@@ -263,7 +282,18 @@ See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencod
 
 ## Credits
 
-Several skills here are **inspired by** excellent upstream projects — rewritten to be provider-agnostic and consistent with the rest of the library. See [CREDITS.md](CREDITS.md) for attribution to [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), [mattpocock/skills](https://github.com/mattpocock/skills), [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), [obra/superpowers](https://github.com/obra/superpowers), and [anthropics/skills](https://github.com/anthropics/skills), and [yusukebe/ax](https://github.com/yusukebe/ax).
+Several skills here are **inspired by** excellent upstream projects — rewritten
+to be provider-agnostic and consistent with the rest of the library. See
+[CREDITS.md](CREDITS.md) for the complete provenance, including
+[addyosmani/agent-skills](https://github.com/addyosmani/agent-skills),
+[mattpocock/skills](https://github.com/mattpocock/skills),
+[obra/superpowers](https://github.com/obra/superpowers),
+[aws/agent-toolkit-for-aws](https://github.com/aws/agent-toolkit-for-aws),
+[awslabs/aidlc-workflows](https://github.com/awslabs/aidlc-workflows),
+[heliocosta-dev/revenue-centric-design](https://github.com/heliocosta-dev/revenue-centric-design),
+[modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol),
+the [NSA MCP security design guide](https://media.defense.gov/2026/Jun/02/2003943289/-1/-1/0/CSI_MCP_SECURITY.PDF),
+and the other reviewed sources.
 
 ## Contributing
 

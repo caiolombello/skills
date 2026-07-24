@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: Coordinate parallel subagents or separate agent sessions safely. Use WHENEVER (1) a task can be split across independent research or implementation tracks; (2) the user asks to use multiple agents, subagents, parallel work, or delegate; (3) codebase exploration, review, docs verification, security audit, or test investigation can run concurrently; (4) you need fresh-context reviewers or specialists; (5) worktrees or branch isolation are needed to avoid collisions. Provider-agnostic: use subagent tools if available, otherwise give copy-pasteable session briefs.
+description: "Coordinate parallel subagents or separate agent sessions safely. Use WHENEVER (1) a task can be split across independent research or implementation tracks; (2) the user asks to use multiple agents, subagents, parallel work, or delegate; (3) codebase exploration, review, docs verification, security audit, or test investigation can run concurrently; (4) you need fresh-context reviewers or specialists; (5) worktrees or branch isolation are needed to avoid collisions. Provider-agnostic: use subagent tools if available, otherwise give copy-pasteable session briefs."
 ---
 
 <!-- Inspired by obra/superpowers dispatching-parallel-agents and subagent-driven-development (MIT). See ../CREDITS.md -->

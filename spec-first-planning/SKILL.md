@@ -2,7 +2,7 @@
 name: spec-first-planning
 description: 'Use when starting a non-trivial or vague feature: write a lightweight spec and ordered tasks before code. Skip one-line fixes, renames, and obvious single-file changes.'
 ---
-<!-- Inspired by addyosmani/agent-skills spec-driven-development + planning-and-task-breakdown (MIT). See ../CREDITS.md -->
+<!-- Inspired by addyosmani/agent-skills spec-driven-development + planning-and-task-breakdown (MIT) and awslabs/aidlc-workflows adaptive depth and traceability (MIT-0). See ../CREDITS.md -->
 
 # Spec-First Planning
 
@@ -25,6 +25,19 @@ This skill fuses two disciplines: **specify what we are building** and **break i
 - Rename-only refactors.
 - Requirements already unambiguous and self-contained.
 - Task fits in a single file, single function, <30 minutes.
+
+## Choose planning depth
+
+Scale the artifact, not the discipline:
+
+| Depth | Use when | Expected treatment |
+|---|---|---|
+| Minimal | Isolated, reversible, well-specified change | Intent, scope, acceptance criteria, tasks, exact verification |
+| Standard | Multi-file feature, migration, or meaningful NFR | Full spec, dependency map, risks, rollout, task traceability |
+| Comprehensive | High blast radius, regulated data, cross-team or architectural change | Full traceability, security/compliance evidence, rollback, ownership, operational readiness |
+
+State the chosen depth and rationale. A short task can still need comprehensive
+security or rollout treatment; document depth and test depth are independent.
 
 ## The gated workflow
 
@@ -146,6 +159,14 @@ DB schema
 ## Rollout
 <Feature flags? Migrations? Sequenced deploys? Backfills?>
 
+## Lifecycle coverage
+<Security, compliance, rollback, observability, support and ownership.
+ Mark irrelevant concerns N/A with a reason.>
+
+## Traceability
+| Requirement / risk | Task | Verification | Status |
+|---|---|---|---|
+
 ## Risks revisited
 <Anything the codebase reading revealed that was not in the spec>
 ```
@@ -179,6 +200,8 @@ Decompose the plan into small, ordered, verifiable tasks. Prefer **vertical slic
 - [ ] Manual check: <what to look at>
 
 **Dependencies**: <task numbers this depends on, or "None">
+
+**Traces to**: <requirement, success criterion, or risk ID>
 
 **Files likely touched**:
 - `<path>`
@@ -247,6 +270,8 @@ Plans are hypotheses. When you learn something mid-flight:
 - Surface it to the human explicitly: "Task 4 depends on something not in the plan: ...".
 - Revise the task list, not the code. Add tasks, reorder, or split.
 - Keep the spec as-is unless the objective actually changed. A revised spec is a heavy event — it re-opens Phase 1.
+- Back-propagate accepted discoveries to the affected requirement, traceability
+  row, ADR, rollout, or operations check before resuming implementation.
 
 ## Anti-patterns
 
@@ -271,12 +296,15 @@ Plans are hypotheses. When you learn something mid-flight:
 - [`test-driven-development`](../test-driven-development) — each task's verification criteria map to a test.
 - [`llm-coding-discipline`](../llm-coding-discipline) — "surface assumptions" is the first action in Phase 1.
 - [`doubt-driven-review`](../doubt-driven-review) — for architectural decisions in Phase 2, run a fresh-context review before sign-off.
+- [`aidlc-workflow`](../aidlc-workflow) — composes this planning discipline into
+  an explicit adaptive lifecycle when the user asks for AI-DLC.
 
 ## Verification checklist
 
 Before moving from a phase to the next:
 
 **Leaving Specify → Plan**
+- [ ] Planning depth is stated and justified.
 - [ ] Assumptions listed explicitly and the human did not correct them.
 - [ ] "In scope" and "Out of scope" are both filled.
 - [ ] At least one measurable success criterion.
@@ -291,6 +319,7 @@ Before moving from a phase to the next:
 
 **Leaving Tasks → Implement**
 - [ ] Every task has description, acceptance criteria, verification, dependencies, files.
+- [ ] Every task traces to a requirement, success criterion, or risk.
 - [ ] Task 1 is a tracer bullet.
 - [ ] Dependencies form a DAG (no cycles).
 - [ ] Risk-first or scary-part-first is respected.

@@ -8,6 +8,8 @@ description: Use when tests fail, builds break, behavior is wrong/flaky/slow, a 
 
 A disciplined loop for hard bugs. Skip phases only when explicitly justified, and never skip Phase 1.
 
+Before exploring the code, read `CONTEXT.md` if the repository provides one and check nearby ADRs. Use them to learn the module vocabulary and constraints; do not invent a context file or decision record when none exists.
+
 ## Stop-the-line rule
 
 The moment something unexpected happens:
@@ -25,7 +27,7 @@ Do not push past a red build or a failing test to "work on the next thing". Erro
 
 ```
 1. FEEDBACK LOOP   → a fast, deterministic pass/fail signal for the bug
-2. REPRODUCE       → run the loop, confirm it shows the user's bug (not a neighbour)
+2. REPRODUCE + MINIMIZE → run the loop, confirm it shows the user's bug, then shrink it
 3. HYPOTHESISE     → 3-5 ranked, falsifiable hypotheses before any fix
 4. INSTRUMENT      → one probe per hypothesis, one variable at a time
 5. FIX + REGRESSION TEST → minimal fix, protected by a test if a seam exists
@@ -99,7 +101,7 @@ Stop and say so explicitly. List what you tried. Ask the user for either:
 
 Do **not** proceed to hypothesise without a loop. A hypothesis without a loop is a guess, and guesses ship wrong fixes.
 
-## Phase 2 — Reproduce
+## Phase 2 — Reproduce + minimize
 
 Run the loop. Watch the bug appear. Confirm:
 
@@ -108,6 +110,12 @@ Run the loop. Watch the bug appear. Confirm:
 - [ ] You have captured the exact symptom (error message, wrong output, timing) so later phases can verify the fix.
 
 Do not proceed until you reproduce the bug.
+
+### Minimize the reproduction
+
+Once the loop is red, remove inputs, callers, configuration, data, and steps one at a time. Keep only what is load-bearing for the failure, rerunning the loop after each reduction. The minimized case becomes the regression test and narrows the hypothesis space.
+
+Do not proceed to Phase 3 until the failure is reproduced and minimized, unless a reduction would destroy the only evidence of an environment-dependent failure; record that exception explicitly.
 
 ## Phase 3 — Localize + hypothesise
 

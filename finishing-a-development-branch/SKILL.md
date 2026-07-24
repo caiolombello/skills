@@ -1,6 +1,6 @@
 ---
 name: finishing-a-development-branch
-description: Finish a development branch safely before merge, PR, handoff, or discard. Use WHENEVER (1) implementation tasks are complete; (2) the user asks to wrap up, finish the branch, prepare PR/MR, merge, or clean up; (3) a worktree branch needs final verification; (4) deciding whether to merge, open a PR, keep the branch, or discard it; (5) before declaring a multi-commit coding task done. Runs final checks, summarizes evidence, and presents safe next actions.
+description: Use when implementation is complete and a branch or worktree needs final verification before PR, merge, handoff, or cleanup. Present integration choices; never offer discard unless the user asks.
 ---
 
 <!-- Inspired by obra/superpowers finishing-a-development-branch (MIT). See ../CREDITS.md -->
@@ -81,23 +81,50 @@ Offer explicit safe options:
 2. Commit remaining changes — only if the user asked for commits.
 3. Keep branch/worktree for later.
 4. Merge locally — only if requested and safe.
-5. Discard/remove worktree — destructive; requires explicit confirmation.
 
 Do not push, merge, delete, or clean up just because the branch is finished.
+Do not offer discard as a routine completion choice. Discuss discard only when
+the user explicitly asks to throw the work away.
+
+## Explicit discard requests
+
+Resolve and show every target before deleting anything:
+
+```bash
+git status
+git log --oneline <base>..<branch>
+git worktree list
+```
+
+Then ask for confirmation that names the branch, commits, and worktree path.
+Only after confirmation may `git worktree remove` and branch deletion be
+considered. Dirty worktrees, unpushed commits, and force deletion require a
+separate warning; follow `git-hygiene`.
 
 ## Worktree cleanup
 
 If using a worktree, remove it only after the user chooses the outcome.
 
-Safe path after merge/PR/discard decision:
+Capture workspace provenance while still inside the worktree:
+
+```bash
+GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
+GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P)
+WORKTREE_PATH=$(git rev-parse --show-toplevel)
+```
+
+Safe path after merge or a confirmed discard decision, run from outside the
+worktree:
 
 ```bash
 git worktree list
-git worktree remove <path>
+git worktree remove "$WORKTREE_PATH"
 git worktree prune
 ```
 
 If the worktree is dirty, stop. Do not use `--force` without explicit confirmation.
+If the workspace was created and managed by the host rather than by this
+workflow, leave cleanup to the host.
 
 ## PR/MR readiness checklist
 
@@ -118,6 +145,7 @@ Use `pr-workflow` for the actual PR/MR body.
 |---|---|
 | "Done" without final test evidence | False confidence |
 | Auto-pushing after coding | Surprises user and can leak mistakes |
+| Offering discard as a normal finish option | Normalizes irreversible cleanup |
 | Cleaning worktree before user decision | Data loss |
 | Hiding skipped checks | Reviewers discover gaps later |
 | Merging with known failing tests | Moves risk to mainline |

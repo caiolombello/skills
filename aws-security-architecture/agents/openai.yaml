@@ -1,0 +1,4 @@
+interface:
+  display_name: "AWS Security Architecture"
+  short_description: "Design and review secure AWS architectures"
+  default_prompt: "Use $aws-security-architecture to design and review this AWS architecture against explicit security objectives."

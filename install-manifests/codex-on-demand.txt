@@ -1,4 +1,6 @@
 # Symlink into ~/.agents/skills only when the domain needs it (not always-on).
+aidlc-workflow
+mcp-development
 deploy-safety
 github-actions-workflows
 container-image-hardening
@@ -6,3 +8,6 @@ database-migrations
 cost-optimization-aws
 observability
 spec-first-planning
+aws-security-architecture
+aws-security-posture
+aws-security-incident-response

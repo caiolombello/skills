@@ -1,9 +1,9 @@
 ---
 name: test-driven-development
-description: Red-green-refactor with vertical slices. Write a failing test first, the minimum code to pass, then refactor with tests as the safety net. Use WHENEVER (1) implementing new business logic, a new API endpoint, or any behavior change; (2) fixing a bug — reproduce with a failing test before attempting a fix (the Prove-It pattern); (3) the user mentions TDD, red-green-refactor, "test first", or "write a test"; (4) modifying existing functionality where a regression would hurt; (5) the codebase has a test runner configured and the change is behavioral. Applies to any language with a test framework. Skip only for pure config/docs/static-content changes with no behavioral impact.
+description: Use for behavioral changes and bug fixes when a test runner exists. Work in vertical red-green-refactor slices, prove bugs with a failing test first, and test public behavior rather than internals.
 ---
 
-<!-- Inspired by mattpocock/skills engineering/tdd (MIT) and addyosmani/agent-skills test-driven-development (MIT). See ../CREDITS.md -->
+<!-- Inspired by mattpocock/skills engineering/tdd, addyosmani/agent-skills test-driven-development, and obra/superpowers writing-good-tests (MIT). See ../CREDITS.md -->
 
 # Test-Driven Development
 
@@ -18,6 +18,12 @@ Write the failing test before the code. Tests are **proof** — "seems right" is
 - Bad tests mock internal collaborators, poke private methods, or query state directly instead of going through the interface. Warning sign: the test breaks when you rename an internal function but behavior is unchanged.
 
 If renaming a private helper breaks a test, that test is coupled to implementation. Fix the test (or delete it), not the rename.
+
+## Before writing a test
+
+- Read `CONTEXT.md` if the repository provides one and check nearby ADRs so test names and interface vocabulary match the project.
+- Identify the public seam under test and agree on it when the boundary is new or ambiguous.
+- Do not write a test against an unverified seam. If no suitable public seam exists, record that architectural gap instead of creating a misleading unit test.
 
 ## The cycle
 
@@ -165,6 +171,16 @@ After all required tests pass:
 
 Name tests as **sentences** describing behavior: `it('returns 422 for invalid email')`, not `it('validation')`.
 
+Before writing the body, name the realistic production change that should make
+the test fail. If the answer is only "the source text changed" or an intentional
+constant changed, redesign the test around an observable outcome. Derive
+expected values independently; do not call the implementation or one of its
+helpers to calculate both sides of the assertion.
+
+Read [references/writing-good-tests.md](references/writing-good-tests.md) when
+writing mocks, fixtures, test-only helpers, or tests for scripts and generated
+artifacts.
+
 ## Mocking — use sparingly
 
 **Mock at boundaries, not internals.** Mocks that replace internal collaborators couple your tests to the wrong thing.
@@ -229,6 +245,8 @@ If in doubt, write the test. The cost is low; the cost of shipping behavior with
 Per cycle:
 
 - [ ] Test describes behavior, not implementation.
+- [ ] A realistic production mutation that this test catches was named.
+- [ ] Expected values were hand-derived, not computed by the code under test.
 - [ ] Test uses the public interface only.
 - [ ] Test would survive an internal refactor.
 - [ ] Test name is a sentence describing the behavior.

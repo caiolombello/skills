@@ -1,6 +1,6 @@
 ---
 name: using-git-worktrees
-description: Use git worktrees to isolate parallel agent work safely. Use WHENEVER (1) starting a non-trivial implementation branch that should not dirty the current checkout; (2) running multiple agents or experiments in parallel; (3) the user asks for a worktree, parallel branch, sandbox, isolated checkout, or disposable branch; (4) switching tasks while current work is in progress; (5) a risky refactor/prototype should be isolated from the main working tree. Pairs with git-hygiene; requires git.
+description: Use when feature work needs an isolated checkout, multiple sessions work in parallel, or a risky experiment should not dirty the current tree. Detect existing isolation first; pair with git-hygiene.
 ---
 
 <!-- Inspired by obra/superpowers using-git-worktrees (MIT). See ../CREDITS.md -->
@@ -27,14 +27,31 @@ Use this with `git-hygiene`. A worktree does not make unsafe git commands safe.
 
 ## Pre-flight
 
-Before creating a worktree, verify state:
+Before creating anything, detect whether the harness already isolated the
+workspace:
 
 ```bash
+GIT_DIR=$(cd "$(git rev-parse --git-dir)" 2>/dev/null && pwd -P)
+GIT_COMMON=$(cd "$(git rev-parse --git-common-dir)" 2>/dev/null && pwd -P)
+git rev-parse --show-superproject-working-tree 2>/dev/null
+git rev-parse --show-toplevel
 git status
 git branch --show-current
 git worktree list
 git log -5 --oneline
 ```
+
+`GIT_DIR != GIT_COMMON` usually means a linked worktree, but the same is true
+inside a submodule. If `--show-superproject-working-tree` returns a path, treat
+the checkout as a submodule rather than as an agent worktree.
+
+If already in a linked worktree, reuse it. Do not create a worktree inside a
+worktree. If the harness exposes a native worktree or isolated-workspace tool,
+prefer that tool so the harness owns placement and cleanup.
+
+If isolation was not requested and no standing project preference exists, ask
+before creating a worktree. An explicit user request for a worktree or an
+approved plan that requires parallel isolation is already consent.
 
 If the current tree is dirty, stop and decide:
 
@@ -69,6 +86,19 @@ git worktree add ../infra-fix-alb-timeout -b fix/alb-timeout origin/main
 
 Use the actual base branch for the repo (`main`, `master`, `develop`, or release branch). Do not assume.
 
+Honor an explicit project worktree directory first. If the repository already
+uses `.worktrees/` or `worktrees/`, verify it is ignored before creating
+anything inside it:
+
+```bash
+git check-ignore -q .worktrees
+git check-ignore -q worktrees
+```
+
+If neither project-local directory is established, keep the sibling-directory
+default shown above. Do not add `.gitignore` entries or commit setup changes
+unless the user asked for that repository change.
+
 ## Creation workflow
 
 1. Fetch and inspect the base:
@@ -84,9 +114,11 @@ Use the actual base branch for the repo (`main`, `master`, `develop`, or release
    git worktree add ../<repo>-<task> -b <type>/<task> origin/main
    ```
 
-3. Enter the new directory and verify:
+3. Capture the absolute path, enter the new directory, and verify:
 
    ```bash
+   WORKTREE_PATH=$(git -C ../<repo>-<task> rev-parse --show-toplevel)
+   cd "$WORKTREE_PATH"
    git status
    git branch --show-current
    ```
@@ -134,6 +166,9 @@ If removal fails because the tree is dirty, stop. Do not force remove without ex
 | Anti-pattern | Why it fails |
 |---|---|
 | Creating worktrees from a guessed base | Replays work onto the wrong branch |
+| Creating a nested worktree when isolation already exists | Produces confusing, harness-invisible state |
+| Treating a submodule as a linked worktree | Skips required isolation and setup |
+| Using a project-local directory without `git check-ignore` | Risks tracking the worktree contents |
 | Sharing one branch across multiple agents | Race conditions and overwritten work |
 | Copying `.env` by habit | Secret sprawl |
 | Leaving abandoned worktrees | Confuses future status and disk usage |

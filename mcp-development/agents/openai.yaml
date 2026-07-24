@@ -1,0 +1,4 @@
+interface:
+  display_name: "MCP Development"
+  short_description: "Build and review secure MCP clients and servers"
+  default_prompt: "Use $mcp-development to design, implement, test, or review this MCP integration with security controls."

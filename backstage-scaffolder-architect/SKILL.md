@@ -1,7 +1,6 @@
 ---
 name: backstage-scaffolder-architect
 description: Generates high-quality Backstage Scaffolder templates (template.yaml + skeleton) following best practices, security guidelines, and standard conventions.
-version: 2.0.0
 ---
 
 # Backstage Scaffolder Template Expert

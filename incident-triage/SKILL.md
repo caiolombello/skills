@@ -1,6 +1,6 @@
 ---
 name: incident-triage
-description: Use when the user pastes a PagerDuty, Alertmanager, or monitoring alert, or asks for first-response triage with Grafana, kubectl, and AWS CLI. Not full incident command (see incident-response).
+description: Use for first-response triage of PagerDuty, Alertmanager, or operational monitoring alerts with Grafana, kubectl, and AWS CLI. Not incident command or suspected AWS compromise.
 ---
 # Incident Triage
 
@@ -12,6 +12,10 @@ Use this skill for first-response operational triage. Treat PagerDuty and Alertm
 - The user asks "what should we do with this alert?"
 - The user wants an initial incident investigation
 - The user wants a ready-to-send status update for Slack, PagerDuty, or incident chat
+
+Do not use this as the primary workflow for GuardDuty findings, exposed AWS
+credentials, or suspected malicious activity. Use
+[`aws-security-incident-response`](../aws-security-incident-response).
 
 ## Immediate Rules
 

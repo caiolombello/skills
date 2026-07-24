@@ -1,6 +1,6 @@
 ---
 name: incident-response
-description: Use for LIVE production incidents (outage, SEV/on-call, bad deploy, dependency down) and postmortems. Stabilize first, then root-cause. Not for dev-branch bugs (use diagnose).
+description: Use for LIVE production outages, SEV/on-call events, bad deploys, dependency failures, and postmortems. Stabilize first. For suspected AWS compromise, pair with aws-security-incident-response.
 ---
 # Incident Response
 
@@ -20,6 +20,10 @@ This skill covers the operational discipline of running a live incident. It is d
 ### When NOT to apply
 
 - Debugging in dev / staging with no user impact → [`diagnose`](../diagnose).
+- Suspected malicious activity or AWS credential/resource compromise → use
+  [`aws-security-incident-response`](../aws-security-incident-response) for the
+  security investigation and containment; keep this skill for IC, severity,
+  communications, and the shared timeline.
 - Pre-incident capacity planning → [`observability`](../observability).
 - Feature work under normal development → [`incremental-implementation`](../incremental-implementation).
 
@@ -209,7 +213,7 @@ Assume everyone acted in good faith with the information they had. **Ask "what s
 - Prefer **systemic** actions over **procedural** ones. "Add a test" beats "everyone please remember". "Put a safeguard in CI" beats "be more careful".
 - Split **repeat-prevention** (systemic) from **impact-reduction** (faster detection, faster mitigation). Both matter.
 
-The [`opsteam-docs`](../../.config/opencode/skill/opsteam-docs) skill (local) can render this postmortem to the OpsTeam `.docx` template for client delivery.
+The [`opsteam-docs`](../opsteam-docs) skill can render this postmortem to the OpsTeam `.docx` template for client delivery.
 
 ## Solo-on-call mode
 
@@ -250,12 +254,15 @@ See [`awscli-workflows`](../awscli-workflows) and [`kubectl-workflows`](../kubec
 
 ## Interaction with other skills
 
+- [`aws-security-incident-response`](../aws-security-incident-response) — owns
+  AWS evidence preservation, compromise scoping, containment, eradication, and
+  recovery. This skill still owns incident command and stakeholder cadence.
 - [`diagnose`](../diagnose) — after stabilization, use `diagnose` to root-cause properly. The regression test from `diagnose` becomes the "add a test" action item.
 - [`observability`](../observability) — if detection took too long, action items come from here (SLI gaps, alert misses, missing dashboards).
 - [`deploy-safety`](../deploy-safety) — "rollback first" is the core mitigation; `deploy-safety` defines what "safe rollback" actually means per deploy.
 - [`awscli-workflows`](../awscli-workflows), [`kubectl-workflows`](../kubectl-workflows) — every write during mitigation follows these safety rules (explicit context, read-before-write).
 - [`git-hygiene`](../git-hygiene) — incident fixes follow Conventional Commits (`fix(incident-YYYY-MM-DD): ...`).
-- [`opsteam-docs`](../../.config/opencode/skill/opsteam-docs) (local) — renders the final postmortem for client delivery.
+- [`opsteam-docs`](../opsteam-docs) — renders the final postmortem for client delivery.
 
 ## Verification checklist
 

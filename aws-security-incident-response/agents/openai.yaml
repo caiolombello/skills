@@ -1,0 +1,4 @@
+interface:
+  display_name: "AWS Security Incident Response"
+  short_description: "Respond safely to AWS security incidents"
+  default_prompt: "Use $aws-security-incident-response to investigate and contain this suspected AWS compromise while preserving evidence."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AWS Security Posture"
+  short_description: "Govern AWS Security Hub and compliance posture"
+  default_prompt: "Use $aws-security-posture to triage these Security Hub findings and produce an evidence-backed remediation plan."
