@@ -1,0 +1,4 @@
+interface:
+  display_name: "Delivery Coordination"
+  short_description: "Keep cards, dependencies, and delivery aligned"
+  default_prompt: "Use $delivery-coordination to triage this backlog, improve card readiness, and surface owners, blockers, and decisions."

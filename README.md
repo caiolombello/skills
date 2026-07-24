@@ -112,6 +112,8 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`project-rules-file`](./project-rules-file) | Create, audit, and maintain `AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` and friends — the single highest-leverage context for any coding agent. |
 | [`context-engineering`](./context-engineering) | Curate the right context at the right time. Hierarchy from rules file → spec → source → errors → history. Anti-patterns for context starvation / flooding / staleness. |
 | [`brainstorming`](./brainstorming) | Refine rough ideas before planning or coding. Socratic questions, option tradeoffs, explicit assumptions, recommended next artifact. |
+| [`product-management`](./product-management) | Decide what product work should happen and why: outcomes, evidence, metrics, roadmap themes, prioritization, and stakeholder tradeoffs. |
+| [`delivery-coordination`](./delivery-coordination) | Keep intake, cards, backlog readiness, ownership, dependencies, blockers, delivery status, and follow-up aligned. |
 | [`spec-first-planning`](./spec-first-planning) | Specify → Plan → Tasks → Implement. Lightweight spec, dependency map, ordered verifiable tasks. For anything non-trivial. |
 | [`aidlc-workflow`](./aidlc-workflow) | Explicit, on-demand AI-DLC coordinator: compose adaptive phases, depth, gates and traceability from the focused skills already in this library. Defers to a complete native upstream runtime when present. |
 | [`zoom-out`](./zoom-out) | Produce a higher-level map of an area of code — modules, callers, gotchas — before diving in. |
@@ -137,12 +139,14 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`no-docs-unless-asked`](./no-docs-unless-asked) | Blocks the reflex to create `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md` etc. "to be helpful". Updates to existing docs are fine. |
 
 Workflow precedence: use `brainstorming` to shape vague ideas,
-`spec-first-planning` to create the plan, `executing-plans` while working
-through approved tasks, `verification-before-completion` before saying done,
-and `finishing-a-development-branch` when preparing PR/merge/handoff or
-worktree cleanup. Invoke `aidlc-workflow` only when the user explicitly asks
-for AI-DLC or an auditable end-to-end lifecycle; it coordinates these skills
-rather than replacing them.
+`product-management` to decide outcomes and priorities, `delivery-coordination`
+to govern cards and delivery flow, `spec-first-planning` to create the
+technical plan, `executing-plans` while working through approved tasks,
+`verification-before-completion` before saying done, and
+`finishing-a-development-branch` when preparing PR/merge/handoff or worktree
+cleanup. Invoke `aidlc-workflow` only when the user explicitly asks for AI-DLC
+or an auditable end-to-end lifecycle; it coordinates these skills rather than
+replacing them.
 
 ### Git & version control
 

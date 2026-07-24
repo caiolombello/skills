@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Management"
+  short_description: "Set product direction, outcomes, and priorities"
+  default_prompt: "Use $product-management to turn this product context into evidence-backed priorities and an outcome-oriented roadmap."

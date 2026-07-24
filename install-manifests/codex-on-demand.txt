@@ -3,6 +3,8 @@ aidlc-workflow
 mcp-development
 frontend-design
 frontend-development
+product-management
+delivery-coordination
 throwaway-prototype
 deploy-safety
 github-actions-workflows
