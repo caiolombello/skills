@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handoff"
+  short_description: "Transfer verified session state safely"
+  default_prompt: "Use $handoff to create a concise, paste-ready briefing for continuing this work in a new conversation."
