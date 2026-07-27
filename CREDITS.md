@@ -149,15 +149,24 @@ guidance on demand rather than expanding the default catalog.
 
 Latest review snapshot: `6fa20cb`.
 
-Downloaded as a local reference only; no skill from this repository has been
-adapted into this library. It contains a product-design, conversion, retention,
-pricing and behavioral-science playbook for SaaS/startups. `frontend-design`
-and `frontend-development` are independently written from public web standards
-and official testing documentation; they do not copy this playbook. Any future
-copy or derivative must retain attribution to Richard (@richardrx), preserve
-the full license terms, and must not be used for gambling, betting, casino,
-loot-box or real-money-gaming work. See the upstream
+Its user-and-business outcome framing, evidence discipline, value-path
+measurement, and ethical monetization guidance inform `ai-interface-design`.
+That skill preserves the full upstream terms in its own `LICENSE` and must not
+be used for gambling, betting, casino, loot-box, or real-money-gaming work.
+`frontend-design` and `frontend-development` remain independently written from
+public web standards and official testing documentation. See the upstream
 [LICENSE](https://github.com/heliocosta-dev/revenue-centric-design/blob/main/LICENSE).
+
+### [Nutlope/hallmark](https://github.com/Nutlope/hallmark) — MIT
+
+Copyright (c) 2026 Hallmark contributors.
+Commit referenced: `aeb42fb`.
+
+`ai-interface-design` adapts Hallmark's brief-led structural variety,
+anti-template review posture, and distinction between visual novelty and
+meaningful product shape. The local workflow is independently written for
+AI-native product interaction and does not vendor Hallmark's themes, component
+catalog, or slop-test rule set.
 
 ### [modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol) — MIT
 

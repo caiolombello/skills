@@ -17,6 +17,7 @@ Turn product intent into an implementation-ready interface specification. Design
 ## When not to use
 
 - Implement an already-decided interface in production code; use [`frontend-development`](../frontend-development).
+- Design AI-native model states, tool activity, generated artifacts, trust, or approval flows with this skill alone; pair it with [`ai-interface-design`](../ai-interface-design).
 - Explore several disposable UI directions before deciding; use [`throwaway-prototype`](../throwaway-prototype).
 - Design an API, event, webhook, or SDK contract; use [`api-and-interface-design`](../api-and-interface-design).
 - Perform a generic final code review; use [`code-review`](../code-review).
@@ -159,6 +160,7 @@ Report findings with location, user impact, evidence, and a concrete recommendat
 
 ## Interaction with other skills
 
+- [`ai-interface-design`](../ai-interface-design) — extends this baseline for AI-native interaction, model states, trust, provenance, controls, and product-value evidence.
 - [`frontend-development`](../frontend-development) — implements the approved design in the real stack and verifies behavior.
 - [`throwaway-prototype`](../throwaway-prototype) — explores disposable alternatives when the design direction is uncertain.
 - [`brainstorming`](../brainstorming) — clarifies an ambiguous product idea before interface design begins.

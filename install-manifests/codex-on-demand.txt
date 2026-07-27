@@ -2,6 +2,7 @@
 aidlc-workflow
 mcp-development
 frontend-design
+ai-interface-design
 frontend-development
 product-management
 delivery-coordination

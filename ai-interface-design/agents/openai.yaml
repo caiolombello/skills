@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Interface Design"
+  short_description: "Design trustworthy, distinctive AI interfaces"
+  default_prompt: "Use $ai-interface-design to design or review this AI-powered interface with explicit model states, user control, trust, and product outcomes."
