@@ -106,7 +106,7 @@ Use determinate progress only when the system knows total work. Never animate fa
 
 ### 6. Create a brief-led visual fingerprint
 
-Inspect existing brand and product patterns first. Then define:
+Inspect existing brand and product patterns first. For a new direction, use [the visual-direction reference](../frontend-design/references/visual-direction.md) selectively; do not load a brand collection or duplicate the baseline. Then define:
 
 - Macrostructure: conversation, workbench, canvas, timeline, comparison, command surface, or another task-led shape.
 - Hierarchy: input, generated work, evidence, controls, status, and next action.
@@ -121,7 +121,7 @@ Reject default AI aesthetics when the brief does not justify them:
 - Sparkle icons as the only signal of AI capability.
 - Fake terminal output, fabricated dashboards, invented testimonials, or decorative citations.
 
-Distinctiveness must not reduce comprehension, accessibility, performance, or design-system consistency.
+These are defaults to question for new work, not a ban on the user’s chosen visual language. Preserve established brand choices unless the redesign authorizes changing them. Distinctiveness must not reduce comprehension, accessibility, performance, or design-system consistency. In rendered QA, inspect long streamed content, partial output, source expansion, and approval controls; decorative motion must not compete with streaming or status announcements.
 
 ### 7. Make trust and safety legible
 

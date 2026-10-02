@@ -130,6 +130,8 @@ Use [`security-hardening`](../security-hardening) when the change handles authen
 - Size and load media intentionally; avoid shipping unnecessary assets or JavaScript.
 - Preserve useful reading width on large screens and usable interaction on narrow screens.
 
+For mobile-specific behavior or motion changes, read [references/mobile-motion.md](references/mobile-motion.md). Keep motion tied to state or orientation and preserve the existing platform conventions; a web task does not authorize a native-app rewrite.
+
 Measure before making performance claims. Route profiling and budgets to [`performance-optimization`](../performance-optimization).
 
 ### 8. Test behavior at the right layers
@@ -152,7 +154,7 @@ Run project-defined commands and record exact outcomes:
 - Typecheck and lint.
 - Production build when the build path changed.
 - Relevant integration or end-to-end tests.
-- Visual checks at representative widths and states.
+- Actual rendered screenshots at representative narrow and wide widths and relevant states; inspect the image pixels, then correct observed layout defects.
 - Keyboard, focus, zoom, and automated accessibility checks.
 - Slow, failed, stale, and duplicate-request behavior where relevant.
 - Console and network inspection for unexpected errors or sensitive data.
