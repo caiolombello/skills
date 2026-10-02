@@ -174,3 +174,23 @@ If your PR adds a skill that replaces or overlaps an existing one, update both S
 ## Code of conduct
 
 Treat everyone well. Disagree about skills, not people. Sarcasm in SKILL.md content is fine (the writing style here is pointed); sarcasm at contributors is not.
+
+## Provider setup changes
+
+Keep discovery paths and native commands grounded in current official provider
+documentation; record the reviewed date in `setup/README.md`. Do not use one
+provider's plugin schema for another. Keep the existing keep/on-demand manifests
+selective; provider support does not justify bulk-installing all skills.
+
+Run `python3 -m unittest discover -s setup/tests -v` for installer changes. Tests
+must use isolated temporary homes, including paths with spaces, foreign installs,
+managed edits, idempotent update and rollback. Never activate a provider account
+or execute third-party hooks to make a test pass.
+
+The frontend package's skill payload is generated from root sources. Run
+`python3 setup/build_frontend.py --apply` after changing those sources, include
+the generated payload and required license/credit files in the same commit, and
+verify synchronization without `--apply`. Bump all native manifest versions
+together when releasing the package. README, CONTRIBUTING and relevant manifests
+should reflect installation changes in the same review. Record which native
+validators ran and which provider runtime checks remain unavailable.

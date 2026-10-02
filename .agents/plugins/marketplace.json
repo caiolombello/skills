@@ -1,0 +1,10 @@
+{
+  "name": "caio-skills",
+  "interface": { "displayName": "Caio Skills" },
+  "plugins": [{
+    "name": "caio-frontend",
+    "source": { "source": "local", "path": "./plugins/caio-frontend" },
+    "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+    "category": "Productivity"
+  }]
+}

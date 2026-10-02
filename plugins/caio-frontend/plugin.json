@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "caio-frontend",
+  "version": "0.1.0",
+  "description": "Frontend design, implementation and AI interface workflows",
+  "author": { "name": "caiolombello" },
+  "repository": "https://github.com/caiolombello/skills",
+  "keywords": ["frontend", "design", "accessibility", "responsive", "ai-interface"]
+}

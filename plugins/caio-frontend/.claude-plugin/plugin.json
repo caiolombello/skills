@@ -1,0 +1,7 @@
+{
+  "name": "caio-frontend",
+  "version": "0.1.0",
+  "description": "Frontend design, implementation and AI interface workflows",
+  "author": { "name": "caiolombello" },
+  "repository": "https://github.com/caiolombello/skills"
+}

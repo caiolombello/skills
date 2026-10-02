@@ -16,48 +16,26 @@ body.
 
 **Catalog budget (Codex-class agents):** the initial skill list is capped around **2% of context** (fallback **~8000 characters** for the whole list). If you install dozens of long descriptions, the agent truncates descriptions and then **omits skills**. Prefer a small always-on keep-set; keep the rest in the repo for on-demand install.
 
-## Quickstart (5 minutes)
+## Quickstart
 
-1. Clone the repo and cd into it:
-   ```bash
-   git clone https://github.com/caiolombello/skills.git
-   cd skills
-   ```
+Clone the library, then preview and apply only the subset you need:
 
-2. Install the **public always-on keep-set** (not everything):
-   ```bash
-   # Codex / Gemini shared path (recommended for Codex)
-   mkdir -p ~/.agents/skills
-   while IFS= read -r s; do
-     [[ -z "$s" || "$s" =~ ^# ]] && continue
-     ln -sfn "$PWD/$s" ~/.agents/skills/"$s"
-   done < install-manifests/codex-keep.txt
+```sh
+git clone https://github.com/caiolombello/skills.git
+cd skills
+python3 setup/install.py --provider codex --manifest install-manifests/frontend.txt
+python3 setup/install.py --provider codex --manifest install-manifests/frontend.txt --apply
+```
 
-   # Optional machine-local private skills (create from example if needed)
-   # cp install-manifests/codex-keep.local.example.txt install-manifests/codex-keep.local.txt
-   # edit, then:
-   if [[ -f install-manifests/codex-keep.local.txt ]]; then
-     while IFS= read -r s; do
-       [[ -z "$s" || "$s" =~ ^# ]] && continue
-       [[ -d "$PWD/$s" ]] || { echo "skip missing private skill: $s"; continue; }
-       ln -sfn "$PWD/$s" ~/.agents/skills/"$s"
-     done < install-manifests/codex-keep.local.txt
-   fi
-   ```
+Use `codex-keep.txt` instead of `frontend.txt` for the existing keep-set.
+Repeat `--provider` for the local tools you use. The installer defaults to
+preview, preserves other installations, detects managed updates, and provides
+backup and rollback. Existing links into this checkout remain links.
 
-3. Smoke-test in your agent:
-   > *"review this PR for correctness and security"*
-
-   If `code-review` loads, the keep-set is working.
-
-### Install paths by agent
-
-| Agent | Always-on install path | Notes |
-|-------|------------------------|-------|
-| **Codex CLI / Gemini** | `~/.agents/skills/` | Official shared path. **Do not** also install user skills into `~/.codex/skills` (leave `.system` alone). |
-| Claude Code | `~/.claude/skills/` | Symlink keep-set; avoid bulk install if you also use Codex. |
-| OpenCode | `~/.config/opencode/skill/` | Same keep-set discipline. |
-| Kiro | `~/.kiro/skills/` | Same. |
+See [provider setup](setup/README.md) for the verified destinations, native
+GitHub/CLI imports, optional frontend plugin/power, update commands, and test
+limits. Codex, Claude, Cursor and Kiro use different package manifests; the
+repository does not claim one universal plugin format or automatic cloud sync.
 
 ### Suggested starter set (universal)
 
@@ -213,56 +191,18 @@ replacing them.
 
 ## Install (tiered)
 
-Use the manifests under [`install-manifests/`](./install-manifests/):
+| Manifest | Purpose |
+|---|---|
+| `install-manifests/codex-keep.txt` | Existing public keep-set |
+| `install-manifests/frontend.txt` | Focused frontend design, implementation and AI subset |
+| `install-manifests/codex-on-demand.txt` | Domain-specific candidates; select what is relevant |
+| `install-manifests/codex-keep.local.txt` | Gitignored private/company subset; explicitly opt in |
 
-| File | Purpose |
-|------|---------|
-| `codex-keep.txt` | Public always-on subset (safe default for Codex budget) |
-| `codex-on-demand.txt` | Situational skills — install per domain |
-| `codex-keep.local.txt` | Gitignored private/company skills (see `.example`) |
-
-### Codex / Gemini (`~/.agents/skills`)
-
-```bash
-git clone https://github.com/caiolombello/skills.git
-cd skills
-mkdir -p ~/.agents/skills
-while IFS= read -r s; do
-  [[ -z "$s" || "$s" =~ ^# ]] && continue
-  ln -sfn "$PWD/$s" ~/.agents/skills/"$s"
-done < install-manifests/codex-keep.txt
-```
-
-Leave `~/.codex/skills` for Codex `.system` skills only. Installing the same user skills into both paths creates duplicates in the catalog.
-
-### Claude Code / OpenCode / Kiro
-
-Same keep-set, different directory:
-
-```bash
-# Claude
-mkdir -p ~/.claude/skills
-while IFS= read -r s; do
-  [[ -z "$s" || "$s" =~ ^# ]] && continue
-  ln -sfn "$PWD/$s" ~/.claude/skills/"$s"
-done < install-manifests/codex-keep.txt
-
-# OpenCode
-mkdir -p ~/.config/opencode/skill
-while IFS= read -r s; do
-  [[ -z "$s" || "$s" =~ ^# ]] && continue
-  ln -sfn "$PWD/$s" ~/.config/opencode/skill/"$s"
-done < install-manifests/codex-keep.txt
-
-# Kiro
-mkdir -p ~/.kiro/skills
-while IFS= read -r s; do
-  [[ -z "$s" || "$s" =~ ^# ]] && continue
-  ln -sfn "$PWD/$s" ~/.kiro/skills/"$s"
-done < install-manifests/codex-keep.txt
-```
-
-Symlinks mean a single `git pull` updates every agent at once.
+Use [the selective installer and native provider instructions](setup/README.md).
+Do not bulk-install the library or run a prune operation as part of installation.
+Leave `~/.codex/skills/.system` and synced/plugin caches untouched. Installation
+paths, skill discovery, account plugin activation and cloud distribution are
+separate concerns.
 
 ## Skill anatomy
 

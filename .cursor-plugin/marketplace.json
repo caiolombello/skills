@@ -1,0 +1,10 @@
+{
+  "name": "caio-skills",
+  "owner": { "name": "caiolombello" },
+  "metadata": { "description": "Selective frontend workflows from the Caio skills library" },
+  "plugins": [{
+    "name": "caio-frontend",
+    "source": "plugins/caio-frontend",
+    "description": "Frontend design, implementation and AI interface workflows"
+  }]
+}
