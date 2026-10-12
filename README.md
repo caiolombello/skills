@@ -32,6 +32,13 @@ Repeat `--provider` for the local tools you use. The installer defaults to
 preview, preserves other installations, detects managed updates, and provides
 backup and rollback. Existing links into this checkout remain links.
 
+For UI work with any model (Codex/GPT, Claude, Gemini, Cursor), install the
+frontend subset and paste
+[`frontend-design/assets/agents-snippet.md`](frontend-design/assets/agents-snippet.md)
+into your project's `AGENTS.md` so every UI change goes through the same brief,
+craft defaults, and screenshot-critique loop. Model-specific tips:
+[`frontend-design/references/model-notes.md`](frontend-design/references/model-notes.md).
+
 See [provider setup](setup/README.md) for the verified destinations, native
 GitHub/CLI imports, optional frontend plugin/power, update commands, and test
 limits. Codex, Claude, Cursor and Kiro use different package manifests; the
@@ -96,9 +103,9 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`aidlc-workflow`](./aidlc-workflow) | Explicit, on-demand AI-DLC coordinator: compose adaptive phases, depth, gates and traceability from the focused skills already in this library. Defers to a complete native upstream runtime when present. |
 | [`zoom-out`](./zoom-out) | Produce a higher-level map of an area of code — modules, callers, gotchas — before diving in. |
 | [`throwaway-prototype`](./throwaway-prototype) | Build a disposable prototype to answer one design question. Logic branch (terminal) or UI branch (variants on one route). |
-| [`frontend-design`](./frontend-design) | Design or review user-facing web flows, hierarchy, states, responsive behavior, design systems, and accessibility; hand off implementation-ready decisions. |
+| [`frontend-design`](./frontend-design) | Design, build, or review user-facing UI to an explicit quality bar: design brief, visual direction, craft defaults, states, accessibility, and a screenshot-critique loop with bundled lint, audit, and contrast tools. |
 | [`ai-interface-design`](./ai-interface-design) | Extend frontend design for AI-native products: model states, streaming, tools, generated artifacts, trust, user control, visual specificity, and value evidence. Custom source-available terms exclude gambling use. |
-| [`frontend-development`](./frontend-development) | Implement production frontend UI in the project’s existing stack and design system, with complete states, accessibility, security, tests, and runtime verification. |
+| [`frontend-development`](./frontend-development) | Implement production frontend UI in the project’s stack (or a minimal new one) and design system, with complete states, accessibility, security, tests, and frontend-design's visual gate. |
 | [`docs-verified-coding`](./docs-verified-coding) | Detect version → fetch official docs → implement as documented → cite the source. Prevents the "library API invented from memory" failure mode. |
 | [`investigate-before-editing`](./investigate-before-editing) | Forces the agent to read relevant code and learn repo conventions before changing anything. Match house style, never invent symbols. |
 | [`incremental-implementation`](./incremental-implementation) | Build in thin vertical slices — implement, test, verify, commit, expand. Tracer-bullet first. Prevents 1000-line-PR failure mode. |

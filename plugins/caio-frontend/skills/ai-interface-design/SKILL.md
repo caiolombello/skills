@@ -121,7 +121,7 @@ Reject default AI aesthetics when the brief does not justify them:
 - Sparkle icons as the only signal of AI capability.
 - Fake terminal output, fabricated dashboards, invented testimonials, or decorative citations.
 
-These are defaults to question for new work, not a ban on the user’s chosen visual language. Preserve established brand choices unless the redesign authorizes changing them. Distinctiveness must not reduce comprehension, accessibility, performance, or design-system consistency. In rendered QA, inspect long streamed content, partial output, source expansion, and approval controls; decorative motion must not compete with streaming or status announcements.
+These are defaults to question for new work, not a ban on the user’s chosen visual language. Preserve established brand choices unless the redesign authorizes changing them. Distinctiveness must not reduce comprehension, accessibility, performance, or design-system consistency. In rendered QA, inspect long streamed content, partial output, source expansion, and approval controls; decorative motion must not compete with streaming or status announcements. Use the `frontend-design` render–critique loop for this: `visual_qa.mjs --steps` can capture streaming, partial, failed, and approval states with fixture responses, and its critique rubric applies unchanged.
 
 ### 7. Make trust and safety legible
 

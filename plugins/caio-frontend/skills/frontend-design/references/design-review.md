@@ -35,6 +35,14 @@ Load this reference when producing a formal design review or an implementation h
 - Secondary actions:
 - Safe exit or recovery:
 
+## Direction and tokens
+- Direction (see visual-direction.md) and why it fits:
+- Type roles, scale, and loading:
+- Color roles (light/dark) and contrast checks:
+- Radius, depth, density, motion:
+- Signature detail:
+- Generic defaults rejected:
+
 ## Components
 | Need | Existing primitive | Variant or composition | New primitive justified? |
 |---|---|---|---|
@@ -56,6 +64,12 @@ Load this reference when producing a formal design review or an implementation h
 - Zoom, reflow, and text enlargement:
 - Motion and reduced-motion behavior:
 - Status and error announcements:
+
+## Visual evidence
+- Screenshots (route, state, viewport, theme, path):
+- ui_lint / visual_qa summary:
+- Rubric scores (critique-rubric.md) and top defects:
+- Not verified (and why):
 
 ## Acceptance criteria
 - [ ] ...

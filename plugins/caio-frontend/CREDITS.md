@@ -1,7 +1,13 @@
 # Frontend bundle provenance
 
 frontend-design and frontend-development are independently written guidance
-from public web standards and official testing documentation.
+from public web standards and official testing documentation. frontend-design
+also reflects reviewed vendor guidance on steering models toward stronger UI:
+OpenAI's [Designing delightful frontends with GPT-5.4](https://developers.openai.com/blog/designing-delightful-frontends-with-gpt-5-4)
+and [frontend prompt instructions](https://developers.openai.com/api/docs/guides/frontend-prompt),
+and Anthropic's [Improving frontend design through Skills](https://claude.com/resources/articles/improving-frontend-design-through-skills).
+No text, prompts, or assets were copied from them; the rules, scripts, tokens,
+and rubric are original.
 
 ### [heliocosta-dev/revenue-centric-design](https://github.com/heliocosta-dev/revenue-centric-design) — source-available custom terms
 

@@ -8,6 +8,13 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ("frontend-design", "frontend-development", "ai-interface-design")
+# Interpreter caches appear after running bundled scripts; they are never payload.
+CACHE = shutil.ignore_patterns("__pycache__", "*.pyc")
+
+
+def payload(tree):
+    return {p.relative_to(tree): p.read_bytes() for p in tree.rglob("*")
+            if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"}
 
 
 def main():
@@ -22,8 +29,8 @@ def main():
         for tree in (source, destination):
             if tree.is_symlink() or any(p.is_symlink() for p in tree.rglob("*")):
                 raise SystemExit(f"Bundle tree contains symlink; inspect separately: {tree}")
-        expected = {p.relative_to(source): p.read_bytes() for p in source.rglob("*") if p.is_file()}
-        actual = {p.relative_to(destination): p.read_bytes() for p in destination.rglob("*") if p.is_file()}
+        expected = payload(source)
+        actual = payload(destination)
         if expected != actual:
             changes.append((source, destination))
     for name in ("LICENSE",):
@@ -45,7 +52,7 @@ def main():
         for index, (source, target) in enumerate(changes):
             item = staging / str(index)
             if source.is_dir():
-                shutil.copytree(source, item)
+                shutil.copytree(source, item, ignore=CACHE)
             else:
                 shutil.copy2(source, item)
         for index, (source, target) in enumerate(changes):

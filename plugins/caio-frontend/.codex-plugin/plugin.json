@@ -1,17 +1,21 @@
 {
   "name": "caio-frontend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Frontend design, implementation and AI interface workflows",
   "author": { "name": "caiolombello" },
   "skills": "./skills/",
   "interface": {
     "displayName": "Caio Frontend",
     "shortDescription": "Design, implementation and visual QA",
-    "longDescription": "Frontend skills with responsive behavior, accessibility, visual direction and AI interaction contracts.",
+    "longDescription": "Frontend skills with a design brief, craft defaults, screenshot QA tools, accessibility checks and AI interaction contracts.",
     "developerName": "caiolombello",
     "category": "Productivity",
     "capabilities": ["Write"],
     "websiteURL": "https://github.com/caiolombello/skills",
-    "defaultPrompt": ["Review this interface and improve its UX."]
+    "defaultPrompt": [
+      "Design and build this screen to the frontend-design quality bar.",
+      "Audit this UI with screenshots and fix the top issues.",
+      "Review this interface and improve its UX."
+    ]
   }
 }
