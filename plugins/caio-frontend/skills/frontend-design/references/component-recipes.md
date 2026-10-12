@@ -35,7 +35,7 @@ Load when choosing controls or building common components. Prefer the project's 
 | A date | Native date input or a date picker that also accepts typing |
 | Navigation to another place | Link (`<a href>`), even when styled as a button |
 
-Build the controls, states, and views a real user of this product expects. A demo with dead buttons is not a design.
+Within the brief's scope, build the controls, states, and views a real user of this product expects. A demo with dead buttons is not a design; features the brief marks out of scope stay out.
 
 ## Buttons and links
 
@@ -72,7 +72,7 @@ Build the controls, states, and views a real user of this product expects. A dem
 ## Tables
 
 - Text left-aligned, numbers right-aligned with `tabular-nums`, headers aligned with their data.
-- Row height 40–48px (comfortable) or 32–36px (dense); zebra stripes optional, hover highlight useful for wide tables.
+- Row height 40–48px (comfortable) or 32–36px (dense; 28px only in spreadsheet-like grids); zebra stripes optional, hover highlight useful for wide tables.
 - Sticky header for long tables; frozen first column for wide ones; sortable headers with `aria-sort`.
 - Keep short values (dates, amounts, statuses) on one line; truncate long text with a tooltip or detail view.
 - Row actions at the row end (an overflow menu beyond two actions); bulk actions appear when rows are selected.
@@ -123,7 +123,7 @@ Dialogs: focus moves in, stays in, and returns to the trigger; Escape closes; a 
 
 ## Dashboards and charts
 
-- Lead with the one or two numbers that answer the dashboard's question; give every KPI context (comparison period, delta with direction and sign, target).
+- Lead with the one or two numbers that answer the dashboard's question; give KPIs the context the data supports (comparison period, delta with direction and sign, target). Never invent a target or benchmark.
 - Few chart types used well: line for trends, bar for comparisons, table for exact values. Avoid 3D, gauges for precise values, and pies beyond ~5 slices.
 - Label data directly where possible, start bar axes at zero, use a sequential palette for magnitude and a categorical palette with ≤ 6–7 hues, and never encode meaning with color alone.
 - Global filters (date range, segment) are persistent, visible, and reflected in the URL.

@@ -4,7 +4,7 @@
 // write report.json + report.md. Requires Node 18+ and Playwright (project-local,
 // global, or NODE_PATH) with a Chromium build or a system Chrome/Edge.
 import { createRequire } from 'node:module';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -18,6 +18,7 @@ const HELP = `visual_qa.mjs ${VERSION} — screenshots + UI audit for agents and
 
 Usage:
   node visual_qa.mjs --url http://localhost:5173/ [--url /pricing ...]
+  node visual_qa.mjs --start "npm run dev" --url http://localhost:5173/
   node visual_qa.mjs --file ./index.html
   node visual_qa.mjs --serve ./dist [--url /about]
 
@@ -26,17 +27,23 @@ Options:
                       resolved against --serve or the previous absolute URL.
   --file PATH         Local HTML file (repeatable).
   --serve DIR         Serve DIR on 127.0.0.1 (SPA fallback to index.html).
+  --start CMD         Start a dev server, wait for the first --url to answer,
+                      run, then stop it (log: <out>/server.log).
+  --start-timeout MS  How long to wait for --start (default 90000).
   --widths LIST       Screenshot widths (default 390,768,1440).
   --audit-widths LIST Extra audit-only widths (default 320 for WCAG reflow).
   --themes MODE       auto | light | dark | light,dark (default auto: dark is
                       captured only when the page has a dark theme).
+  --dark-class NAME   Class that turns on dark mode, set on <html> (e.g. dark).
+  --dark-attr K=V     Attribute that turns on dark mode (e.g. data-theme=dark).
   --steps FILE        JSON steps for interaction states (see below).
   --storage-state F   Playwright storage state (cookies/localStorage) for pages
                       behind login, e.g. from: npx playwright codegen --save-storage=F URL
   --out DIR           Output root (default .ui-qa). Add it to .gitignore.
   --wait MS           Extra settle time after load (default 400).
   --wait-for SEL      Wait for a selector before capturing.
-  --max-height PX     Cap full-page screenshots (default 8000).
+  --max-tiles N       Lower-page screenshots per page at the narrowest and
+                      widest width, one viewport tall each (default 3).
   --no-full-page      Only capture the first viewport.
   --focus-steps N     Tab stops to inspect (default 30; 0 disables).
   --fail-on LEVEL     error | warn | never (default error) for the exit code.
@@ -49,8 +56,12 @@ Steps file (runs at the narrowest and widest screenshot widths):
    {"action":"fill","selector":"#email","value":"not-an-email"},
    {"action":"press","key":"Enter"},
    {"action":"wait","ms":300},
-   {"action":"capture","name":"login-error"}]
-Actions: click, fill, press, hover, focus, wait, waitFor, scroll, capture.
+   {"action":"capture","name":"login-error"},
+   {"action":"route","url":"**/api/invoices*","json":[]},
+   {"action":"reload"},
+   {"action":"capture","name":"empty"}]
+Actions: click, fill, press, hover, focus, wait, waitFor, scroll, goto, reload,
+route (mock a request: json | body | status | delay | abort), capture.
 
 Exit codes: 0 ok, 1 findings at --fail-on level, 2 setup problem.`;
 
@@ -59,7 +70,8 @@ Exit codes: 0 ok, 1 findings at --fail-on level, 2 setup problem.`;
 function parseArgs(argv) {
   const opts = {
     urls: [], files: [], serve: null, widths: [390, 768, 1440], auditWidths: [320], themes: 'auto',
-    steps: null, storageState: null, out: '.ui-qa', wait: 400, waitFor: null, maxHeight: 8000, fullPage: true,
+    steps: null, storageState: null, out: '.ui-qa', wait: 400, waitFor: null, maxTiles: 3, fullPage: true,
+    start: null, startTimeout: 90000, darkClass: null, darkAttr: null,
     focusSteps: 30, failOn: 'error', executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || null,
     timeout: 30000, json: false,
   };
@@ -83,7 +95,11 @@ function parseArgs(argv) {
       case '--out': opts.out = next(); break;
       case '--wait': opts.wait = Number(next()); break;
       case '--wait-for': opts.waitFor = next(); break;
-      case '--max-height': opts.maxHeight = Number(next()); break;
+      case '--max-tiles': opts.maxTiles = Number(next()); break;
+      case '--start': opts.start = next(); break;
+      case '--start-timeout': opts.startTimeout = Number(next()); break;
+      case '--dark-class': opts.darkClass = next(); break;
+      case '--dark-attr': opts.darkAttr = next(); break;
       case '--no-full-page': opts.fullPage = false; break;
       case '--focus-steps': opts.focusSteps = Number(next()); break;
       case '--fail-on': opts.failOn = next(); break;
@@ -96,7 +112,9 @@ function parseArgs(argv) {
   }
   if (!['error', 'warn', 'never'].includes(opts.failOn)) throw new Error('--fail-on must be error, warn or never');
   if (!opts.widths.length) throw new Error('--widths needs at least one width between 200 and 4000');
-  for (const [flag, value] of [['--wait', opts.wait], ['--max-height', opts.maxHeight], ['--focus-steps', opts.focusSteps], ['--timeout', opts.timeout]]) {
+  if (opts.darkAttr && !/^[\w:-]+=.*$/.test(opts.darkAttr)) throw new Error('--dark-attr must look like name=value');
+  if (opts.start && !opts.urls.some((u) => /^https?:\/\//i.test(u))) throw new Error('--start needs an absolute http(s) --url to wait for');
+  for (const [flag, value] of [['--wait', opts.wait], ['--max-tiles', opts.maxTiles], ['--focus-steps', opts.focusSteps], ['--timeout', opts.timeout], ['--start-timeout', opts.startTimeout]]) {
     if (!Number.isFinite(value) || value < 0) throw new Error(`${flag} must be a non-negative number`);
   }
   return opts;
@@ -211,6 +229,30 @@ function slugFor(url, used) {
 
 const heightFor = (width) => (width <= 360 ? 640 : width <= 480 ? 844 : width <= 900 ? 1024 : 900);
 
+async function startServer(command, url, timeoutMs, logFile) {
+  const log = fs.openSync(logFile, 'a');
+  const child = spawn(command, { shell: true, detached: process.platform !== 'win32', stdio: ['ignore', log, log] });
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null) throw new Error(`--start command exited with code ${child.exitCode}; see ${logFile}`);
+    try {
+      const res = await fetch(url, { redirect: 'manual' });
+      if (res.status < 500) return child;
+    } catch { /* not listening yet */ }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  stopServer(child);
+  throw new Error(`--start: ${url} did not answer within ${timeoutMs}ms; see ${logFile}`);
+}
+
+function stopServer(child) {
+  if (!child || child.exitCode !== null) return;
+  try {
+    if (process.platform === 'win32') execFileSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
+    else process.kill(-child.pid, 'SIGTERM');
+  } catch { /* already stopped */ }
+}
+
 // ------------------------------------------------------------------ page helpers
 
 const INIT_SCRIPT = `(() => {
@@ -231,10 +273,14 @@ async function openPage(browser, url, opts, { width, theme = 'light', reducedMot
   });
   const page = await context.newPage();
   const consoleErrors = [];
+  const pageErrors = [];
   const failedRequests = [];
   const ignored = (url) => /\/favicon\.ico(\?|$)/.test(url);
-  page.on('console', (msg) => { if (msg.type() === 'error') consoleErrors.push(msg.text().slice(0, 300)); });
-  page.on('pageerror', (err) => consoleErrors.push(String(err && err.message ? err.message : err).slice(0, 300)));
+  page.on('console', (msg) => {
+    // Resource failures are reported from the network events instead.
+    if (msg.type() === 'error' && !/^Failed to load resource/.test(msg.text())) consoleErrors.push(msg.text().slice(0, 300));
+  });
+  page.on('pageerror', (err) => pageErrors.push(String(err && err.message ? err.message : err).slice(0, 300)));
   page.on('requestfailed', (req) => {
     const reason = req.failure() ? req.failure().errorText : 'failed';
     if (!/ERR_ABORTED|NS_BINDING_ABORTED/.test(reason) && !ignored(req.url())) failedRequests.push(`${reason} ${req.url().slice(0, 200)}`);
@@ -244,9 +290,18 @@ async function openPage(browser, url, opts, { width, theme = 'light', reducedMot
   await page.goto(url, { waitUntil: 'load', timeout: opts.timeout });
   try { await page.waitForLoadState('networkidle', { timeout: 5000 }); } catch { /* long-polling pages never idle */ }
   if (opts.waitFor) await page.waitForSelector(opts.waitFor, { timeout: opts.timeout });
+  if (theme === 'dark' && (opts.darkClass || opts.darkAttr)) {
+    await page.evaluate(({ cls, attr }) => {
+      if (cls) document.documentElement.classList.add(cls);
+      if (attr) {
+        const at = attr.indexOf('=');
+        document.documentElement.setAttribute(attr.slice(0, at), attr.slice(at + 1));
+      }
+    }, { cls: opts.darkClass, attr: opts.darkAttr });
+  }
   await page.evaluate(() => (document.fonts ? document.fonts.ready.then(() => true) : true));
   await page.waitForTimeout(opts.wait);
-  return { context, page, consoleErrors, failedRequests };
+  return { context, page, consoleErrors, pageErrors, failedRequests };
 }
 
 async function revealLazyContent(page) {
@@ -285,18 +340,27 @@ async function runAudit(page, narrow) {
   return page.evaluate((n) => globalThis.__uiAudit({ narrow: n }), narrow);
 }
 
-async function screenshot(page, file, { fullPage, width, maxHeight }) {
-  if (!fullPage) {
-    await page.screenshot({ path: file, animations: 'disabled', caret: 'hide' });
-    return { path: file, truncated: false };
+async function screenshot(page, file) {
+  await page.screenshot({ path: file, animations: 'disabled', caret: 'hide' });
+  return { path: file };
+}
+
+// Lower sections as viewport-sized tiles: one tall image shrinks to an unreadable strip
+// when a model or a chat viewer scales it down.
+async function tiles(page, base, width, max) {
+  const vh = page.viewportSize().height;
+  const total = await page.evaluate(() => Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0));
+  const available = Math.max(0, Math.ceil(total / vh) - 1);
+  const files = [];
+  for (let i = 1; i <= Math.min(max, available); i += 1) {
+    const y = i * vh;
+    const height = Math.min(vh, total - y);
+    if (height < 40) break;
+    const file = `${base}-${i + 1}.png`;
+    await page.screenshot({ path: file, fullPage: true, clip: { x: 0, y, width, height }, animations: 'disabled', caret: 'hide' });
+    files.push(file);
   }
-  const height = await page.evaluate(() => Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0));
-  const truncated = height > maxHeight;
-  await page.screenshot({
-    path: file, fullPage: true, animations: 'disabled', caret: 'hide',
-    ...(truncated ? { clip: { x: 0, y: 0, width, height: maxHeight } } : {}),
-  });
-  return { path: file, truncated, height };
+  return { files, omitted: Math.max(0, available - files.length) };
 }
 
 async function focusWalk(page, maxSteps) {
@@ -327,25 +391,30 @@ async function focusWalk(page, maxSteps) {
       const hasOutline = s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0;
       const focused = read();
       const r = el.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
+      const inset = Math.min(2, r.width / 4, r.height / 4);
+      const points = [[r.left + r.width / 2, r.top + r.height / 2], [r.left + inset, r.top + inset], [r.right - inset, r.top + inset],
+        [r.left + inset, r.bottom - inset], [r.right - inset, r.bottom - inset]];
+      let coveredPoints = 0;
       let obscuredBy = null;
-      if (cx >= 0 && cy >= 0 && cx < innerWidth && cy < innerHeight) {
-        const top = document.elementFromPoint(cx, cy);
-        if (top && top !== el && !el.contains(top) && !top.contains(el)) {
-          let fixed = false;
-          for (let n = top; n; n = n.parentElement) {
-            const p = getComputedStyle(n).position;
-            if (p === 'fixed' || p === 'sticky') { fixed = true; break; }
+      for (const [x, y] of points) {
+        if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue;
+        const top = document.elementFromPoint(x, y);
+        if (!top || top === el || el.contains(top) || top.contains(el)) continue;
+        for (let n = top; n; n = n.parentElement) {
+          const p = getComputedStyle(n).position;
+          if (p === 'fixed' || p === 'sticky') {
+            coveredPoints += 1;
+            obscuredBy = globalThis.__uiAuditSelector ? globalThis.__uiAuditSelector(top) : top.tagName.toLowerCase();
+            break;
           }
-          if (fixed) obscuredBy = globalThis.__uiAuditSelector ? globalThis.__uiAuditSelector(top) : top.tagName.toLowerCase();
         }
       }
+      const obscured = coveredPoints === 0 ? null : coveredPoints === points.length ? 'full' : 'partial';
       el.blur();
       const blurred = read();
       el.focus({ preventScroll: true });
       const name = (el.getAttribute('aria-label') || el.innerText || el.value || el.getAttribute('title') || '').trim().replace(/\s+/g, ' ').slice(0, 50);
-      return { selector: sel, tag: el.tagName.toLowerCase(), name, visible: focused !== blurred, hasOutline, obscuredBy, key: `${sel}@${Math.round(r.x)},${Math.round(r.y + scrollY)}` };
+      return { selector: sel, tag: el.tagName.toLowerCase(), name, visible: focused !== blurred, hasOutline, obscured, obscuredBy, key: `${sel}@${Math.round(r.x)},${Math.round(r.y + scrollY)}` };
     });
     if (!info || seen.has(info.key)) break;
     seen.add(info.key);
@@ -368,6 +437,20 @@ async function runSteps(page, steps, capture) {
         if (step.selector) await page.locator(step.selector).first().scrollIntoViewIfNeeded();
         else await page.evaluate((y) => window.scrollTo(0, y), Number(step.y) || 0);
         break;
+      case 'goto': await page.goto(new URL(step.url, page.url()).href, { waitUntil: 'load' }); break;
+      case 'reload': await page.reload({ waitUntil: 'load' }); break;
+      case 'route': {
+        // Mock a request to render empty, error, or loading states without touching the backend.
+        const json = step.json !== undefined;
+        await page.route(step.url, async (route) => {
+          if (step.delay) await new Promise((r) => setTimeout(r, Number(step.delay)));
+          try {
+            if (step.abort) await route.abort();
+            else await route.fulfill({ status: Number(step.status) || 200, contentType: json ? 'application/json' : (step.contentType || 'text/plain'), body: json ? JSON.stringify(step.json) : String(step.body ?? '') });
+          } catch { /* page closed while the mock was pending */ }
+        });
+        break;
+      }
       case 'capture': await capture(step.name || 'state'); break;
       default: throw new Error(`Unknown step action: ${step.action}`);
     }
@@ -395,15 +478,19 @@ function mergeFindings(target) {
     const where = `${run.width}px ${run.theme}${run.state ? ` ${run.state}` : ''}`;
     for (const issue of run.audit.issues) add(issue, where);
     if (run.cls > 0.1) add({ id: 'layout-shift', severity: 'warn', message: `Cumulative layout shift ${run.cls.toFixed(3)} during load (> 0.1).`, count: 1 }, where);
+    const crashes = Array.from(new Set(run.pageErrors || []));
+    if (crashes.length) add({ id: 'page-error', severity: 'error', message: 'Uncaught exceptions while rendering.', count: crashes.length, examples: crashes.map((detail) => ({ detail })) }, where);
     const errors = Array.from(new Set(run.consoleErrors || []));
-    if (errors.length) add({ id: 'console-error', severity: 'error', message: 'Console errors or uncaught exceptions while rendering.', count: errors.length, examples: errors.map((detail) => ({ detail })) }, where);
+    if (errors.length) add({ id: 'console-error', severity: 'warn', message: 'console.error output while rendering (framework warnings, failed calls).', count: errors.length, examples: errors.map((detail) => ({ detail })) }, where);
     const failures = Array.from(new Set(run.failedRequests || []));
     if (failures.length) add({ id: 'request-failed', severity: 'warn', message: 'Failed network requests (missing assets, fonts, or API calls).', count: failures.length, examples: failures.map((detail) => ({ detail })) }, where);
   }
   const unfocusable = target.focus.filter((s) => !s.visible);
   if (unfocusable.length) add({ id: 'focus-invisible', severity: 'error', message: 'Keyboard focus is not visible on these elements (WCAG 2.4.7).', count: unfocusable.length, examples: unfocusable.slice(0, 6).map((s) => ({ selector: s.selector, text: s.name })) }, 'keyboard');
-  const obscured = target.focus.filter((s) => s.obscuredBy);
-  if (obscured.length) add({ id: 'focus-obscured', severity: 'warn', message: 'Focused elements are hidden behind fixed/sticky UI (WCAG 2.4.11).', count: obscured.length, examples: obscured.slice(0, 6).map((s) => ({ selector: s.selector, detail: `under ${s.obscuredBy}` })) }, 'keyboard');
+  const hidden = target.focus.filter((s) => s.obscured === 'full');
+  if (hidden.length) add({ id: 'focus-obscured', severity: 'warn', message: 'Focused elements are completely hidden behind fixed/sticky UI (WCAG 2.4.11).', count: hidden.length, examples: hidden.slice(0, 6).map((s) => ({ selector: s.selector, detail: `under ${s.obscuredBy}` })) }, 'keyboard');
+  const partly = target.focus.filter((s) => s.obscured === 'partial');
+  if (partly.length) add({ id: 'focus-partly-obscured', severity: 'info', message: 'Focused elements are partly covered by fixed/sticky UI (heuristic; check scroll-padding).', count: partly.length, examples: partly.slice(0, 6).map((s) => ({ selector: s.selector, detail: `under ${s.obscuredBy}` })) }, 'keyboard');
   if (target.reducedMotion && target.reducedMotion.length) add({ id: 'reduced-motion-ignored', severity: 'warn', message: 'Animations keep running with prefers-reduced-motion: reduce.', count: target.reducedMotion.length, examples: target.reducedMotion.slice(0, 6) }, 'reduced motion');
   const rank = { error: 0, warn: 1, info: 2 };
   return Array.from(merged.values()).sort((a, b) => rank[a.severity] - rank[b.severity] || b.count - a.count);
@@ -412,7 +499,7 @@ function mergeFindings(target) {
 function toMarkdown(report) {
   const lines = [`# Visual QA report`, '', `Generated ${report.createdAt} by visual_qa.mjs ${VERSION}.`, ''];
   lines.push(`Summary: **${report.summary.error} error**, **${report.summary.warn} warn**, ${report.summary.info} info finding types.`, '');
-  lines.push('Open the screenshots in this order, describe what you see, then score the critique rubric:', '');
+  lines.push('Open the screenshots in this order (first viewports, states and dark theme, then lower sections), describe what you see, then score the critique rubric:', '');
   for (const shot of report.viewOrder) lines.push(`- ${shot}`);
   for (const target of report.targets) {
     lines.push('', `## ${target.slug} — ${target.url}`, '');
@@ -456,18 +543,29 @@ async function main() {
   }
   let served = null;
   let browser = null;
+  let server = null;
+  process.on('exit', () => stopServer(server));
+  for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => { stopServer(server); process.exit(130); });
   try {
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+$/, '').replace('T', '-');
+    const outDir = path.resolve(opts.out, stamp);
+    fs.mkdirSync(outDir, { recursive: true });
     if (opts.serve) served = await serveDirectory(opts.serve);
     const targets = resolveTargets(opts, served && served.origin);
+    if (opts.start) {
+      try {
+        server = await startServer(opts.start, opts.urls.find((u) => /^https?:\/\//i.test(u)), opts.startTimeout, path.join(outDir, 'server.log'));
+      } catch (error) {
+        console.error(`visual_qa: ${error.message}`);
+        process.exit(2);
+      }
+    }
     try {
       browser = await launch(pw, opts.executablePath);
     } catch (error) {
       console.error(`visual_qa: could not launch Chromium (${error.message.split('\n')[0]}).\nRun "npx playwright install chromium", or pass --executable-path to a Chrome/Chromium binary.`);
       process.exit(2);
     }
-    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+$/, '').replace('T', '-');
-    const outDir = path.resolve(opts.out, stamp);
-    fs.mkdirSync(outDir, { recursive: true });
     const shotWidths = Array.from(new Set(opts.widths)).sort((a, b) => a - b);
     const allWidths = Array.from(new Set([...shotWidths, ...opts.auditWidths])).sort((a, b) => a - b);
     const minW = shotWidths[0];
@@ -480,27 +578,27 @@ async function main() {
       const slug = slugFor(url, used);
       const target = { url, slug, runs: [], focus: [], reducedMotion: [], darkSupported: false };
       const folds = [];
-      const fulls = [];
+      const lower = [];
       let lightColors = null;
 
       for (const width of allWidths) {
-        const { context, page, consoleErrors, failedRequests } = await openPage(browser, url, opts, { width });
+        const { context, page, consoleErrors, pageErrors, failedRequests } = await openPage(browser, url, opts, { width });
         // Load-time shift only; the scroll-through below would add shifts no user caused.
         const cls = await page.evaluate(() => window.__uiQaCls || 0);
         await revealLazyContent(page);
         await finishAnimations(page);
         const audit = await runAudit(page, width <= 480);
-        const run = { width, theme: 'light', audit, cls, consoleErrors, failedRequests, screenshots: {} };
+        const run = { width, theme: 'light', audit, cls, consoleErrors, pageErrors, failedRequests, screenshots: {} };
         if (!lightColors) lightColors = `${audit.metrics.rootBackground}|${audit.metrics.rootColor}|${audit.metrics.htmlBackground}`;
         if (shotWidths.includes(width)) {
-          const fold = await screenshot(page, path.join(outDir, `${slug}-${width}-light-fold.png`), { fullPage: false, width });
+          const fold = await screenshot(page, path.join(outDir, `${slug}-${width}-light-fold.png`));
           run.screenshots.fold = rel(fold.path);
           folds.push(run.screenshots.fold);
-          if (opts.fullPage) {
-            const full = await screenshot(page, path.join(outDir, `${slug}-${width}-light-full.png`), { fullPage: true, width, maxHeight: opts.maxHeight });
-            run.screenshots.full = rel(full.path);
-            run.screenshots.truncated = full.truncated;
-            fulls.push(run.screenshots.full);
+          if (opts.fullPage && opts.maxTiles > 0 && (width === minW || width === maxW)) {
+            const result = await tiles(page, path.join(outDir, `${slug}-${width}-light-part`), width, opts.maxTiles);
+            run.screenshots.lower = result.files.map(rel);
+            run.screenshots.omittedTiles = result.omitted;
+            lower.push(...run.screenshots.lower);
           }
         }
         if (width === maxW) target.focus = await focusWalk(page, opts.focusSteps);
@@ -513,11 +611,13 @@ async function main() {
             await finishAnimations(session.page);
             const stateAudit = await runAudit(session.page, width <= 480);
             const file = path.join(outDir, `${slug}-${width}-${name.replace(/[^a-z0-9-]+/gi, '-')}.png`);
-            await screenshot(session.page, file, { fullPage: false, width });
+            await screenshot(session.page, file);
             folds.push(rel(file));
-            target.runs.push({ width, theme: 'light', state: name, audit: stateAudit, cls: 0, consoleErrors: [], failedRequests: [], screenshots: { fold: rel(file) } });
+            target.runs.push({ width, theme: 'light', state: name, audit: stateAudit, cls: 0, consoleErrors: [], pageErrors: [], failedRequests: [], screenshots: { fold: rel(file) } });
           });
-          target.runs.find((r) => r.width === width && !r.state).consoleErrors.push(...session.consoleErrors);
+          const base = target.runs.find((r) => r.width === width && !r.state);
+          base.consoleErrors.push(...session.consoleErrors);
+          base.pageErrors.push(...session.pageErrors);
           await session.context.close();
         }
       }
@@ -526,7 +626,7 @@ async function main() {
       const autoDark = opts.themes === 'auto';
       if (wantDark || autoDark) {
         for (const width of Array.from(new Set([minW, maxW]))) {
-          const { context, page, consoleErrors, failedRequests } = await openPage(browser, url, opts, { width, theme: 'dark' });
+          const { context, page, consoleErrors, pageErrors, failedRequests } = await openPage(browser, url, opts, { width, theme: 'dark' });
           await finishAnimations(page);
           const audit = await runAudit(page, width <= 480);
           const darkColors = `${audit.metrics.rootBackground}|${audit.metrics.rootColor}|${audit.metrics.htmlBackground}`;
@@ -535,9 +635,9 @@ async function main() {
             await context.close();
             break;
           }
-          const fold = await screenshot(page, path.join(outDir, `${slug}-${width}-dark-fold.png`), { fullPage: false, width });
+          const fold = await screenshot(page, path.join(outDir, `${slug}-${width}-dark-fold.png`));
           folds.push(rel(fold.path));
-          target.runs.push({ width, theme: 'dark', audit, cls: 0, consoleErrors, failedRequests, screenshots: { fold: rel(fold.path) } });
+          target.runs.push({ width, theme: 'dark', audit, cls: 0, consoleErrors, pageErrors, failedRequests, screenshots: { fold: rel(fold.path) } });
           await context.close();
         }
       }
@@ -558,7 +658,7 @@ async function main() {
 
       target.findings = mergeFindings(target);
       report.targets.push(target);
-      report.viewOrder.push(...folds, ...fulls);
+      report.viewOrder.push(...folds, ...lower);
     }
 
     const summary = { error: 0, warn: 0, info: 0 };
@@ -583,7 +683,7 @@ async function main() {
         const infos = t.findings.filter((x) => x.severity === 'info').map((x) => x.id);
         if (infos.length) console.log(`  INFO  ${infos.join(', ')}`);
       }
-      console.log('\nView these screenshots (first viewports, then full pages):');
+      console.log('\nView these screenshots (first viewports, states, dark theme, then lower sections):');
       for (const shot of report.viewOrder) console.log(`  ${shot}`);
       console.log(`\nReport: ${rel(mdPath)} (JSON: ${rel(jsonPath)})`);
     }
@@ -592,6 +692,7 @@ async function main() {
   } finally {
     if (browser) await browser.close();
     if (served) served.server.close();
+    stopServer(server);
   }
 }
 

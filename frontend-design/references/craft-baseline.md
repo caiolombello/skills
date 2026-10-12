@@ -28,14 +28,14 @@ Type does most of the work of hierarchy. Get it right in grayscale before adding
 
 **Scale.** Pick a ratio and stop adding sizes.
 
-| Use | Product UI (px) | Marketing / editorial (px) |
-|---|---|---|
-| Caption, meta | 12 | 14 |
-| Secondary, table | 14 | 16 |
-| Body | 16 (14 in dense data UI) | 18 |
-| Section heading | 20 | 24–32 |
-| Page title | 24–30 | 40–48 |
-| Display | — | 56–72 |
+| Use | Product UI (px) | Marketing / editorial (px) | Token |
+|---|---|---|---|
+| Caption, meta | 12 | 14 | `--text-xs` / `--text-sm` |
+| Secondary, table | 14 | 16 | `--text-sm` / `--text-base` |
+| Body | 16 (14 in dense data UI) | 18 | `--text-base` / `--text-lg` |
+| Section heading | 20 | 24–30 | `--text-xl` / `--text-2xl`–`--text-3xl` |
+| Page title | 24–30 | 36–48 | `--text-2xl`–`--text-3xl` / `--text-4xl`–`--text-5xl` |
+| Display | — | 40–72, fluid | `--text-display` |
 
 Use rem in CSS. For display sizes only, a bounded fluid size is fine: `font-size: clamp(2.5rem, 1.6rem + 3vw, 4.5rem)`. Never size text with `vw` alone (it breaks zoom), and keep panel, sidebar, and dashboard headings small.
 
@@ -53,7 +53,7 @@ Use rem in CSS. For display sizes only, a bounded fluid size is fine: `font-size
 
 ## Color
 
-**Build roles, not swatches.** Every color in a component comes from a role token:
+**Build roles, not swatches.** Every color in a component comes from a role token (named `--color-<role>` in [design-tokens.css](../assets/design-tokens.css)):
 
 | Role | Use |
 |---|---|
@@ -71,13 +71,13 @@ Use rem in CSS. For display sizes only, a bounded fluid size is fine: `font-size
 **OKLCH makes ramps predictable.** Keep hue and chroma, vary lightness:
 
 ```css
---accent: oklch(0.53 0.17 var(--hue-accent));        /* white text on top */
---accent-hover: oklch(0.47 0.15 var(--hue-accent));
---accent-subtle: oklch(0.965 0.015 var(--hue-accent)); /* selected rows, tags */
---accent-text: oklch(0.48 0.15 var(--hue-accent));    /* links on light surfaces */
+--color-accent: oklch(0.53 0.17 var(--hue-accent));         /* white text on top */
+--color-accent-hover: oklch(0.47 0.15 var(--hue-accent));
+--color-accent-subtle: oklch(0.965 0.015 var(--hue-accent)); /* selected rows, tags */
+--color-accent-text: oklch(0.48 0.15 var(--hue-accent));     /* links on light surfaces */
 ```
 
-Contrast varies with hue: green, teal, and cyan accents need lower lightness (≈ 0.45–0.48) to carry white text. Check every pair with `scripts/contrast.py` and the rendered page with `visual_qa`.
+Contrast varies with hue: green, teal, and cyan accents need lower lightness (≈ 0.45–0.48) to carry white text. Check every pair with `<skill-dir>/scripts/contrast.py` and the rendered page with `visual_qa`.
 
 **Dark mode is a second palette, not an inversion.** Near-black surfaces (L ≈ 0.16–0.22), off-white text (L ≈ 0.93–0.96), muted text that still passes 4.5:1, lighter surfaces for elevation instead of shadows, and an accent that is lighter and slightly less saturated (often with dark text on it). Set `color-scheme: light dark` so native controls and scrollbars follow. Ship dark mode only when the product needs it, and then test it like the light theme.
 
@@ -106,7 +106,7 @@ Contrast varies with hue: green, teal, and cyan accents need lower lightness (�
 
 Container queries (`container-type: inline-size` + `@container`) let a component adapt to its slot instead of the viewport. Media-query breakpoints come from content pressure; common landmarks are 640, 768, 1024, and 1280px.
 
-**Viewport units.** Full-height sections use `min-height: 100svh` (or `100dvh`) with `100vh` as a fallback; subtract fixed headers with `calc(100svh - var(--header-h))`. Respect `env(safe-area-inset-*)` for fixed bottom bars on phones.
+**Viewport units.** Full-height sections use `min-height: 100svh` (or `100dvh`) with `100vh` as a fallback; subtract fixed headers with `calc(100svh - var(--header-h))`. Marketing heroes usually stop short of that (≈ 80–90svh) so the next section peeks into view. Respect `env(safe-area-inset-*)` for fixed bottom bars on phones.
 
 **Stable layout.** Reserve space for images (`width`/`height` or `aspect-ratio`), async content (skeletons sized like the result), and fixed-format UI (toolbars, counters, tiles) so hover states and late data never shift the page. Use `scrollbar-gutter: stable` on scroll containers whose scrollbar appears and disappears.
 
@@ -127,7 +127,7 @@ In dark mode, raise elevation with a lighter surface and a subtle border; shadow
 
 ## Interaction states
 
-Every interactive element needs these, designed rather than defaulted:
+Interactive elements need these states where they apply, designed rather than defaulted:
 
 | State | Treatment |
 |---|---|

@@ -3,14 +3,18 @@
  * Use only when the project has no tokens. Before shipping, change at least the
  * hues, fonts, radius, and density to match the brief; unchanged, it looks generic.
  *
- * Every text/background pair below meets WCAG AA (4.5:1 text, 3:1 UI) at the
- * default hues. Changing a hue changes contrast: re-check pairs with
- *   python3 scripts/contrast.py "oklch(0.53 0.17 180)" "#ffffff"
- * and the rendered page with scripts/visual_qa.mjs. Green, teal, and cyan accents
- * usually need --color-accent lightness around 0.47 to carry white text.
+ * Every text role on every surface, plus borders, focus, accent, and status pairs,
+ * meets WCAG AA (4.5:1 text, 3:1 UI) at the default hues in both themes. Changing a
+ * hue changes contrast: re-check pairs with
+ *   python3 <skill-dir>/scripts/contrast.py "oklch(0.53 0.17 180)" "#ffffff"
+ * and the rendered page with <skill-dir>/scripts/visual_qa.mjs. Green, teal, and cyan
+ * accents usually need --color-accent lightness around 0.47 to carry white text.
  *
  * Names follow Tailwind v4 theme namespaces (--color-*, --font-*, --text-*,
- * --radius-*, --shadow-*, --ease-*), so the :root block can move into @theme.
+ * --radius-*, --shadow-*, --ease-*). For Tailwind utilities, copy the custom
+ * properties (not color-scheme or other declarations) into @theme and keep the dark
+ * overrides below as plain CSS; Tailwind derives spacing from --spacing, so the
+ * --space-* variables stay plain CSS.
  * shadcn/ui mapping: background=bg, foreground=text, card=surface, muted=surface-2,
  * muted-foreground=text-muted, border=border, input=border-strong, primary=accent,
  * primary-foreground=on-accent, accent=accent-subtle, ring=focus, destructive=danger.
@@ -120,7 +124,7 @@
     --color-surface: oklch(0.205 0.007 var(--hue-neutral));
     --color-surface-2: oklch(0.245 0.008 var(--hue-neutral));
     --color-border: oklch(0.3 0.008 var(--hue-neutral));
-    --color-border-strong: oklch(0.52 0.012 var(--hue-neutral));
+    --color-border-strong: oklch(0.55 0.012 var(--hue-neutral));
     --color-text: oklch(0.95 0.004 var(--hue-neutral));
     --color-text-muted: oklch(0.74 0.01 var(--hue-neutral));
     --color-text-subtle: oklch(0.67 0.01 var(--hue-neutral));
@@ -149,7 +153,7 @@
   --color-surface: oklch(0.205 0.007 var(--hue-neutral));
   --color-surface-2: oklch(0.245 0.008 var(--hue-neutral));
   --color-border: oklch(0.3 0.008 var(--hue-neutral));
-  --color-border-strong: oklch(0.52 0.012 var(--hue-neutral));
+  --color-border-strong: oklch(0.55 0.012 var(--hue-neutral));
   --color-text: oklch(0.95 0.004 var(--hue-neutral));
   --color-text-muted: oklch(0.74 0.01 var(--hue-neutral));
   --color-text-subtle: oklch(0.67 0.01 var(--hue-neutral));

@@ -59,7 +59,7 @@ Starting points, not templates. Font names are free (OFL) families available thr
 - **For:** developer tools, infrastructure, observability, security, trading terminals.
 - **Type:** a neutral sans plus mono for values, IDs, logs, and code.
 - **Color:** status colors as the primary language (with text labels); one brand accent. Dark-first only when users work in dark environments — and then not the stock navy/slate.
-- **Shape and density:** 4px radius; 1px grid lines; 32px rows; 13–14px base.
+- **Shape and density:** 4px radius; 1px grid lines; 32px rows; 14px base (13px only for secondary metadata).
 - **Motion:** none beyond subtle live-data updates.
 - **Signature:** precise readouts, timelines, a command palette, visible keyboard paths.
 - **Risk:** low-contrast gray text on dark surfaces; verify every muted color.
@@ -102,9 +102,9 @@ Starting points, not templates. Font names are free (OFL) families available thr
 
 ### Data-dense operational
 - **For:** logistics, ERP, finance back offices, monitoring, spreadsheet-like work.
-- **Type:** a UI sans with strong tabular figures (Inter, IBM Plex Sans, Source Sans 3), 13–14px base.
+- **Type:** a UI sans with strong tabular figures (Inter, IBM Plex Sans, Source Sans 3), 14px base.
 - **Color:** neutral surfaces; color only for state, selection, and data ramps.
-- **Shape and density:** 2–4px radius; 28–32px rows, sticky headers, frozen first column, inline editing.
+- **Shape and density:** 2–4px radius; 32px rows (28px only for spreadsheet-like grids), sticky headers, frozen first column, inline editing.
 - **Motion:** row highlight on update only.
 - **Signature:** speed — keyboard navigation, bulk actions, saved views.
 - **Risk:** every number at the same weight. Build a KPI hierarchy above the table.
@@ -124,7 +124,7 @@ Starting points, not templates. Font names are free (OFL) families available thr
 2. **Accent hue:** from the brand; otherwise from domain conventions (safety orange, ledger green, ink blue); otherwise complementary to the imagery. One accent, with named roles: primary action, selection, focus, links.
 3. **Proportion:** roughly 70–80% neutrals, 10–20% tinted secondary surfaces, ≤ 10% accent.
 4. **Status colors** are separate from the accent and always paired with text or icons.
-5. **Check contrast for every role pair** in both themes with `scripts/contrast.py`, then on the rendered page with `visual_qa`.
+5. **Check contrast for every role pair** in both themes with `<skill-dir>/scripts/contrast.py`, then on the rendered page with `visual_qa`.
 6. **Avoid one-hue designs and stock families** — purple-blue gradients, cream/beige/sand, navy/slate dark, espresso/brown/orange — unless the brief or brand asks for them. Scan the final CSS colors before finishing.
 
 ## Avoid converging on new defaults

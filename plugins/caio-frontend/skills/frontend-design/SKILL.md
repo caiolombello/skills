@@ -34,16 +34,18 @@ Make interfaces people understand at a glance, can operate with any input, and r
 
 Default to **Build** when the user asked for an interface; do not stop at a document. Inside an existing product, inherit its design system: the job is to fit it and raise the bar, not to reinvent it.
 
+**Restyle or polish requests** change presentation, not substance: keep the content, information architecture, routes, behavior, and real proof (logos, quotes, metrics) unless the user asks to change them. The generic-AI table applies to new visual decisions, not to an established brand's own assets.
+
 ## Definition of done
 
 Check these on the rendered UI at a narrow (~390px) and a wide (≥1280px) viewport, plus the most layout-sensitive non-happy state:
 
 1. **Purpose in three seconds.** The first viewport shows what this is and the primary action (for read-only views, the key information). One primary action per view region.
-2. **Nothing broken.** No horizontal scroll at 320px; no clipped, overlapping, or covered text and controls; no console errors; no dead controls (`href="#"`, no-op buttons).
+2. **Nothing broken.** No horizontal scroll at 320px; no clipped, overlapping, or covered text and controls; no uncaught exceptions; no dead controls (`href="#"`, no-op buttons).
 3. **One system.** Color, type, space, radius, shadow, and motion come from tokens: ≤ 2 type families (+ optional mono), ~6 font sizes per view, one spacing scale, one radius scale, one accent hue plus semantic colors.
-4. **States designed.** Controls have hover, focus-visible, active, disabled, and loading states. Data views have loading, empty, and error states (plus partial, stale, and permission where relevant).
+4. **States designed.** Controls have hover, focus-visible, and active states, plus disabled and loading where they apply. Data views have loading, empty, and error states (plus partial, stale, and permission where relevant).
 5. **Accessible baseline.** Landmarks and heading order, names and labels, text contrast ≥ 4.5:1 (large text and UI parts ≥ 3:1), visible focus, targets ≥ 24px (≥ 44px when touch is primary), zoom not blocked, reduced motion honored.
-6. **Real content.** Domain-specific copy and plausible data. No lorem ipsum, "Feature 1", invented logos, testimonials, or metrics, and no visible text explaining how to use the UI unless onboarding was requested.
+6. **Real content.** Domain-specific copy and plausible data. No lorem ipsum, "Feature 1", invented logos, testimonials, or metrics, and no filler that narrates the interface ("This dashboard shows your data"). Helper text, empty states, and error messages are content, not filler.
 7. **Not generic.** No unjustified tell from the [generic-AI table](#generic-ai-tells); the direction is visible and fits the audience.
 8. **Critique passes.** [Rubric](references/critique-rubric.md): no dimension below 2, average ≥ 2.5 of 3.
 
@@ -64,12 +66,12 @@ Brief
 - User, job, success signal:
 - Surface: app workspace | dashboard | form flow | marketing page | editorial | other
 - First viewport: what it must show; primary action:
-- Direction: <name> — three mood words; why it fits this audience
+- Direction: <name from the catalog, or "inherit existing"> — three mood words; why it fits
 - Type: display / body / mono, with fallbacks and how they load
 - Color: neutral temperature, one accent (hue and role), semantic set, light/dark plan
 - Shape, depth, density: radius scale; borders or shadows; control height; base spacing
 - Motion: none | subtle | expressive — each motion and its purpose
-- Signature: one memorable detail derived from the domain
+- Signature: one memorable detail derived from the domain (optional when inheriting a brand)
 - Rejected defaults: generic choices you are deliberately not making
 - Out of scope: features and sections you will not add
 ```
@@ -95,7 +97,7 @@ Deviate when the brief or the existing system says so, and note why. Full rules 
 | Area | Default |
 |---|---|
 | Type families | ≤ 2 plus optional mono. Product UI: the system's UI sans is fine. Brand surfaces: a pairing with character, loaded properly (only used weights, `font-display: swap`). |
-| Type scale | Product UI 12/14/16/20/24/30px; marketing 14/16/18/24/32/48/64px; ~6 sizes per view. Body 16px (dense data UI 14px). Hero-scale type only in true heroes. |
+| Type scale | Product UI 12/14/16/20/24/30px; marketing 14/16/18/24/30/36/48px plus a fluid display size (40–72px) for heroes only; ~6 sizes per view. Body 16px (dense data UI 14px); 12px only for captions and metadata. |
 | Weight and case | 400 body, 500 labels, 600 headings; 700+ for display only. Sentence case in UI. |
 | Line height | Body 1.5–1.65; UI labels 1.25–1.4; headings 1.1–1.25, tighter as size grows. |
 | Letter spacing | 0 by default; display ≥ 40px may use −0.01 to −0.02em; all-caps labels +0.04 to +0.08em. |
@@ -105,22 +107,22 @@ Deviate when the brief or the existing system says so, and note why. Full rules 
 | Color | Tinted neutral ramp + one accent + success/warning/danger/info. The accent covers roughly ≤ 10% of the surface and is never the only signal of state. |
 | Shape and depth | One radius scale (e.g. 4/6/8 or 8/12/16); nested radius = outer − padding. Hairline borders first; ≤ 3 elevation levels; dark mode elevates with lighter surfaces. |
 | Motion | Feedback 100–150ms, small enter 150–250ms, large 250–350ms, exits faster; ease-out to enter; animate transform and opacity; provide a reduced-motion path. |
-| Layout | Mobile-first; content max ≈ 1200–1280px; reading column ≈ 65ch; content pressure sets breakpoints. |
+| Layout | Mobile-first; marketing and content pages max ≈ 1200–1280px; app shells use the full width with max widths on forms and reading content; reading column ≈ 65ch; content pressure sets breakpoints. |
 | Icons and imagery | One icon set (the project's, else Lucide) at one stroke width; icon-only buttons get `aria-label` and a tooltip. Imagery shows the real subject or product. |
 | Copy | Product UI uses utility language (headings name the area); buttons are verb + object; errors say what happened and how to fix it. |
 
 ### 6. Run the render–critique–fix loop
 
-`$SKILL_DIR` is the folder containing this file.
+In the commands below, replace `<skill-dir>` with the absolute path of the folder that contains this SKILL.md (for example `~/.agents/skills/frontend-design`); it is not an environment variable.
 
-1. **Lint the source:** `python3 $SKILL_DIR/scripts/ui_lint.py src` — fix every error and triage warnings.
-2. **Render:** start the app, then run `node $SKILL_DIR/scripts/visual_qa.mjs --url http://localhost:5173/` (or `--serve dist`, or `--file index.html`; add `--steps states.json` to capture error, empty, or open states). It writes screenshots and `report.md` under `.ui-qa/` — keep that folder out of git.
-3. **Look:** open every screenshot it lists with your image viewer, narrowest first. Describe literally what you see — layout, what draws the eye first, anything broken — before judging.
+1. **Lint what you changed:** `python3 <skill-dir>/scripts/ui_lint.py . --changed` reports findings only on lines changed since `HEAD` and in new files. Fix the errors your change introduced; list pre-existing findings in the report instead of fixing them unasked.
+2. **Render:** never run a dev server in the foreground — it blocks the shell. Let the runner start and stop it: `node <skill-dir>/scripts/visual_qa.mjs --start "npm run dev" --url http://localhost:5173/` (use the project's real command and port). Alternatives: `--url` for an app that is already running, `--serve dist` for a production build, `--file index.html` for static pages. Add `--steps states.json` to capture empty, error, loading, or open states (its `route` action mocks API responses), `--storage-state auth.json` for pages behind login, and `--dark-class dark` when dark mode is a class on `<html>`. Output goes to `.ui-qa/` — keep it out of git.
+3. **Look:** open the screenshots in the order the runner prints them — first viewports, states, dark theme, then lower-page tiles. Describe literally what you see (layout, what draws the eye first, anything broken) before judging.
 4. **Critique:** score the [rubric](references/critique-rubric.md) and name at least three concrete defects (where, why it matters, the fix). If you cannot find three, re-inspect the narrow viewport, the dark theme, and a non-happy state; if they are still clean, say where you looked rather than inventing defects.
 5. **Fix** in impact order — broken, then unclear, then inconsistent, then unpolished — and repeat steps 1–4.
-6. **Stop** when the definition of done holds, or after three rounds; report what still falls short.
+6. **Stop** when the definition of done holds, or after three rounds; report what still falls short. For a small change, one round on the affected view is enough.
 
-`visual_qa.mjs` needs Node and Playwright (`npm i -D playwright && npx playwright install chromium`). If your agent has its own browser tool instead, evaluate `scripts/ui_audit.js` in the page and call `__uiAudit()`. Check color pairs while choosing them: `python3 $SKILL_DIR/scripts/contrast.py "oklch(0.53 0.17 255)" "#ffffff"`.
+`visual_qa.mjs` needs Node 18+ and Playwright from the project, a global install, or `NODE_PATH`; it can use an installed Chrome or Edge when Playwright's Chromium is missing. If the project lacks it, prefer a global or cached install over editing the project's dependencies unasked — see [references/model-notes.md](references/model-notes.md#tooling-setup). If your agent has its own browser tool instead, evaluate `<skill-dir>/scripts/ui_audit.js` in the page and call `__uiAudit()`. Check color pairs while choosing them: `python3 <skill-dir>/scripts/contrast.py "oklch(0.53 0.17 255)" "#ffffff"`.
 
 ### 7. Report
 
@@ -140,7 +142,7 @@ Models drift toward the statistical center of the web. Default away from these; 
 | An eyebrow label over every heading, pill and badge overload, emoji as icons, sparkles meaning "AI" | One label system used sparingly; icons from one set; text labels |
 | Clichés ("supercharge", "seamless", "unlock") or instructional text inside product UI | Concrete, product-specific copy; headings that name the area |
 | Invented proof: logos, testimonials, "10k+ teams", "99.9% uptime" | Real, sourced proof or nothing; sample data labeled as sample |
-| Light-gray body text; 10–12px text that carries meaning | Muted text still ≥ 4.5:1; body ≥ 16px (dense UI ≥ 14px) |
+| Light-gray body text; content that matters set below 14px | Muted text still ≥ 4.5:1; body ≥ 16px (dense UI ≥ 14px); 12px only for captions and metadata |
 | Heavy drop shadows, glass panels, `rounded-3xl` on everything | Hairline borders, one or two shadow levels, radius from the scale |
 | `transition: all`, bouncing or infinite decorative motion, motion on every hover | Named properties, short durations, motion only where it explains a change |
 | Dark mode by inverting to #000 and #fff | Separately tuned tokens: near-black surfaces, off-white text, desaturated accent |
@@ -150,7 +152,7 @@ Models drift toward the statistical center of the web. Default away from these; 
 
 1. **Gather evidence.** Render with `visual_qa.mjs` when possible; otherwise use the supplied screenshots and read the code for semantics.
 2. **Assess in order:** task and information architecture → states and recovery → accessibility and input methods → responsive behavior with realistic data → hierarchy and system consistency → distinctiveness and polish.
-3. **Report** a table of location, issue, user impact, evidence label (Observed, Specified, Inferred, Preference — see [design-review](references/design-review.md#evidence-levels)), fix, and severity (blocker, major, minor, polish). Lead with the three highest-impact fixes and include the rubric scores.
+3. **Report** a table of location, issue, user impact, evidence label (Observed, Specified, Inferred, Preference — see [design-review](references/design-review.md#evidence-levels)), fix, and severity (blocker, major, minor, polish). Lead with the three highest-impact fixes and include the rubric scores; score "n/a" where the evidence cannot show a dimension (screenshots alone cannot prove keyboard access or other widths).
 
 Distinguish defects from preferences. Never present inferred user behavior, research, or analytics as observed.
 
@@ -183,8 +185,8 @@ Distinguish defects from preferences. Never present inferred user behavior, rese
 - [ ] Mode chosen; in Build mode the brief exists and its rejected defaults are honored.
 - [ ] Existing tokens and components reused, or deviations justified.
 - [ ] First viewport states purpose and primary action at narrow and wide widths.
-- [ ] Lint has no errors; `visual_qa` has no errors, or each remaining one is explained.
-- [ ] Screenshots were opened and described before scoring; at least three defects were named per round.
+- [ ] `ui_lint --changed` shows no errors from this change; `visual_qa` has no errors, or each remaining one is explained; pre-existing findings are listed, not silently fixed.
+- [ ] Screenshots were opened and described before scoring; each round named at least three defects or listed where it looked.
 - [ ] Loading, empty, error, and relevant permission or partial states are designed and rendered.
 - [ ] Keyboard focus is visible, contrast passes, targets are large enough, zoom is not blocked, and reduced motion is honored.
 - [ ] Copy is real and specific; no placeholder content, invented proof, or dead controls.

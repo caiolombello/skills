@@ -24,7 +24,7 @@ Load when composing a page or screen. Each pattern lists the structure that usua
 
 ## Dashboard
 
-- **Structure:** a question-led header ("How is revenue tracking this month?"), a short KPI row with context, the one primary chart, then supporting breakdowns and a table of exact values. Filters persist at the top.
+- **Structure:** a header that names the area ("Revenue"), with the question it answers in the subtitle ("October, compared with September"); a short KPI row with context; the one primary chart; then supporting breakdowns and a table of exact values. Filters persist at the top.
 - **Narrow:** KPIs in a two-column grid or a horizontal scroller, charts full width, tables as scroll containers.
 - **Failure:** every widget in a card with equal weight; eight KPIs with no comparison; decorative sparklines; colors with no legend.
 
@@ -62,7 +62,7 @@ Load when composing a page or screen. Each pattern lists the structure that usua
 
 Derive sections from the argument: what visitors must understand, believe, and do. Then:
 
-- **First viewport:** the brand or product is a hero-level signal; one headline (the category or literal offer, with the value in supporting copy), one short supporting sentence, one call-to-action group, and one dominant visual — the real product, a real photo, or a strong typographic composition. Budget the viewport: a fixed header counts against it (`min-height: calc(100svh - var(--header-h))`), and a hint of the next section should be visible.
+- **First viewport:** the brand or product is a hero-level signal; one headline (the category or literal offer, with the value in supporting copy), one short supporting sentence, one call-to-action group, and one dominant visual — the real product, a real photo, or a strong typographic composition. Budget the viewport: a fixed header counts against it, and a hint of the next section should stay visible, so size the hero at roughly 80–90svh minus the header rather than a full screen.
 - **Sections:** each has one job, one headline, and usually one short supporting sentence. Show the product early and often; prefer concrete specifics (numbers you can source, real workflows, real customers) over adjectives. Five or six sections usually suffice.
 - **Proof:** real, attributed quotes and logos you have rights to use, or none.
 - **Narrow:** the same story order; the call to action stays visible early; images keep their subject in frame.

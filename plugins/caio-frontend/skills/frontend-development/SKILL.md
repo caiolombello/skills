@@ -164,7 +164,7 @@ Run project-defined commands and record exact outcomes:
 - Typecheck and lint.
 - Production build when the build path changed.
 - Relevant integration or end-to-end tests.
-- Actual rendered screenshots at representative narrow and wide widths and relevant states; inspect the image pixels, then correct observed layout defects. Use frontend-design's tools: `python3 ../frontend-design/scripts/ui_lint.py <src>` and `node ../frontend-design/scripts/visual_qa.mjs --url <dev url>` (paths relative to this skill's folder), then score its critique rubric.
+- Actual rendered screenshots at representative narrow and wide widths and relevant states; inspect the image pixels, then correct observed layout defects. Use frontend-design's tools — `<frontend-design-dir>` is the absolute path of the sibling `frontend-design` skill folder, next to this one: `python3 <frontend-design-dir>/scripts/ui_lint.py . --changed` and `node <frontend-design-dir>/scripts/visual_qa.mjs --start "<dev command>" --url <dev url>`, then score its critique rubric.
 - Keyboard, focus, zoom, and automated accessibility checks.
 - Slow, failed, stale, and duplicate-request behavior where relevant.
 - Console and network inspection for unexpected errors or sensitive data.

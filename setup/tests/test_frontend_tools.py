@@ -93,6 +93,29 @@ class FrontendToolTests(unittest.TestCase):
         code, report = self.lint(self.root)
         self.assertEqual((code, report["files"]), (0, 0))
 
+    def test_lint_changed_reports_only_touched_lines(self):
+        if not shutil.which("git"):
+            self.skipTest("git unavailable")
+        repo = self.root / "repo"
+        repo.mkdir()
+        git = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com", *a],
+                                        cwd=repo, check=True, capture_output=True)
+        git("init", "-q")
+        (repo / "Legacy.tsx").write_text('<img src="/legacy.png" />\n')
+        git("add", ".")
+        git("commit", "-q", "-m", "legacy")
+        (repo / "Legacy.tsx").write_text('<img src="/legacy.png" />\n<a href="#">x</a>\n')
+        (repo / "New.tsx").write_text("export const A = () => <div onClick={go}><h3>Card</h3></div>;\n")
+        result = subprocess.run([sys.executable, str(SCRIPTS / "ui_lint.py"), ".", "--changed", "--format", "json"],
+                                cwd=repo, capture_output=True, text=True)
+        report = json.loads(result.stdout)
+        rules = {f["rule"] for f in report["findings"]}
+        self.assertEqual(rules, {"fake-control", "dead-link"}, report)
+        self.assertEqual(report["hiddenPreexisting"], 1)
+        outside = subprocess.run([sys.executable, str(SCRIPTS / "ui_lint.py"), ".", "--changed"],
+                                 cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(outside.returncode, 2)
+
     def test_contrast_cli(self):
         def run(*pair):
             return subprocess.run([sys.executable, str(SCRIPTS / "contrast.py"), *pair], capture_output=True, text=True)
@@ -126,6 +149,43 @@ class FrontendToolTests(unittest.TestCase):
         self.assertTrue({"horizontal-overflow", "placeholder-as-label"} <= ids, ids)
         shot = self.root / summary["viewOrder"][0]
         self.assertTrue(shot.is_file() and shot.stat().st_size > 1000)
+
+
+    def test_visual_qa_starts_server_and_captures_mocked_states(self):
+        if not shutil.which("node"):
+            self.skipTest("node unavailable")
+        site = self.root / "site"
+        (site / "api").mkdir(parents=True)
+        (site / "api/items").write_text('[{"name": "Alpha"}]')
+        (site / "index.html").write_text(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width, initial-scale=1"><title>Items</title></head>'
+            '<body><main><h1>Items</h1><p id="out">Loading</p><div style="height:2400px"></div></main>'
+            "<script>fetch('/api/items').then(r => r.json()).then(i => { document.getElementById('out').textContent ="
+            " i.length ? i[0].name : 'No items yet'; });</script></body></html>")
+        steps = self.root / "steps.json"
+        steps.write_text(json.dumps([{"action": "route", "url": "**/api/items", "json": []},
+                                     {"action": "reload"}, {"action": "wait", "ms": 150},
+                                     {"action": "capture", "name": "empty"}]))
+        import socket
+        with socket.socket() as sock:
+            sock.bind(("127.0.0.1", 0))
+            port = sock.getsockname()[1]
+        start = f'"{sys.executable}" -m http.server {port} --bind 127.0.0.1 --directory "{site}"'
+        out = self.root / "qa"
+        result = subprocess.run(["node", str(SCRIPTS / "visual_qa.mjs"), "--start", start, "--url", f"http://127.0.0.1:{port}/",
+                                 "--steps", str(steps), "--widths", "390", "--audit-widths", "", "--themes", "light",
+                                 "--focus-steps", "0", "--max-tiles", "2", "--out", str(out), "--json"],
+                                capture_output=True, text=True, cwd=self.root, timeout=240)
+        if result.returncode == 2 and ("Playwright not found" in result.stderr or "could not launch" in result.stderr):
+            self.skipTest("Playwright/Chromium unavailable")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        summary = json.loads(result.stdout)
+        names = [Path(p).name for p in summary["viewOrder"]]
+        self.assertIn("home-390-empty.png", names)
+        self.assertEqual(sum(n.startswith("home-390-light-part-") for n in names), 2)
+        with socket.socket() as sock:
+            self.assertNotEqual(sock.connect_ex(("127.0.0.1", port)), 0, "dev server left running")
 
 
 if __name__ == "__main__":

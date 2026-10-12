@@ -9,6 +9,7 @@ Load when setting up this skill for a specific model or agent, when results are 
 - [Claude](#claude)
 - [Gemini, Cursor, and other agents](#gemini-cursor-and-other-agents)
 - [Smaller models and long sessions](#smaller-models-and-long-sessions)
+- [Tooling setup](#tooling-setup)
 - [No skills runtime](#no-skills-runtime)
 - [Always-on in a repository](#always-on-in-a-repository)
 - [Measure whether it helps](#measure-whether-it-helps)
@@ -51,7 +52,7 @@ visual_qa reports no errors at 390px and 1440px; report rubric scores and screen
 ## Gemini, Cursor, and other agents
 
 - The skill files are provider-neutral; install them where the agent discovers skills (see the repository's `setup/README.md`).
-- If the agent has its own browser tool but cannot run Node, evaluate `scripts/ui_audit.js` in the page and call `__uiAudit()`, then take screenshots with the agent's tool.
+- If the agent has its own browser tool but cannot run Node, evaluate `<skill-dir>/scripts/ui_audit.js` in the page and call `__uiAudit()`, then take screenshots with the agent's tool.
 - If it cannot view images at all, run the audit and the rubric on code and audit evidence, and label the result visually unverified.
 
 ## Smaller models and long sessions
@@ -60,6 +61,14 @@ visual_qa reports no errors at 390px and 1440px; report rubric scores and screen
 - Run `ui_lint.py` after each meaningful edit; cap critique loops at two rounds.
 - Prefer existing accessible primitives (the project's library, or headless components) over hand-built widgets.
 - In long sessions, restate the brief before each new screen so later screens keep the same system.
+
+## Tooling setup
+
+- **Python scripts** (`ui_lint.py`, `contrast.py`) need only Python 3.9+.
+- **`visual_qa.mjs`** needs Node 18+ and Playwright. It looks in the project, then the global npm root, then `NODE_PATH`, and falls back to an installed Chrome or Edge when Playwright's own Chromium is missing (or pass `--executable-path`).
+- **When Playwright is absent,** install it outside the project instead of editing its dependencies unasked: `npm i -g playwright && npx playwright install chromium`, or a cached copy with `npm i --prefix ~/.cache/ui-qa playwright` and `NODE_PATH=~/.cache/ui-qa/node_modules`. Both need network access; sandboxed agents (Codex runs commands without network by default) need the user to allow it or to run the install once.
+- **Dev servers:** let `visual_qa.mjs --start "<dev command>" --url <url>` start and stop the server; a foreground `npm run dev` blocks the agent's shell.
+- **States:** a `--steps` file can `route` API calls to fixtures (`json`, `status`, `delay`, `abort`) and `reload`, so empty, error, and loading states render without touching the backend.
 
 ## No skills runtime
 
@@ -70,7 +79,7 @@ Paste [assets/agents-snippet.md](../assets/agents-snippet.md) into the system or
 Skills trigger on demand; a project rules file is read every session. To hold every UI change to the same bar:
 
 1. Copy [assets/agents-snippet.md](../assets/agents-snippet.md) into the repository's `AGENTS.md` (read by Codex, Cursor, and many other agents) and/or `CLAUDE.md`.
-2. Point its script paths at the installed skill (for example `~/.agents/skills/frontend-design/scripts/`), or vendor the four scripts into the repository (for example `tools/ui-qa/`) when CI or teammates should run them.
+2. Replace `SKILL_DIR` in the snippet with the installed skill (for example `~/.agents/skills/frontend-design`), or vendor the whole `frontend-design` folder into the repository (for example `tools/frontend-design/`, keeping its `scripts/` and `references/` layout) when CI or teammates should run it.
 3. Add `.ui-qa/` to `.gitignore`.
 4. Keep project-specific decisions (brand fonts, tokens file, component library) in the same section so every agent reuses them.
 

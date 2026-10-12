@@ -16,8 +16,9 @@ Load for every render–critique–fix round and for Review mode. The rubric tur
 2. **Describe before judging.** For each screenshot write two or three plain sentences: what is on screen, what the eye lands on first, second, and third, and anything that looks broken. This prevents grading the design you meant to build.
 3. **Name defects first.** List at least three concrete defects, each with location, why it matters to the user, and the fix. If you cannot find three, look again at the narrowest width, the longest text, the empty or error state, and the dark theme. Zero defects after that is possible, but say where you looked.
 4. **Then score** each dimension 0–3 with a one-line justification that cites a screenshot or audit finding.
-5. **Fold in the tools.** Every `error` from `ui_lint` or `visual_qa` caps its dimension at 1 until fixed; `warn` findings must be fixed or explicitly accepted with a reason.
-6. **Decide.** Pass when no dimension is below 2 and the average is ≥ 2.5. Otherwise fix in [fix order](#fix-order) and run another round (three rounds at most, then report what still falls short).
+5. **Fold in the tools.** An unexplained `error` from `ui_lint` or `visual_qa` caps the matching dimension at 1 until it is fixed: contrast → color; overflow, clipping, overlap → responsiveness; names, labels, focus, targets, zoom → accessibility; dead links, placeholder copy → content; console exceptions and broken images → components and states. An error you explain (pre-existing, third-party widget, false positive with the reason) does not cap. `warn` findings are fixed or accepted with a reason.
+6. **Decide.** Pass when no dimension is below 2 and the average is ≥ 2.5. In Build mode, otherwise fix in [fix order](#fix-order) and run another round (three rounds at most, then report what still falls short). In Review mode, report instead of fixing unless asked.
+7. **Score what you can see.** Mark a dimension "n/a" when the evidence cannot show it (screenshots alone cannot prove keyboard access or behavior at other widths); leave n/a out of the average and list it as unverified.
 
 Be your own harshest reviewer: compare the result with the best products of the same type, not with the first draft.
 

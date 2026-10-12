@@ -7,7 +7,10 @@ common template files. Heuristic by design: "error" is a near-certain defect,
 not replace rendering the UI (see visual_qa.mjs) or a real accessibility review.
 
 Usage:
-  python3 ui_lint.py [PATH ...] [--format text|json] [--fail-on error|warn|never]
+  python3 ui_lint.py [PATH ...] [--changed [REF]] [--format text|json] [--fail-on error|warn|never]
+
+--changed reports only findings on lines added or modified since REF (default
+HEAD) and in untracked files, so pre-existing problems do not block a change.
 """
 from __future__ import annotations
 
@@ -16,6 +19,7 @@ import bisect
 import colorsys
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -85,10 +89,10 @@ class Finding:
     locations: list = field(default_factory=list)
     count: int = 0
 
-    def add(self, path: str | None, line: int | None, detail: str = "") -> None:
+    def add(self, path: str | None, line: int | None, detail: str = "", end: int | None = None) -> None:
         self.count += 1
         if path and len(self.locations) < 400:
-            self.locations.append({"path": path, "line": line, "detail": detail[:120]})
+            self.locations.append({"path": path, "line": line, "end": end or line, "detail": detail[:120]})
 
 
 class Linter:
@@ -104,14 +108,15 @@ class Linter:
         self.arbitrary_values = 0
         self.purple_classes = 0
         self.chromatic_classes = 0
-        self.outline_reset_css: list[tuple[str, int, str]] = []
+        self.outline_reset_css: list[tuple[str, int, str, int | None]] = []
+        self.span_end: int | None = None  # last line of the tag or CSS rule being reported
 
     # ------------------------------------------------------------- reporting
     def report(self, rule: str, severity: str, message: str, fix: str, path: str | None = None,
                line: int | None = None, detail: str = "") -> None:
         if rule not in self.findings:
             self.findings[rule] = Finding(rule, severity, message, fix)
-        self.findings[rule].add(path, line, detail)
+        self.findings[rule].add(path, line, detail, self.span_end)
 
     # ------------------------------------------------------------- scanning
     def scan(self, paths: list[Path]) -> None:
@@ -140,6 +145,7 @@ class Linter:
         except (OSError, UnicodeDecodeError):
             return
         self.files += 1
+        self.span_end = None
         try:
             rel = str(path.resolve().relative_to(Path.cwd().resolve()))
         except ValueError:
@@ -169,7 +175,9 @@ class Linter:
                 selector, body = m.group(1).strip(), m.group(2)
                 base = offset + m.start()
                 line = lines.line(base + len(m.group(1)))
+                self.span_end = lines.line(base + len(m.group(0)))
                 self.css_rule(rel, selector, body, line)
+                self.span_end = None
 
     def css_rule(self, rel: str, selector: str, body: str, line: int) -> None:
         decls = dict((k.strip().lower(), v.strip()) for k, v in re.findall(r"([\w-]+)\s*:\s*([^;]+)", body))
@@ -185,7 +193,7 @@ class Linter:
                     self.report("outline-removed", "error", "Focus outline removed without a replacement indicator.",
                                 "Keep the outline or add a :focus-visible ring (outline or box-shadow, >= 3:1 contrast).", rel, line, selector)
             else:
-                self.outline_reset_css.append((rel, line, selector))
+                self.outline_reset_css.append((rel, line, selector, self.span_end))
         for prop in ("transition", "transition-property"):
             if re.match(r"all\b", decls.get(prop, "")):
                 self.report("transition-all", "info", "transition: all animates layout and color changes you did not intend.",
@@ -303,12 +311,14 @@ class Linter:
             if not re.search(r"<meta\b[^>]*name=[\"']viewport", text, re.I):
                 self.report("viewport-meta-missing", "warn", "No viewport meta; phones render a zoomed-out desktop page.",
                             '<meta name="viewport" content="width=device-width, initial-scale=1">', rel, 1)
-        for tag, start, attrs, inner in iter_tags(text, ("img", "Image")):
+        for tag, start, attrs, inner, end in iter_tags(text, ("img", "Image")):
+            self.span_end = lines.line(end)
             if "{..." in attrs:
                 continue
             if not re.search(r"(?:^|[\s:])alt\b", attrs):
                 self.report("img-alt-missing", "error", "Image without alt attribute.", 'Describe the image, or use alt="" when it is decorative.', rel, lines.line(start), attrs.strip()[:80])
-        for tag, start, attrs, inner in iter_tags(text, ("div", "span", "li", "p", "td", "tr", "section", "article", "img", "svg", "i")):
+        for tag, start, attrs, inner, end in iter_tags(text, ("div", "span", "li", "p", "td", "tr", "section", "article", "img", "svg", "i")):
+            self.span_end = lines.line(end + 1 + len(inner or ""))  # through the element content
             if not re.search(r"(?:\bonClick|\bonclick|@click|v-on:click|on:click|\(click\))\s*=", attrs):
                 continue
             if re.search(r"\brole\s*=", attrs) and re.search(r"\btab[iI]ndex\s*=", attrs):
@@ -320,11 +330,13 @@ class Linter:
             self.report("fake-control" if not empty else "click-backdrop", "error" if not empty else "info",
                         f"Clickable <{tag}> is not keyboard or screen-reader operable." if not empty else f"Click handler on an empty <{tag}> (backdrop?).",
                         "Use <button> (actions) or <a href> (navigation); for backdrops, also close on Escape." , rel, lines.line(start), attrs.strip()[:80])
+        self.span_end = None
         for m in re.finditer(r"\btab[iI]ndex\s*=\s*(?:[\"']|\{)\s*([1-9]\d*)", text):
             self.report("positive-tabindex", "error", "Positive tabindex breaks the natural focus order.", "Use tabindex 0 or -1 and fix DOM order instead.", rel, lines.line(m.start()))
         for m in re.finditer(r"\bhref\s*=\s*(?:[\"'](?:#|#!|javascript:[^\"']*)?[\"']|\{\s*[\"']#[\"']\s*\})", text):
             self.report("dead-link", "warn", "Placeholder link (href=\"#\" or javascript:).", "Link to a real destination or use a <button> for actions.", rel, lines.line(m.start()))
-        for tag, start, attrs, inner in iter_tags(text, ("button",)):
+        for tag, start, attrs, inner, end in iter_tags(text, ("button",)):
+            self.span_end = lines.line(end + 1 + len(inner or ""))  # through the element content
             if inner is None or re.search(r"aria-label(?:ledby)?\s*=|\btitle\s*=", attrs):
                 continue
             visible = re.sub(r"<[^>]+>", "", inner)
@@ -332,12 +344,15 @@ class Linter:
                 continue
             if not visible.strip() and re.search(r"<(?:svg\b|i\b|img\b|[A-Z][\w.]*[^>]*/>)", inner):
                 self.report("icon-button-unnamed", "error", "Icon-only button without an accessible name.", 'Add aria-label="…" (and a tooltip for unfamiliar icons).', rel, lines.line(start))
-        for tag, start, attrs, inner in iter_tags(text, ("video",)):
+        for tag, start, attrs, inner, end in iter_tags(text, ("video",)):
+            self.span_end = lines.line(end)
             if re.search(r"\bauto[pP]lay\b", attrs) and not re.search(r"\bmuted\b", attrs):
                 self.report("autoplay-sound", "warn", "Autoplaying video without muted.", "Add muted (and playsinline), or do not autoplay.", rel, lines.line(start))
+        self.span_end = None
 
     # ------------------------------------------------------------- copy
     def check_copy(self, rel: str, text: str, lines: "LineIndex") -> None:
+        self.span_end = None
         for offset, segment, attr in copy_segments(text):
             line = lines.line(offset)
             m = PLACEHOLDER_RE.search(segment)
@@ -376,9 +391,10 @@ class Linter:
     def finish(self) -> None:
         if self.outline_reset_css:
             severity = "warn" if self.has_focus_style else "error"
-            for rel, line, selector in self.outline_reset_css:
+            for rel, line, selector, self.span_end in self.outline_reset_css:
                 self.report("outline-removed", severity, "Outline removed in a base style; focus may be invisible.",
-                            "Remove the reset or add :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px }.", rel, line, selector)
+                            "Remove the reset or add :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px }.", rel, line, selector)
+            self.span_end = None
         if self.has_motion and not self.has_reduced_motion:
             self.report("reduced-motion-missing", "warn", "Animations exist but nothing honors prefers-reduced-motion.",
                         "Add @media (prefers-reduced-motion: reduce) overrides, motion-safe:/motion-reduce:, or useReducedMotion.")
@@ -426,7 +442,7 @@ def strip_comments(text: str, ext: str) -> str:
 
 
 def iter_tags(text: str, names: tuple[str, ...]):
-    """Yield (name, start, attrs, inner) for opening tags, tolerating JSX braces."""
+    """Yield (name, start, attrs, inner, end) for opening tags, tolerating JSX braces."""
     pattern = re.compile(r"(?<![\w$.])<(" + "|".join(re.escape(n) for n in names) + r")(?=[\s/>])")
     for m in pattern.finditer(text):
         i, depth, quote = m.end(), 0, None
@@ -450,7 +466,7 @@ def iter_tags(text: str, names: tuple[str, ...]):
             close = text.find(f"</{m.group(1)}>", i)
             if close != -1 and close - i < 4000:
                 inner = text[i + 1:close]
-        yield m.group(1), m.start(), attrs, inner
+        yield m.group(1), m.start(), attrs, inner, i
 
 
 def copy_segments(text: str):
@@ -519,12 +535,67 @@ def render_text(linter: Linter, max_locations: int) -> str:
     return "\n".join(out)
 
 
+def changed_lines(ref: str) -> dict[Path, set[int] | None] | str | None:
+    """Lines added or modified since ref per file (None = whole untracked file), or None outside git."""
+    def git(*args: str) -> str:
+        return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout
+    try:
+        top = Path(git("rev-parse", "--show-toplevel").strip())
+        if ref == "HEAD" and subprocess.run(["git", "rev-parse", "--verify", "-q", "HEAD"], capture_output=True).returncode:
+            return "all"  # no commits yet: everything is new
+        diff = git("diff", "-U0", "--no-color", "--no-ext-diff", "--diff-filter=ACMR", ref)
+        untracked = git("ls-files", "--others", "--exclude-standard", "--full-name", ":/").splitlines()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    changed: dict[Path, set[int] | None] = {}
+    current = None
+    for line in diff.splitlines():
+        if line.startswith("+++ "):
+            current = None if line[4:] == "/dev/null" else (top / line[6:]).resolve()
+            if current is not None:
+                changed.setdefault(current, set())
+        elif line.startswith("@@") and current is not None:
+            m = re.search(r"\+(\d+)(?:,(\d+))?", line)
+            start, count = int(m.group(1)), int(m.group(2) or 1)
+            changed[current].update(range(start, start + count))
+    for name in untracked:
+        changed[(top / name).resolve()] = None
+    return changed
+
+
+def keep_changed(linter: Linter, changed: dict[Path, set[int] | None]) -> int:
+    """Keep findings on changed lines; return how many pre-existing locations were hidden.
+
+    A finding counts as touched when a changed line falls inside its tag or CSS rule.
+    Project-wide findings are dropped.
+    """
+    hidden = 0
+    for rule in list(linter.findings):
+        finding = linter.findings[rule]
+        kept = []
+        for loc in finding.locations:
+            lines = changed.get(Path(loc["path"]).resolve(), set())
+            first = loc["line"] or 0
+            last = loc.get("end") or first
+            if lines is None or any(first <= c <= last for c in lines):
+                kept.append(loc)
+            else:
+                hidden += 1
+        if kept:
+            finding.locations, finding.count = kept, len(kept)
+        else:
+            del linter.findings[rule]
+    return hidden
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Static UI lint: accessibility defects and generic-template tells.")
     parser.add_argument("paths", nargs="*", default=["."], help="files or directories (default: current directory)")
     parser.add_argument("--format", choices=["text", "json"], default="text")
     parser.add_argument("--fail-on", choices=["error", "warn", "never"], default="error")
     parser.add_argument("--max-locations", type=int, default=8, help="locations shown per rule in text output")
+    parser.add_argument("--changed", nargs="?", const="HEAD", metavar="REF",
+                        help="only report findings in files changed since REF (default HEAD) and untracked files")
     args = parser.parse_args(argv)
     paths = [Path(p) for p in args.paths]
     missing = [str(p) for p in paths if not p.exists()]
@@ -533,6 +604,14 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     linter = Linter()
     linter.scan(paths)
+    hidden = 0
+    if args.changed:
+        changed = changed_lines(args.changed)
+        if changed is None:
+            print("ui_lint: --changed needs a git work tree and a valid ref; run without --changed to lint everything", file=sys.stderr)
+            return 2
+        if changed != "all":
+            hidden = keep_changed(linter, changed)
     results = linter.results()
     if args.format == "json":
         print(json.dumps({
@@ -541,9 +620,12 @@ def main(argv: list[str] | None = None) -> int:
                           "count": f.count, "locations": f.locations} for f in results],
             "signals": {"fontSizes": sorted(linter.font_sizes), "fonts": linter.fonts, "rawColors": linter.raw_colors,
                         "arbitraryValues": linter.arbitrary_values},
+            "hiddenPreexisting": hidden,
         }, indent=2, ensure_ascii=False))
     else:
         print(render_text(linter, args.max_locations))
+        if hidden:
+            print(f"{hidden} finding(s) on lines this change did not touch are hidden; run without --changed to list them.")
     levels = {"error": ("error",), "warn": ("error", "warn"), "never": ()}[args.fail_on]
     return 1 if any(f.severity in levels for f in results) else 0
 
