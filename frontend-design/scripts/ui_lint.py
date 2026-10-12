@@ -361,7 +361,7 @@ class Linter:
         if re.search(r"prefers-reduced-motion|useReducedMotion|reducedMotion\s*[=:]|motion-reduce:|motion-safe:", text):
             self.has_reduced_motion = True
         families = []
-        for m in re.finditer(r"font-family\s*:\s*([^;}{\n]+)", text):
+        for m in re.finditer(r"(?:font-family|--font-(?!weight|size|feature|variation|display-weight)[\w-]+)\s*:\s*([^;}{\n]+)", text):
             families.append(m.group(1).split(",")[0])
         families += re.findall(r"import\s*\{([^}]+)\}\s*from\s*['\"]next/font/google['\"]", text)
         families += re.findall(r"fonts\.googleapis\.com/css2?\?family=([^&\"':]+)", text)

@@ -636,6 +636,9 @@
       } else if (placeholderOnly && isField) {
         report('placeholder-as-label', 'warn', 'Placeholder used as the only label; it disappears while typing.', { selector: selectorOf(el), detail: name });
       }
+      if (tag === 'A' && /^rgb\((0, 0, 238|85, 26, 139)\)$/.test(getComputedStyle(el).color)) {
+        report('default-link-style', 'info', 'Links still use the browser default blue/purple; style them from the palette.', { selector: selectorOf(el), text: snippet(el.textContent, 30) });
+      }
       if (tag === 'A') {
         const href = (el.getAttribute('href') || '').trim();
         if (href === '#' || href === '' || /^javascript:/i.test(href)) report('dead-link', 'warn', 'Placeholder link (href="#" or javascript:); wire it up or use a button.', { selector: selectorOf(el), text: snippet(el.textContent, 40) });
