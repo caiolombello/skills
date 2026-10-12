@@ -119,7 +119,9 @@ the user's account by the tests here.
 
 ## Optional frontend plugin / power
 
-`plugins/caio-frontend` contains the three frontend skills and their references.
+`plugins/caio-frontend` contains the three frontend skills with their references,
+assets, and on-demand QA scripts (Python 3.9+; `visual_qa.mjs` also needs Node 18+
+and Playwright, which the package does not install).
 It has a root Agent Plugins manifest, plus separate compatibility manifests for
 Codex, Claude, and Cursor. Repo marketplaces also have distinct formats:
 

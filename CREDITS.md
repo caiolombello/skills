@@ -210,6 +210,17 @@ Guidelines](https://www.w3.org/WAI/standards-guidelines/wcag/),
 testing documentation as technical sources. These standards and documents were
 not vendored, and the local skill text is independently written.
 
+`frontend-design` also reflects reviewed vendor guidance on steering models
+toward stronger interfaces: OpenAI's
+[Designing delightful frontends with GPT-5.4](https://developers.openai.com/blog/designing-delightful-frontends-with-gpt-5-4)
+and [frontend prompt instructions](https://developers.openai.com/api/docs/guides/frontend-prompt)
+(reviewed 2026-10-12), and Anthropic's
+[Improving frontend design through Skills](https://claude.com/resources/articles/improving-frontend-design-through-skills)
+(the distributional-convergence framing). No text, prompts, or assets were
+copied; its craft rules, QA scripts (`ui_lint.py`, `ui_audit.js`,
+`visual_qa.mjs`, `contrast.py`), starter tokens, and critique rubric are
+original work under this repository's MIT license.
+
 ## Skills with no upstream inspiration
 
 The following skills were written from scratch based on SRE, DevOps, API
@@ -234,7 +245,7 @@ of the upstream projects above. They are noted here only for completeness:
 - `karpenter-workflows` (follows Karpenter core + provider docs, especially NodePools, NodeClasses, disruption, drift, consolidation, and provider-specific node supply)
 - `cost-optimization-aws` (FinOps Foundation principles + AWS CUR + AWS Cost Optimization Pillar)
 - `monorepo-strategy` (Turborepo / Nx / Bazel official docs + pnpm / Yarn / uv / Cargo workspace docs)
-- `frontend-design` (W3C WCAG, WAI-ARIA Authoring Practices, and web.dev responsive-design guidance)
+- `frontend-design` (W3C WCAG, WAI-ARIA Authoring Practices, and web.dev responsive-design guidance; OpenAI and Anthropic frontend guidance reviewed as described above)
 - `frontend-development` (W3C WCAG, WAI-ARIA Authoring Practices, web.dev, Testing Library, Playwright, and Storybook documentation)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
 

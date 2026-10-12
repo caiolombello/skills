@@ -1,11 +1,11 @@
 ---
 name: frontend-development
-description: "Use before implementing, changing, or fixing authorized production web UI code from approved requirements or designs in an existing frontend stack: components, routes, forms, interactions, state, or client data flow. For disposable UI experiments, use throwaway-prototype instead. Not unresolved product or visual direction, diagnosis-only work, or final PR review."
+description: "Use before implementing, changing, or fixing authorized production web UI code — components, routes, forms, interactions, state, or client data flow — in the project's stack or a minimal new one. Pair with frontend-design for visual decisions and screenshot QA. Not disposable experiments (throwaway-prototype), diagnosis-only work, or final PR review."
 ---
 
 # Frontend Development
 
-Implement production frontend behavior in the project’s existing stack without inventing framework APIs, visual conventions, or backend contracts. Treat accessibility, states, responsiveness, security, and verification as part of the feature.
+Implement production frontend behavior in the project’s stack without inventing framework APIs, visual conventions, or backend contracts. Treat accessibility, states, responsiveness, visual quality, security, and verification as part of the feature.
 
 ## When to use
 
@@ -16,7 +16,7 @@ Implement production frontend behavior in the project’s existing stack without
 
 ## When not to use
 
-- Decide the product flow, visual direction, information architecture, or design system; use [`frontend-design`](../frontend-design).
+- Decide the product flow, visual direction, information architecture, or design system alone; use [`frontend-design`](../frontend-design). When the user asks for new or redesigned UI, both skills apply: design brief first, then this workflow.
 - Build disposable alternatives to answer an unresolved design question; use [`throwaway-prototype`](../throwaway-prototype).
 - Diagnose a failure without authorization to implement the fix; use [`diagnose`](../diagnose).
 - Perform a generic PR or completed-change review; use [`code-review`](../code-review).
@@ -30,6 +30,7 @@ Implement production frontend behavior in the project’s existing stack without
 5. **Preserve user work.** Late async responses, refreshes, validation, and retries must not silently overwrite manual input.
 6. **Do not invent contracts.** Read generated clients, schemas, API types, fixtures, and actual call sites.
 7. **Verify with observable evidence.** Compilation alone does not prove interaction, layout, or accessibility.
+8. **Meet the visual bar.** When a change adds or restyles UI, apply [`frontend-design`](../frontend-design)'s craft defaults and pass its render–critique gate before calling it done.
 
 ## Workflow
 
@@ -46,6 +47,15 @@ Read the project rules file (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, or equi
 
 Use [`investigate-before-editing`](../investigate-before-editing) for unfamiliar code. Use [`docs-verified-coding`](../docs-verified-coding) before relying on version-sensitive framework or library behavior.
 
+**No frontend yet?** Choose the smallest stack that fits and say why; verify current setup commands and versions in official documentation rather than from memory:
+
+- Static page or small site: semantic HTML and modern CSS with a tokens file — no framework needed.
+- Application: the framework the user names; otherwise React + TypeScript on Vite (client app) or Next.js (server rendering, routing, SEO).
+- Styling: Tailwind CSS with the design tokens in its theme, or CSS Modules with custom properties — one approach, not both.
+- Interactive primitives: an accessible headless library (Radix or shadcn/ui, React Aria) instead of hand-rolled menus, dialogs, comboboxes, or date pickers.
+- Icons: Lucide unless the brand has a set. Motion: CSS first; the Motion library only for choreography CSS cannot express.
+- Pin versions in the lockfile and add lint, typecheck, and test commands on day one.
+
 ### 2. Resolve the implementation input
 
 Translate the design or request into:
@@ -57,7 +67,7 @@ Translate the design or request into:
 - Responsive and accessibility requirements.
 - Test and visual-verification plan.
 
-If product direction is unresolved, pause implementation and route the decision to [`frontend-design`](../frontend-design). If only minor unspecified detail remains, follow the existing product pattern and state the assumption.
+If visual or product direction is unresolved, write the [`frontend-design`](../frontend-design) brief before coding; pause only for decisions that genuinely need the user. If only minor unspecified detail remains, follow the existing product pattern and state the assumption.
 
 ### 3. Implement a thin vertical slice
 
@@ -154,12 +164,12 @@ Run project-defined commands and record exact outcomes:
 - Typecheck and lint.
 - Production build when the build path changed.
 - Relevant integration or end-to-end tests.
-- Actual rendered screenshots at representative narrow and wide widths and relevant states; inspect the image pixels, then correct observed layout defects.
+- Actual rendered screenshots at representative narrow and wide widths and relevant states; inspect the image pixels, then correct observed layout defects. Use frontend-design's tools: `python3 ../frontend-design/scripts/ui_lint.py <src>` and `node ../frontend-design/scripts/visual_qa.mjs --url <dev url>` (paths relative to this skill's folder), then score its critique rubric.
 - Keyboard, focus, zoom, and automated accessibility checks.
 - Slow, failed, stale, and duplicate-request behavior where relevant.
 - Console and network inspection for unexpected errors or sensitive data.
 
-Do not say “responsive,” “accessible,” or “all tests pass” unless the evidence supports that exact scope.
+Do not say “responsive,” “accessible,” or “all tests pass” unless the evidence supports that exact scope. When the app needs a dev server, leave it running and give the user the URL; for a static page, give the file path.
 
 ## Anti-patterns
 
@@ -176,7 +186,7 @@ Do not say “responsive,” “accessible,” or “all tests pass” unless th
 
 ## Interaction with other skills
 
-- [`frontend-design`](../frontend-design) — owns product flow, hierarchy, design-system decisions, and implementation-ready UX specifications.
+- [`frontend-design`](../frontend-design) — owns product flow, hierarchy, visual direction, design-system decisions, the craft defaults, and the lint/screenshot/critique gate this skill runs.
 - [`throwaway-prototype`](../throwaway-prototype) — explores disposable variants; never promote prototype code directly.
 - [`investigate-before-editing`](../investigate-before-editing) — establishes repository conventions before production edits.
 - [`docs-verified-coding`](../docs-verified-coding) — verifies framework and library APIs against the exact installed version.
@@ -195,6 +205,7 @@ Do not say “responsive,” “accessible,” or “all tests pass” unless th
 - [ ] Async behavior preserves user edits and handles stale or duplicate work.
 - [ ] Semantic structure, keyboard behavior, focus, names, errors, zoom, reflow, and motion were checked.
 - [ ] Responsive behavior was observed with realistic and adversarial content.
+- [ ] For visual changes: `ui_lint` and `visual_qa` report no errors, screenshots were viewed, and the frontend-design rubric passes (or gaps are reported).
 - [ ] Security and privacy are enforced at trusted boundaries, not only in UI visibility.
 - [ ] Targeted tests, typecheck, lint, build, and runtime checks were run as applicable.
 - [ ] Verification evidence and untested gaps are reported precisely.

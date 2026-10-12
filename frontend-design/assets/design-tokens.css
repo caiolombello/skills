@@ -1,0 +1,219 @@
+/*
+ * Starter design tokens — a neutral, accessible baseline, not a brand.
+ * Use only when the project has no tokens. Before shipping, change at least the
+ * hues, fonts, radius, and density to match the brief; unchanged, it looks generic.
+ *
+ * Every text/background pair below meets WCAG AA (4.5:1 text, 3:1 UI) at the
+ * default hues. Changing a hue changes contrast: re-check pairs with
+ *   python3 scripts/contrast.py "oklch(0.53 0.17 180)" "#ffffff"
+ * and the rendered page with scripts/visual_qa.mjs. Green, teal, and cyan accents
+ * usually need --color-accent lightness around 0.47 to carry white text.
+ *
+ * Names follow Tailwind v4 theme namespaces (--color-*, --font-*, --text-*,
+ * --radius-*, --shadow-*, --ease-*), so the :root block can move into @theme.
+ * shadcn/ui mapping: background=bg, foreground=text, card=surface, muted=surface-2,
+ * muted-foreground=text-muted, border=border, input=border-strong, primary=accent,
+ * primary-foreground=on-accent, accent=accent-subtle, ring=focus, destructive=danger.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Hues: choose from the brief (neutral temperature, brand or domain accent). */
+  --hue-neutral: 250;
+  --hue-accent: 255;
+
+  /* Type: replace the first family of each stack with the brief's choice. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --text-xs: 0.75rem;     /* 12 */
+  --text-sm: 0.875rem;    /* 14 */
+  --text-base: 1rem;      /* 16 */
+  --text-lg: 1.125rem;    /* 18 */
+  --text-xl: 1.25rem;     /* 20 */
+  --text-2xl: 1.5rem;     /* 24 */
+  --text-3xl: 1.875rem;   /* 30 */
+  --text-4xl: 2.25rem;    /* 36 */
+  --text-5xl: 3rem;       /* 48 */
+  --text-display: clamp(2.5rem, 1.6rem + 3vw, 4.5rem); /* heroes only */
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.55;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Space: 4px base. Gaps between groups >= 2x gaps inside a group. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Shape: one scale. Nested radius = outer radius - padding. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Layout */
+  --content-max: 75rem;
+  --measure: 65ch;
+  --header-h: 3.5rem;
+  --control-h-sm: 2rem;
+  --control-h: 2.5rem;
+  --control-h-lg: 2.75rem;
+
+  /* Layers */
+  --z-sticky: 10;
+  --z-dropdown: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+
+  /* Color roles — light */
+  --color-bg: oklch(0.985 0.002 var(--hue-neutral));
+  --color-surface: oklch(1 0 0);
+  --color-surface-2: oklch(0.965 0.004 var(--hue-neutral));
+  --color-border: oklch(0.912 0.005 var(--hue-neutral));
+  --color-border-strong: oklch(0.62 0.01 var(--hue-neutral));   /* control outlines, >= 3:1 */
+  --color-text: oklch(0.21 0.012 var(--hue-neutral));
+  --color-text-muted: oklch(0.48 0.012 var(--hue-neutral));
+  --color-text-subtle: oklch(0.53 0.01 var(--hue-neutral));      /* placeholders, meta; >= 4.5:1 on every light surface */
+  --color-accent: oklch(0.53 0.17 var(--hue-accent));
+  --color-accent-hover: oklch(0.47 0.15 var(--hue-accent));
+  --color-on-accent: oklch(0.99 0 0);
+  --color-accent-subtle: oklch(0.965 0.015 var(--hue-accent));
+  --color-accent-text: oklch(0.48 0.15 var(--hue-accent));       /* links, selected labels */
+  --color-focus: oklch(0.58 0.16 var(--hue-accent));
+  --color-success: oklch(0.5 0.12 150);
+  --color-success-subtle: oklch(0.96 0.035 150);
+  --color-warning: oklch(0.52 0.11 70);
+  --color-warning-subtle: oklch(0.965 0.035 85);
+  --color-danger: oklch(0.52 0.18 27);
+  --color-danger-subtle: oklch(0.965 0.017 27);
+
+  --shadow-sm: 0 1px 2px oklch(0.2 0.02 var(--hue-neutral) / 0.06);
+  --shadow-md: 0 4px 12px oklch(0.2 0.02 var(--hue-neutral) / 0.08), 0 1px 3px oklch(0.2 0.02 var(--hue-neutral) / 0.06);
+  --shadow-lg: 0 16px 40px oklch(0.2 0.02 var(--hue-neutral) / 0.14);
+}
+
+/* Color roles — dark (system preference unless the page forces light). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: oklch(0.17 0.006 var(--hue-neutral));
+    --color-surface: oklch(0.205 0.007 var(--hue-neutral));
+    --color-surface-2: oklch(0.245 0.008 var(--hue-neutral));
+    --color-border: oklch(0.3 0.008 var(--hue-neutral));
+    --color-border-strong: oklch(0.52 0.012 var(--hue-neutral));
+    --color-text: oklch(0.95 0.004 var(--hue-neutral));
+    --color-text-muted: oklch(0.74 0.01 var(--hue-neutral));
+    --color-text-subtle: oklch(0.67 0.01 var(--hue-neutral));
+    --color-accent: oklch(0.7 0.14 var(--hue-accent));
+    --color-accent-hover: oklch(0.76 0.12 var(--hue-accent));
+    --color-on-accent: oklch(0.17 0.006 var(--hue-neutral));
+    --color-accent-subtle: oklch(0.27 0.05 var(--hue-accent));
+    --color-accent-text: oklch(0.76 0.12 var(--hue-accent));
+    --color-focus: oklch(0.72 0.13 var(--hue-accent));
+    --color-success: oklch(0.75 0.13 150);
+    --color-success-subtle: oklch(0.26 0.04 150);
+    --color-warning: oklch(0.8 0.12 80);
+    --color-warning-subtle: oklch(0.27 0.04 80);
+    --color-danger: oklch(0.72 0.15 25);
+    --color-danger-subtle: oklch(0.27 0.05 25);
+    --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
+    --shadow-md: 0 4px 12px oklch(0 0 0 / 0.45);
+    --shadow-lg: 0 16px 40px oklch(0 0 0 / 0.55);
+  }
+}
+
+/* Explicit dark theme toggle: <html data-theme="dark">. Keep in sync with the block above. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: oklch(0.17 0.006 var(--hue-neutral));
+  --color-surface: oklch(0.205 0.007 var(--hue-neutral));
+  --color-surface-2: oklch(0.245 0.008 var(--hue-neutral));
+  --color-border: oklch(0.3 0.008 var(--hue-neutral));
+  --color-border-strong: oklch(0.52 0.012 var(--hue-neutral));
+  --color-text: oklch(0.95 0.004 var(--hue-neutral));
+  --color-text-muted: oklch(0.74 0.01 var(--hue-neutral));
+  --color-text-subtle: oklch(0.67 0.01 var(--hue-neutral));
+  --color-accent: oklch(0.7 0.14 var(--hue-accent));
+  --color-accent-hover: oklch(0.76 0.12 var(--hue-accent));
+  --color-on-accent: oklch(0.17 0.006 var(--hue-neutral));
+  --color-accent-subtle: oklch(0.27 0.05 var(--hue-accent));
+  --color-accent-text: oklch(0.76 0.12 var(--hue-accent));
+  --color-focus: oklch(0.72 0.13 var(--hue-accent));
+  --color-success: oklch(0.75 0.13 150);
+  --color-success-subtle: oklch(0.26 0.04 150);
+  --color-warning: oklch(0.8 0.12 80);
+  --color-warning-subtle: oklch(0.27 0.04 80);
+  --color-danger: oklch(0.72 0.15 25);
+  --color-danger-subtle: oklch(0.27 0.05 25);
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.45);
+  --shadow-lg: 0 16px 40px oklch(0 0 0 / 0.55);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Optional base layer — drop it if the project already has a reset (e.g. Tailwind preflight). */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  accent-color: var(--color-accent);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+p, li, dd { text-wrap: pretty; }
+
+img, svg, video { max-width: 100%; height: auto; }
+
+.num { font-variant-numeric: tabular-nums; }
+
+::selection { background: color-mix(in oklch, var(--color-accent) 25%, transparent); }
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
