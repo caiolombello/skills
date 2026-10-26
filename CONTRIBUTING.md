@@ -137,6 +137,12 @@ See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencod
 
 **Never** document "install everything" as the default. Bulk install is an anti-pattern for Codex-class budgets.
 
+Writing scopes: `natural-writing` is the general keep-set workflow for voice,
+register, and copy-ready prose. Keep article research and publication structure
+in the on-demand `blog-posting` skill. `write-like-me` is an optional external
+source of personal samples, not a required dependency to vendor or duplicate.
+Skill availability does not guarantee invocation on every response.
+
 ## Proposing a new skill
 
 Open a PR or issue with:

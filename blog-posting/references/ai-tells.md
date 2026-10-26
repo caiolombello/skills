@@ -1,8 +1,8 @@
 # AI tells catalog
 
-The words, constructions, structures, and rhythms that make a draft read generated. Two languages: English and Brazilian Portuguese. Use it during the anti-tell pass in [SKILL.md](../SKILL.md); `scripts/blog_lint.py` automates most of this catalog.
+Phrases and structures worth reviewing in an article. Two languages: English and Brazilian Portuguese. Use this during editing in [SKILL.md](../SKILL.md). The optional `scripts/blog_lint.py` surfaces some patterns; it does not diagnose authorship or factual accuracy.
 
-Calibration first: tells are statistical. A single soft hit is a style choice, not a finding. Hard hits and repeated soft hits are the tells. When a word is the right word, keep it. Kill patterns, not vocabulary.
+Context comes first. A term can be literal, precise, quoted, or part of the author's style. Review a phrase for the work it does in this text, not because it belongs to a blacklist. The legacy Hard and Soft labels below prioritize review; neither requires a rewrite.
 
 ## Contents
 
@@ -19,8 +19,8 @@ Calibration first: tells are statistical. A single soft hit is a style choice, n
 
 | Level | Meaning | Action |
 |---|---|---|
-| Hard | Almost never justified in a blog post | Rewrite every hit |
-| Soft | Fine once; a pattern at three or more hits, or dense repetition | Rewrite when repeated; keep single justified uses |
+| Hard | Often used as stock framing; review first | Keep literal or justified uses; rewrite empty framing |
+| Soft | Context-dependent vocabulary | Review repetition and meaning without an occurrence quota |
 
 ## English vocabulary
 
@@ -141,7 +141,7 @@ Calibration first: tells are statistical. A single soft hit is a style choice, n
 
 ## Constructions
 
-Language-independent shapes. The `not-just` family is the most recognizable single construction in AI drafts.
+Language-independent shapes to review when they replace substance or become repetitive. A useful contrast, a three-item list, or a rhetorical question can be entirely appropriate.
 
 | Construction | Tell | Fix |
 |---|---|---|
@@ -158,27 +158,27 @@ Language-independent shapes. The `not-just` family is the most recognizable sing
 
 | Tell | Fix |
 |---|---|
-| Uniform paragraphs, all three to four sentences | Vary: one sentence, then five |
+| Paragraph breaks that obscure the argument | Regroup by meaning; do not vary sizes just for variety |
 | Every H2 at the same level of abstraction | Mix a scene, a how-to, a caveat |
 | Bullet lists where prose belongs | Restore argument prose; keep lists for genuine lists |
 | Bold lead on every bullet | Plain bullets; bold only real keys |
 | Bold and italics sprinkled for emphasis | Emphasis in the sentence itself, or delete |
 | Emoji in headers | Delete (unless the platform's style really uses them) |
 | Table of contents in a 600-word post | Delete (or the post is bloated) |
-| A recap/"Key takeaways" section at the end | Delete the section; the reader just read it |
+| A recap/"Key takeaways" section that only repeats the ending | Cut redundant copy; keep a useful summary for a long or complex article |
 
 ## Rhythm and punctuation
 
-Human writing has high burstiness: sentence length swings widely (a four-word sentence next to a forty-word one; typical sentence-length standard deviation is around 8 words). Model prose clusters in a narrow 15-to-25-word band. Detect: `blog_lint.py` reports mean and standard deviation.
+Read for clarity and pacing. There is no reliable sentence-length threshold that certifies human writing. The lint retains length statistics for description only; it does not require a short sentence, paragraph-size variation, or a target standard deviation.
 
 | Tell | Budget / fix |
 |---|---|
-| Em dashes as the default connector | About one per 300 words; the rest become commas, periods, parentheses, or two sentences |
+| Dashes used as sentence connectors | Prefer ordinary punctuation in newly written prose; preserve required hyphens, notation, code, and exact quotes |
 | Em dash doing the "not X — but Y" move | Pick one side and commit |
 | Semicolons joining clauses in casual prose | Two sentences; semicolons are rare in speech |
 | Parenthetical definition after every term | Define once, in a sentence, when the reader actually needs it |
-| No sentence fragments anywhere | Allow one or two. They are how people actually talk. |
-| Every sentence a complete clause with a comma-connector | Let a "Because." follow a long sentence |
+| Fragments inserted to simulate personality | Keep only when they suit the author and meaning; none are required |
+| Sentences tangled by habitual connectors | Split or join where meaning calls for it; complete sentences are fine |
 | Rhetorical triple punctuation ("...fast. Flexible. Reliable.") | Once, at most, when the rhythm is earned |
 
 ## Titles and headers
@@ -195,26 +195,32 @@ Human writing has high burstiness: sentence length swings widely (a four-word se
 
 ## Before and after
 
+These are editing examples with supplied facts, not permission to add a vivid story to a generic draft.
+
 ### English
 
-Before (tell-dense: reads generated):
+Supplied facts: a trace showed a request waiting 40 seconds in the payment service; the connection pool was exhausted. No personal incident or remediation time was supplied.
 
-> In today's fast-paced development landscape, delivering robust and seamless experiences has become more crucial than ever. Whether you're a seasoned engineer or just embarking on your journey, understanding the power of observability is a game-changer. It's not just about collecting metrics — it's about weaving a rich tapestry of logs, traces, and events that empowers teams to delve into issues with confidence. In conclusion, observability is truly pivotal.
+Before:
 
-After (specifics, stance, varied rhythm):
+> Observability is a game-changer that empowers teams to delve into complex issues. The trace showed a request waiting 40 seconds in the payment service because the connection pool was exhausted.
 
-> Observability paid for itself the first time production broke at 2am and nobody had to guess. The trace was open before the pager stopped vibrating: one request stuck for 40 seconds in the payment service, retrying against a dead connection pool. One log line, one metric, one trace. Ten minutes to an answer that used to cost an afternoon of ssh and grep. I would not go back.
+After:
 
-What changed: a scene instead of a claim, a number instead of "fast-paced", one stance ("I would not go back"), sentence lengths from three words to nineteen, and no recap.
+> The trace showed where the request was stuck: it waited 40 seconds in the payment service because the connection pool was exhausted.
+
+The edit removes inflated framing and preserves the supported finding. It does not invent a 2am incident, a ten-minute fix, or a first-person recommendation.
 
 ### Portuguese
 
-Antes (denso em tells):
+Fatos fornecidos: o log registrou timeout no banco; o pool estava travado desde as 18h. Não há relato pessoal, data nem duração da investigação.
 
-> No cenário atual, garantir entregas robustas e dinâmicas tornou-se cada vez mais essencial. Seja você um desenvolvedor experiente ou alguém que está começando, vamos mergulhar no fascinante universo dos logs e explorar como essa poderosa ferramenta pode revolucionar a forma como você depura problemas em produção.
+Antes:
 
-Depois (com contexto e detalhes reais):
+> Essa poderosa ferramenta revolucionou nossa jornada de depuração. O log registrou timeout no banco porque o pool estava travado desde as 18h.
 
-> Log estruturado salvou meu plantão numa sexta. O build quebrou às 19h40 e a única pista era um "timeout" no console. Com log, dois minutos: a chamada do banco expirava porque o pool estava travado desde o deploy das 18h. Sem log, eu ainda estaria às 21h imprimindo variável com console.log.
+Depois:
 
-O que mudou: uma cena em vez de um cenário abstrato, horários e nomes reais em vez de adjetivos, uma opinião em primeira pessoa, e frases de comprimentos bem diferentes.
+> O log registrou um timeout no banco e mostrou que o pool estava travado desde as 18h.
+
+A revisão mantém a informação e retira a afirmação promocional sem criar um plantão, um horário de correção ou uma experiência do autor.

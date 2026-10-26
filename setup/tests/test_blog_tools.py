@@ -1,4 +1,4 @@
-"""Behavior checks for blog-posting lint; slop must fail, human prose must pass."""
+"""The blog diagnostic surfaces patterns without treating them as proof of bad prose."""
 import json
 from pathlib import Path
 import subprocess
@@ -69,14 +69,14 @@ class BlogLintTests(unittest.TestCase):
     def test_slop_post_reports_known_defects(self):
         post = self.root / "slop.md"
         post.write_text(BAD_POST_EN)
-        result = self.lint(post)
+        result = self.lint("--strict", post)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         report = json.loads(result.stdout)
         rules = {f["rule"]: f["severity"] for f in report["findings"]}
         for rule in ("slop-hard", "not-just-but", "em-dash-density", "triad-overuse",
-                     "transition-opener", "low-burstiness", "header-template", "title-template"):
-            self.assertEqual(rules.get(rule), "error", rule)
-        for rule in ("slop-soft", "no-short-sentence", "repeated-opener"):
+                     "transition-opener", "header-template", "title-template"):
+            self.assertEqual(rules.get(rule), "warning", rule)
+        for rule in ("slop-soft", "repeated-opener"):
             self.assertIn(rule, rules)
         self.assertEqual(report["stats"][str(post)]["language"], "en")
 
@@ -88,16 +88,60 @@ class BlogLintTests(unittest.TestCase):
         report = json.loads(result.stdout)
         self.assertEqual(report["findings"], [], report)
 
+    def test_style_findings_are_advisory_by_default(self):
+        result = self.lint("--stdin", stdin="The tapestry is on display. In conclusion, visit the museum.")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertTrue(report["findings"])
+        self.assertEqual(report["errors"], 0)
+        self.assertTrue(all(f["severity"] == "warning" for f in report["findings"]))
+
+    def test_regular_sentence_lengths_do_not_require_artificial_variation(self):
+        text = "\n\n".join([
+            "Users send requests to the service through the gateway.\nThe gateway checks access before passing each request further.",
+            "Workers read pending tasks from the shared message queue.\nEach worker stores its current status in the database.",
+            "Failed tasks remain visible until an operator reviews them.\nOperators can retry tasks after checking the recorded cause.",
+            "Metrics show task counts for each active worker process.\nLogs include task identifiers alongside the relevant status updates.",
+            "The dashboard groups results by project and creation date.\nAccess follows the permissions assigned to each project member.",
+        ])
+        result = self.lint("--stdin", stdin=text)
+        report = json.loads(result.stdout)
+        self.assertGreaterEqual(report["stats"]["<stdin>"]["sentences"], 10)
+        self.assertLess(report["stats"]["<stdin>"]["sentence_words_sd"], 5)
+        rules = {f["rule"] for f in report["findings"]}
+        self.assertFalse(rules & {"low-burstiness", "no-short-sentence", "uniform-paragraphs"})
+
+    def test_code_and_block_quotes_are_not_reviewed_as_author_prose(self):
+        text = """# Notes
+
+Run `realm --dry-run`.
+The interface name is `` `tapestry` ``.
+
+> In conclusion, delve into the realm.
+
+````text
+```
+tapestry realm
+```
+````
+"""
+        post = self.root / "literal.md"
+        post.write_text(text)
+        result = self.lint("--strict", post)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(json.loads(result.stdout)["findings"], [])
+        self.assertEqual(post.read_text(), text)
+
     def test_portuguese_slop_detected(self):
         post = self.root / "rascunho.md"
         post.write_text(BAD_POST_PT)
-        result = self.lint(post)
+        result = self.lint("--strict", post)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report["stats"][str(post)]["language"], "pt")
         rules = {f["rule"]: f["severity"] for f in report["findings"]}
-        self.assertEqual(rules.get("slop-hard"), "error")
-        self.assertEqual(rules.get("title-template"), "error")
+        self.assertEqual(rules.get("slop-hard"), "warning")
+        self.assertEqual(rules.get("title-template"), "warning")
 
     def test_forced_language(self):
         post = self.root / "forced.md"
@@ -107,7 +151,7 @@ class BlogLintTests(unittest.TestCase):
         self.assertEqual(report["stats"][str(post)]["language"], "en")
 
     def test_stdin_and_missing_file(self):
-        result = self.lint("--stdin", stdin=BAD_POST_EN)
+        result = self.lint("--strict", "--stdin", stdin=BAD_POST_EN)
         self.assertEqual(result.returncode, 1)
         self.assertTrue(json.loads(result.stdout)["findings"])
         missing = self.lint(self.root / "nope.md")

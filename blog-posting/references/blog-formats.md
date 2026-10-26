@@ -1,6 +1,6 @@
 # Blog formats
 
-Pick the format by the promise the title makes; the promise decides the skeleton and where the credibility has to sit. Per-format: skeleton, credibility requirements, and the specific way AI drafts of that format fail. Voice and tells are [ai-tells.md](ai-tells.md) and [human-voice.md](human-voice.md); this file is about shape.
+Choose a format that serves the brief and evidence. The skeletons below are options, not a mandatory sequence. Per-format: skeleton, credibility requirements, and the specific way AI drafts of that format fail. Voice and editing are covered in [natural-writing](../../natural-writing/SKILL.md), [human-voice.md](human-voice.md), and [ai-tells.md](ai-tells.md); this file is about shape.
 
 ## How-to / tutorial
 
@@ -8,9 +8,9 @@ Promise: the reader can do X after the post.
 
 Skeleton: what you end up with (screenshot or result first) → prerequisites with versions → steps in the order a first-timer hits them → the step where it usually breaks → how to verify it worked → what to do next.
 
-Credibility: real commands, real output, real error messages. Version numbers. The failure mode you personally hit.
+Credibility: verified commands, actual output when available, versions, and sourced failure modes. Do not claim to have hit a problem personally without supplied experience.
 
-AI failure: generic steps ("configure your settings appropriately"), no commands or with invented flags, and a "Common Pitfalls" section of strawmen. If you cannot run the steps, you cannot write the tutorial honestly; say so and source every step.
+AI failure: generic steps ("configure your settings appropriately"), no commands or with invented flags, and a "Common Pitfalls" section of strawmen. If steps cannot be run, source them and disclose the verification limit rather than implying a tested walkthrough.
 
 ## Opinion / argument
 
@@ -28,7 +28,7 @@ Promise: what actually happened.
 
 Skeleton: the setup and stakes (why you tried this) → what you expected → what happened, in time order, with dates → the numbers → what you would do differently → who should try this.
 
-Credibility: dates, numbers, named tools, and at least one thing that went wrong. Reports where everything works are marketing, not reports.
+Credibility: dates, numbers, named tools, and at least one thing that went wrong. A report need not include a failure when none was supplied; do not invent one for credibility.
 
 AI failure: a story with no specifics and no failure; "the results were surprising" without the surprise stated.
 
@@ -38,7 +38,7 @@ Promise: which one, for whom.
 
 Skeleton: the axis that actually matters for the reader's job (name it) → the comparison on that axis with numbers → the axes people cite but you found irrelevant → the verdict, per reader type → what you would pick today.
 
-Credibility: hands-on evidence with both sides; benchmarks you ran; costs in real currency.
+Credibility: hands-on or attributed evidence for both sides. State whose benchmarks or costs are used and their limits; do not imply tests the author did not run.
 
 AI failure: a feature-table tie and a non-verdict ("both are excellent choices depending on your needs"). The whole point of the post is the verdict.
 
@@ -48,7 +48,7 @@ Promise: what this means, not what happened.
 
 Skeleton: the news in two sentences (link out) → what most coverage gets wrong → who wins and who pays, concretely → what to watch next → what you would do about it this month.
 
-Credibility: the primary source, checked; the author's history with the area.
+Credibility: the primary source, checked; relevant author experience only if supplied.
 
 AI failure: a rewritten press release with "This development is a significant milestone" energy, no analysis, and an invented quote.
 
@@ -88,5 +88,5 @@ Write last, when the post's actual promise is known.
 
 - Title: the specific promise, with a number or a named outcome where honest. Not "The Ultimate Guide to X".
 - Meta description: one honest sentence about who the post is for and what they leave with, not a keyword list.
-- Slug: short, stable, lowercase, hyphenated.
-- One H1. Headers carry content (see [ai-tells.md](ai-tells.md#titles-and-headers)), and a 600-word post needs no table of contents.
+- Slug: short, stable, lowercase, following the platform's convention. Preserve required URL hyphens.
+- Match the publication's heading structure. Use a table of contents or recap only when it helps readers; numbered tutorial steps are appropriate.

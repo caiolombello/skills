@@ -3,6 +3,7 @@
 # Leave ~/.codex/skills/.system alone.
 # Machine-local private skills: codex-keep.local.txt (gitignored).
 llm-coding-discipline
+natural-writing
 investigate-before-editing
 verification-before-completion
 no-docs-unless-asked

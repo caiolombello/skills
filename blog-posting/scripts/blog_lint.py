@@ -7,12 +7,12 @@ Usage:
     python3 blog_lint.py --format json post.md post2.md
     cat post.md | python3 blog_lint.py --stdin
 
-Exit codes: 0 = clean (warnings allowed), 1 = error-level findings,
-2 = usage or IO error.
+Exit codes: 0 = analysis completed, 1 = findings with --strict,
+2 = usage or IO error. Findings are advisory by default.
 
-Heuristic aid, not an AI detector. Tells are statistical: one flagged word
-is a style choice, a pattern is a tell. Fix structure and substance first,
-vocabulary last. The catalog with per-language rewrites is in
+Heuristic aid, not an AI detector. A flagged word can be literal or a
+deliberate choice; repetition also needs context. Review structure and
+substance before vocabulary. The catalog with per-language rewrites is in
 ../references/ai-tells.md.
 """
 import argparse
@@ -289,18 +289,26 @@ def normalize(text):
 
 def clean_lines_of(text):
     out = []
-    fence = False
+    fence = None
     for line in normalize(text).splitlines():
         stripped = line.strip()
-        if stripped.startswith("```") or stripped.startswith("~~~"):
-            fence = not fence
+        marker = re.match(r"^(`{3,}|~{3,})(.*)$", stripped)
+        if fence:
+            if (marker and marker.group(1)[0] == fence[0]
+                    and len(marker.group(1)) >= fence[1] and not marker.group(2).strip()):
+                fence = None
             out.append("")
             continue
-        if fence or stripped.startswith("!["):
+        if marker:
+            fence = (marker.group(1)[0], len(marker.group(1)))
+            out.append("")
+            continue
+        if stripped.startswith(("![", ">")):
             out.append("")
             continue
         line = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", line)  # links -> anchor text
-        line = line.replace("`", "")
+        line = re.sub(r"(?<!`)(`+)(?!`).*?(?<!`)\1(?!`)", "", line)
+        line = re.sub(r"https?://\S+", "", line)
         out.append(line)
     return out
 
@@ -371,10 +379,10 @@ def term_findings(lines, table, rule, hard):
                     hit_lines.append(number)
         if not hits:
             continue
-        severity = "error" if hard or hits >= 3 else "warning"
-        kind = "hard tell" if hard else "soft tell"
+        severity = "warning"
+        kind = "priority review" if hard else "context review"
         out.append({"rule": rule, "severity": severity,
-                    "message": f"{kind} '{term}' x{hits} (fix: {fix})",
+                    "message": f"{kind}: '{term}' x{hits} (consider: {fix}; preserve literal meaning)",
                     "count": hits, "lines": hit_lines})
     return out
 
@@ -384,27 +392,25 @@ def finding(rule, severity, message, count=1, lines=None):
             "count": count, "lines": lines or []}
 
 
-def structure_findings(lines, blocks, sentences, lens, words, lang):
+def structure_findings(lines, blocks, sentences, words, lang):
     out = []
     prose = " ".join(blocks)
-    mean = statistics.mean(lens) if lens else 0
-    sd = statistics.pstdev(lens) if len(lens) > 1 else 0
 
     dash_count = sum(line.count("—") + line.count("–") for line in lines)
     dash_lines = [n for n, line in enumerate(lines, 1) if "—" in line or "–" in line][:5]
     dash_rate = rate(dash_count, words, 300)
     if dash_count >= 3 and dash_rate > 1.4:
-        out.append(finding("em-dash-density", "error",
+        out.append(finding("em-dash-density", "warning",
                            f"{dash_count} em dashes in {words} words "
-                           f"({dash_rate:.1f} per 300; budget about 1)", dash_count, dash_lines))
+                           f"({dash_rate:.1f} per 300); review sentence connectors in context", dash_count, dash_lines))
     elif dash_count >= 2 and dash_rate > 0.7:
         out.append(finding("em-dash-density", "warning",
                            f"{dash_count} em dashes in {words} words "
-                           f"({dash_rate:.1f} per 300; budget about 1)", dash_count, dash_lines))
+                           f"({dash_rate:.1f} per 300); review sentence connectors in context", dash_count, dash_lines))
 
     semis = prose.count(";")
     if semis >= 4:
-        out.append(finding("semicolon-overuse", "error",
+        out.append(finding("semicolon-overuse", "warning",
                            f"{semis} semicolons in prose; rare in speech, prefer two sentences",
                            semis))
     elif semis >= 2:
@@ -415,9 +421,9 @@ def structure_findings(lines, blocks, sentences, lens, words, lang):
     triads = len(TRIAD.findall(prose))
     triad_rate = rate(triads, words, 250)
     if triads >= 2 and triad_rate > 1.5:
-        out.append(finding("triad-overuse", "error",
+        out.append(finding("triad-overuse", "warning",
                            f"{triads} 'A, B, and C' triples ({triad_rate:.1f} per 250 words); "
-                           "keep the best one, write the rest as two or as one specific",
+                           "review repetitive rhetoric; keep lists the content actually needs",
                            triads))
     elif triads >= 1 and triad_rate > 0.8:
         out.append(finding("triad-overuse", "warning",
@@ -426,7 +432,7 @@ def structure_findings(lines, blocks, sentences, lens, words, lang):
 
     not_just = sum(len(re.findall(p, prose, re.IGNORECASE)) for p in NOT_JUST_PATTERNS)
     if not_just >= 2:
-        out.append(finding("not-just-but", "error",
+        out.append(finding("not-just-but", "warning",
                            f"{not_just} not-just / not-only constructions; "
                            "state one claim directly", not_just))
     elif not_just == 1:
@@ -434,41 +440,12 @@ def structure_findings(lines, blocks, sentences, lens, words, lang):
                            "one not-just / not-only construction; state one claim directly",
                            not_just))
 
-    if len(lens) >= 10:
-        if sd < 5.0:
-            out.append(finding("low-burstiness", "error",
-                               f"sentence words: mean {mean:.1f}, sd {sd:.1f} (n={len(lens)}); "
-                               "low variance reads generated, mix short and long"))
-        elif sd < 7.5:
-            out.append(finding("low-burstiness", "warning",
-                               f"sentence words: mean {mean:.1f}, sd {sd:.1f} (n={len(lens)}); "
-                               "human variance is higher"))
-        if min(lens) > 8:
-            out.append(finding("no-short-sentence", "warning",
-                               f"shortest sentence is {min(lens)} words; "
-                               "no short beat anywhere in the post"))
-
-    pcounts = [len(split_sentences(b)) for b in blocks]
-    pcounts = [c for c in pcounts if c]
-    if len(pcounts) >= 5:
-        pmean = statistics.mean(pcounts)
-        psd = statistics.pstdev(pcounts)
-        cv = psd / pmean if pmean else 0
-        if cv < 0.15:
-            out.append(finding("uniform-paragraphs", "error",
-                               f"{len(pcounts)} paragraphs, all near {pmean:.1f} sentences "
-                               f"(size variance {cv:.0%}); vary one and five"))
-        elif cv < 0.25:
-            out.append(finding("uniform-paragraphs", "warning",
-                               f"{len(pcounts)} paragraphs, all near {pmean:.1f} sentences "
-                               f"(size variance {cv:.0%})"))
-
     if lang:
         trx = re.compile(r"^(?:" + "|".join(re.escape(t) for t in TRANSITIONS[lang]) + r")\b",
                          re.IGNORECASE)
         thits = [s for s in sentences if trx.match(s)]
         if len(thits) >= 3:
-            out.append(finding("transition-opener", "error",
+            out.append(finding("transition-opener", "warning",
                                f"{len(thits)} sentences open with Moreover/Furthermore-class "
                                "connectors; link ideas by meaning instead", len(thits)))
         elif len(thits) == 2:
@@ -479,7 +456,7 @@ def structure_findings(lines, blocks, sentences, lens, words, lang):
         drx = re.compile(DEFINITION_RES[lang])
         dhits = [b for b in blocks if drx.match(b)]
         if len(dhits) >= 3:
-            out.append(finding("definition-opener", "error",
+            out.append(finding("definition-opener", "warning",
                                f"{len(dhits)} paragraphs open with a dictionary definition",
                                len(dhits)))
         elif len(dhits) == 2:
@@ -494,7 +471,7 @@ def structure_findings(lines, blocks, sentences, lens, words, lang):
                 openers[key] = openers.get(key, 0) + 1
         top, count = max(openers.items(), key=lambda kv: kv[1]) if openers else ("", 0)
         if count >= 4:
-            out.append(finding("repeated-opener", "error",
+            out.append(finding("repeated-opener", "warning",
                                f"'{top}' opens {count} sentences", count))
         elif count == 3:
             out.append(finding("repeated-opener", "warning",
@@ -503,7 +480,7 @@ def structure_findings(lines, blocks, sentences, lens, words, lang):
     bullets = [n for n, line in enumerate(lines, 1) if BULLET.match(line)]
     bolds = [n for n in bullets if "**" in lines[n - 1][BULLET.match(lines[n - 1]).end():][:3]]
     if len(bullets) >= 5 and len(bolds) / len(bullets) > 0.6:
-        out.append(finding("bold-bullet", "error",
+        out.append(finding("bold-bullet", "warning",
                            f"{len(bolds)} of {len(bullets)} bullets carry a bold lead; "
                            "bold only real keys", len(bolds)))
     elif len(bullets) >= 5 and len(bolds) / len(bullets) > 0.4:
@@ -527,14 +504,14 @@ def header_findings(lines):
             first_h1_done = True
             for pattern in TITLE_TEMPLATES:
                 if re.search(pattern, content, re.IGNORECASE):
-                    out.append(finding("title-template", "error",
+                    out.append(finding("title-template", "warning",
                                        f"H1 '{content}' matches a template title "
                                        "('Ultimate Guide' class); use the actual promise"))
                     break
             continue
         for pattern in HEADER_TEMPLATES:
             if re.match(pattern, content, re.IGNORECASE):
-                out.append(finding("header-template", "error",
+                out.append(finding("header-template", "warning",
                                    f"header '{content}' is a template header "
                                    "(Introduction/Conclusion class); say something specific"))
                 break
@@ -555,7 +532,7 @@ def analyze(text, forced_lang):
     findings = []
     findings += term_findings(lines, HARD[lang], "slop-hard", hard=True)
     findings += term_findings(lines, SOFT[lang], "slop-soft", hard=False)
-    findings += structure_findings(lines, blocks, sentences, lens, len(words), lang)
+    findings += structure_findings(lines, blocks, sentences, len(words), lang)
     findings += header_findings(lines)
     mean = statistics.mean(lens) if lens else 0
     sd = statistics.pstdev(lens) if len(lens) > 1 else 0
@@ -584,8 +561,8 @@ def report_text(reports, errors, warnings):
             print(f"  {f['severity'].upper():7} {f['rule']}: {f['message']}{where}")
         print()
     print(f"findings: {errors} errors, {warnings} warnings")
-    if errors:
-        print("fix the errors; review the warnings (keep one only when it is deliberate voice).")
+    if errors or warnings:
+        print("review findings in context; no automatic rewrite or authorship judgment is implied.")
 
 
 def main(argv=None):
@@ -595,6 +572,8 @@ def main(argv=None):
     parser.add_argument("--stdin", action="store_true", help="read the document from stdin")
     parser.add_argument("--lang", choices=("auto", "en", "pt"), default="auto")
     parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--strict", action="store_true",
+                        help="exit 1 for any advisory findings; does not assess authorship or quality")
     args = parser.parse_args(argv)
 
     documents = []
@@ -624,7 +603,7 @@ def main(argv=None):
                           "findings": all_findings, "stats": stats_by_name}, indent=2))
     else:
         report_text(reports, errors, warnings)
-    return 1 if errors else 0
+    return 1 if errors or (args.strict and warnings) else 0
 
 
 if __name__ == "__main__":

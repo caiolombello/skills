@@ -1,0 +1,4 @@
+interface:
+  display_name: "Natural Writing"
+  short_description: "Natural messages, announcements and everyday prose"
+  default_prompt: "Use $natural-writing to write or revise this text for its audience, preserving my intent and voice without formulaic phrasing."

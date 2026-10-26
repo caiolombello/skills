@@ -192,10 +192,18 @@ replacing them.
 | [`handoff`](./handoff) | Produces a concise handoff briefing: what was done, what's pending, important context. |
 | [`rtk-token-optimized-cli`](./rtk-token-optimized-cli) | **tooling-specific: requires [RTK](https://github.com/sigoden/rtk).** When to use RTK to compress noisy CLI output (git diff, kubectl logs, test runners, aws cli). |
 | [`codex-claude-resume`](./codex-claude-resume) | **tooling-specific: requires Claude Code local session history.** Lists, inspects and imports local Claude Code sessions so you can continue the work in another agent. |
-| [`blog-posting`](./blog-posting) | Write and edit blog posts that read human-written: intake and voice capture, an anti-AI-tell editing pass with a lint script, and fact verification. English and Portuguese. |
+| [`natural-writing`](./natural-writing) | Write natural messages, emails, group notices, and everyday replies with appropriate voice and formality. Preserve facts and commitments; optional personal samples through `write-like-me`. |
+| [`blog-posting`](./blog-posting) | Draft and edit articles with a clear purpose, supported claims, and the author's voice. Complements `natural-writing`; the bundled lint offers advisory review, not an authorship test. |
 | [`backstage-scaffolder-architect`](./backstage-scaffolder-architect) | Generates Backstage Scaffolder templates (template.yaml + skeleton) with correct `${{ ... }}` syntax across all three contexts. Useful if you run a Backstage developer portal. |
 | [`skill-creator`](./skill-creator) | Official Anthropic skill for creating and iteratively improving skills. Vendored from [anthropics/skills](https://github.com/anthropics/skills) under Apache 2.0. |
 | [`skill-creator-opencode`](./skill-creator-opencode) | Adapter that runs the skill-creator trigger-eval loop against OpenCode instead of `claude -p`. Works with any provider / model. |
+
+For writing, `natural-writing` is the general keep-set skill; `blog-posting`
+adds article-specific structure and verification on demand. The optional
+`write-like-me` plugin retrieves real style examples; neither local skill
+requires it. Installation enables selection, not guaranteed invocation on every
+turn. Put an explicitly requested universal style preference in the applicable
+rules file rather than relying on skill discovery alone.
 
 ## Install (tiered)
 

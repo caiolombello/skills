@@ -231,6 +231,14 @@ work — the em-dash budget, burstiness, and fact-preservation rules of
 word lists, or prompts were copied; the workflow, tells catalog, and
 `blog_lint.py` are original work under this repository's MIT license.
 
+The 2026-10-26 revision separates `natural-writing` (cross-format voice and
+register) from `blog-posting` (articles). It retains that provenance while
+removing mandatory punctuation budgets and sentence-variance targets. The
+lint's phrase and structure findings are advisory, not evidence of authorship.
+The general skill and its message examples are original; optional integration
+with the installed `write-like-me` skill uses its own retrieval workflow and
+does not copy or vendor plugin code, prompts, or private writing samples.
+
 ## Skills with no upstream inspiration
 
 The following skills were written from scratch based on SRE, DevOps, API
