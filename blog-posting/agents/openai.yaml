@@ -1,0 +1,4 @@
+interface:
+  display_name: "Blog Posting"
+  short_description: "Write and edit blog posts that read human-written"
+  default_prompt: "Use $blog-posting to draft or humanize this post: capture the voice, draft with stakes and specifics, run the anti-tell pass, and verify with blog_lint.py."

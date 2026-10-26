@@ -221,6 +221,16 @@ copied; its craft rules, QA scripts (`ui_lint.py`, `ui_audit.js`,
 `visual_qa.mjs`, `contrast.py`), starter tokens, and critique rubric are
 original work under this repository's MIT license.
 
+### Public AI-humanizer prompts and skills
+
+`blog-posting` was written after reviewing how public "AI humanizer" skills
+work — the em-dash budget, burstiness, and fact-preservation rules of
+[SamaritanOC/humanize](https://github.com/SamaritanOC/humanize) and
+[harshaneel/humanize](https://harshaneel.github.io/humanize/) (reviewed
+2026-10-25) — plus public writing guides on sentence-length variance. No text,
+word lists, or prompts were copied; the workflow, tells catalog, and
+`blog_lint.py` are original work under this repository's MIT license.
+
 ## Skills with no upstream inspiration
 
 The following skills were written from scratch based on SRE, DevOps, API
