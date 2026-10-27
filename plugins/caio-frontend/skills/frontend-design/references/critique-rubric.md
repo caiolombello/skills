@@ -6,6 +6,7 @@ Load for every render–critique–fix round and for Review mode. The rubric tur
 
 - [Protocol](#protocol)
 - [Quick tests](#quick-tests)
+- [Composition and comparison checks](#composition-and-comparison-checks)
 - [Dimensions and anchors](#dimensions-and-anchors)
 - [Round output](#round-output)
 - [Fix order](#fix-order)
@@ -35,6 +36,28 @@ Be your own harshest reviewer: compare the result with the best products of the 
 | No decoration | Remove shadows, gradients, and badges mentally | It falls apart (the hierarchy was faked) |
 | Thumb and keyboard | Narrow screenshot; `visual_qa` focus walk | Primary action out of reach; focus invisible or lost |
 | Worst case | Longest name, empty list, error, 320px | Layout breaks or meaning is lost |
+
+## Composition and comparison checks
+
+- Follow the alignment edges of related headings, text, media, and controls at
+  each captured width. Identify inconsistent container padding or a dropped
+  column; asymmetric editorial composition and sidebar layouts can be deliberate.
+- Inspect the first screen and lower sections for a missing title, covered
+  content, accidental empty columns, or blank regions left by a failed asset,
+  hidden element, or removed component. Explain the effect on the task instead
+  of treating any gap, unequal margin, or multi-line heading as an automatic bug.
+- Preserve intentional whitespace, familiar components, and reduced/static
+  motion when they suit the brief. A quota of images, animated elements, cards,
+  or section variations does not prove completeness or quality.
+- For a redesign, compare the same route, content, state, theme, and viewport
+  before and after. Name both an improvement and any observed regression; if a
+  baseline or comparable state is unavailable, state that limit. Pixel
+  differences alone are not a regression, and an attractive screenshot cannot
+  prove retained behavior or keyboard access.
+
+When evaluating a change to the skill itself, use the separate
+[comparative evaluation procedure](../evals/visual-comparison.md); ordinary UI
+tasks do not require an A/B experiment.
 
 ## Dimensions and anchors
 

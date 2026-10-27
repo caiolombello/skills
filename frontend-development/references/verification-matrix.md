@@ -8,6 +8,7 @@ Load this reference when choosing proportional checks for a frontend change. Pre
 - [Behavioral states](#behavioral-states)
 - [Accessibility checks](#accessibility-checks)
 - [Responsive and visual checks](#responsive-and-visual-checks)
+- [Before/after and shipping output](#beforeafter-and-shipping-output)
 - [Async and network checks](#async-and-network-checks)
 - [Security and privacy checks](#security-and-privacy-checks)
 - [Command evidence](#command-evidence)
@@ -69,6 +70,26 @@ Observe the interface with:
 - Tables, charts, menus, dialogs, sticky elements, and virtual-keyboard pressure.
 
 Capture screenshots or visual-regression artifacts for changed states when the project supports them. Compare behavior and hierarchy, not only pixel similarity.
+
+## Before/after and shipping output
+
+For an existing surface, capture the affected routes and states before editing
+when runnable. Compare the after views with the same content, viewport, theme,
+and state. Do not write to real customer data to reproduce a visual state; use
+an isolated fixture or the project's supported test environment. When only
+supplied screenshots are available, retain their dimensions and known limits.
+
+When feasible, build the intended revision with the project's actual command and
+check its served output, including relevant routes and media/font loading. A
+successful compile does not establish that the page renders or works. Keep
+checks proportional: a standalone HTML page is already its runtime artifact,
+and a style repair does not authorize a deployment or environment migration.
+
+If installation, build, preview, or browser access fails, preserve the exact
+blocker and distinguish implemented changes, dev evidence, production-output
+evidence, and unverified behavior. Use available screenshots or another supported
+local check where useful; do not patch unrelated code, install a different stack,
+or claim the unavailable check passed. Report what would resume verification.
 
 ## Async and network checks
 

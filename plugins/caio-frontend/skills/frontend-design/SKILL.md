@@ -57,6 +57,8 @@ When you cannot render, say "visually unverified", list what remains unchecked, 
 
 Read the project rules file (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, or equivalent). Then inspect existing tokens, components, fonts, icon set, adjacent screens, real data shapes, and the supported browsers, devices, themes, and languages. The existing system wins: reuse its primitives and record any deviation with its reason.
 
+For a redesign or polish task, capture the relevant before views when the current app can run. Keep route, data, state, theme, and viewport comparable with the after views. If it cannot run, preserve the supplied evidence and mark the missing baseline; do not repair unrelated infrastructure or claim a visual improvement from code alone.
+
 ### 2. Write the brief before any UI code
 
 Keep it to about 12 lines in your notes or reply:
@@ -65,13 +67,14 @@ Keep it to about 12 lines in your notes or reply:
 Brief
 - User, job, success signal:
 - Surface: app workspace | dashboard | form flow | marketing page | editorial | other
+- Source material: supplied product facts, domain objects/workflows, assets actually available; important unknowns
 - First viewport: what it must show; primary action:
 - Direction: <name from the catalog, or "inherit existing"> — three mood words; why it fits
 - Type: display / body / mono, with fallbacks and how they load
 - Color: neutral temperature, one accent (hue and role), semantic set, light/dark plan
 - Shape, depth, density: radius scale; borders or shadows; control height; base spacing
 - Motion: none | subtle | expressive — each motion and its purpose
-- Signature: one memorable detail derived from the domain (optional when inheriting a brand)
+- Concept: which specific source material shapes the composition or interaction, and why (inherit existing when appropriate)
 - Rejected defaults: generic choices you are deliberately not making
 - Out of scope: features and sections you will not add
 ```
@@ -83,6 +86,7 @@ For a small change inside an existing product, three lines suffice: what changes
 Content inventory → flow → layout regions and reading order → hierarchy through size, weight, spacing, and position (it must read correctly in grayscale) → only then color, depth, and motion.
 
 - **Apps and tools:** the usable product is the first screen. Do not add a marketing landing page unless asked.
+- **Dashboards:** make the main question and scope clear; distinguish zero, unavailable data, and non-comparable periods. Use the [dashboard checks](references/layout-patterns.md#dashboard) without inventing metrics to fill a layout.
 - **Marketing pages:** one H1, one primary call to action above the fold, one job per section (usually ≤ 6 sections), and the brand or product unmistakable in the first viewport.
 - Surface patterns: [references/layout-patterns.md](references/layout-patterns.md). Components, controls, and states: [references/component-recipes.md](references/component-recipes.md).
 
@@ -108,7 +112,7 @@ Deviate when the brief or the existing system says so, and note why. Full rules 
 | Shape and depth | One radius scale (e.g. 4/6/8 or 8/12/16); nested radius = outer − padding. Hairline borders first; ≤ 3 elevation levels; dark mode elevates with lighter surfaces. |
 | Motion | Feedback 100–150ms, small enter 150–250ms, large 250–350ms, exits faster; ease-out to enter; animate transform and opacity; provide a reduced-motion path. |
 | Layout | Mobile-first; marketing and content pages max ≈ 1200–1280px; app shells use the full width with max widths on forms and reading content; reading column ≈ 65ch; content pressure sets breakpoints. |
-| Icons and imagery | One icon set (the project's, else Lucide) at one stroke width; icon-only buttons get `aria-label` and a tooltip. Imagery shows the real subject or product. |
+| Icons and imagery | One icon set (the project's, else Lucide) at one stroke width; icon-only buttons get `aria-label` and a tooltip. Match imagery to assets that actually exist; use [references/imagery.md](references/imagery.md) for selection, provenance, credits, and missing-asset alternatives. |
 | Copy | Product UI uses utility language (headings name the area); buttons are verb + object; errors say what happened and how to fix it. |
 
 ### 6. Run the render–critique–fix loop
@@ -122,11 +126,13 @@ In the commands below, replace `<skill-dir>` with the absolute path of the folde
 5. **Fix** in impact order — broken, then unclear, then inconsistent, then unpolished — and repeat steps 1–4.
 6. **Stop** when the definition of done holds, or after three rounds; report what still falls short. For a small change, one round on the affected view is enough.
 
+For changes intended to ship through a build, make the final capture from the current production build when feasible, using the project's supported preview command or `--serve` for static output. Tie it to the checked revision and route; distinguish dev-server evidence and build/runtime blockers instead of treating them as a pass. Static HTML needs no invented build step.
+
 `visual_qa.mjs` needs Node 18+ and Playwright from the project, a global install, or `NODE_PATH`; it can use an installed Chrome or Edge when Playwright's Chromium is missing. If the project lacks it, prefer a global or cached install over editing the project's dependencies unasked — see [references/model-notes.md](references/model-notes.md#tooling-setup). If your agent has its own browser tool instead, evaluate `<skill-dir>/scripts/ui_audit.js` in the page and call `__uiAudit()`. Check color pairs while choosing them: `python3 <skill-dir>/scripts/contrast.py "oklch(0.53 0.17 255)" "#ffffff"`.
 
 ### 7. Report
 
-State the brief in two or three lines, what you built, the evidence (screenshots viewed, lint and audit summary, rubric scores), deviations from the defaults with reasons, and remaining gaps with how to verify them.
+State the brief in two or three lines, what you built, the evidence (screenshots viewed, lint and audit summary, rubric scores), deviations from the defaults with reasons, and remaining gaps with how to verify them. For reused imagery, include its recorded source and applicable credit; for redesigns, identify the comparable before/after views and any unverified behavior.
 
 ## Generic-AI tells
 

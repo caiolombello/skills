@@ -169,6 +169,13 @@ Run project-defined commands and record exact outcomes:
 - Slow, failed, stale, and duplicate-request behavior where relevant.
 - Console and network inspection for unexpected errors or sensitive data.
 
+For a visual change that ships through a build, prefer the final screenshot check
+against the current production output using the project's supported preview or
+static serving command. Record the checked revision and route; dev and production
+renders are different evidence. A static page needs no build ceremony. Use the
+[verification matrix](references/verification-matrix.md#beforeafter-and-shipping-output)
+for comparable before/after views and unavailable-build reporting.
+
 Do not say “responsive,” “accessible,” or “all tests pass” unless the evidence supports that exact scope. When the app needs a dev server, leave it running and give the user the URL; for a static page, give the file path.
 
 ## Anti-patterns

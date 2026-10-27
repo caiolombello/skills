@@ -28,6 +28,29 @@ Load when composing a page or screen. Each pattern lists the structure that usua
 - **Narrow:** KPIs in a two-column grid or a horizontal scroller, charts full width, tables as scroll containers.
 - **Failure:** every widget in a card with equal weight; eight KPIs with no comparison; decorative sparklines; colors with no legend.
 
+### Data meaning and dashboard QA
+
+- State the question, selected scope, time range, units, and freshness needed to
+  interpret the screen. Make the most important answer discoverable without
+  forcing every requested block above the fold at an unreadable density.
+- Keep measured zero distinct from unavailable, not yet collected, loading,
+  redacted, or failed data. Use a clear label or explained missing-value mark;
+  do not coerce missing values to zero or draw a measured line through a gap.
+- Name both comparison periods and preserve their scope and units. When periods
+  are not comparable or the baseline is zero/missing, show the available absolute
+  values and the limitation; do not manufacture a percentage or trend.
+- Use documented formulas for aggregates and make totals reconcile with their
+  scope. Do not sum non-additive metrics or backfill sample values to make a chart
+  attractive. Clearly identify permitted synthetic data in prototypes.
+- A rising metric is not inherently good: increased errors and increased revenue
+  have different meanings. Apply the domain's known interpretation with text or
+  symbols as well as color; if desirability is unknown, show a neutral change.
+- At wide and narrow widths, check meaningful labels, units, filters, table/chart
+  alignment, and access to the primary task. Keep deliberate table scrolling
+  within its container, make it discoverable, and verify that offscreen columns
+  can be reached without losing row context. No marketing hero, imagery, or decorative motion is
+  required for an operational screen.
+
 ## List and detail
 
 - **Structure:** a searchable, filterable list (or table) and a detail view — side by side on wide screens, as separate routes on narrow ones. Selection is reflected in the URL.

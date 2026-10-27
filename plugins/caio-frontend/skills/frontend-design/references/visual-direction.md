@@ -19,6 +19,7 @@ Without direction, a model samples the most common choices in its training data:
 ## Choose a direction from the brief
 
 1. **Collect signals.** Audience and expertise; context of use (desk, phone, outdoors, under stress); domain and its conventions; existing brand assets; three words for how it should feel; constraints (accessibility, performance, languages, existing components).
+   Start from supplied facts and assets, not category stereotypes: the product's objects, useful outputs, named workflows, materials, location, or genuine constraints. Separate known material from missing facts; sparse input is not permission to invent a story or conduct unrelated private research.
 2. **Shortlist two or three directions** from the catalog (or a stated blend, such as "technical instrument chrome with editorial documents"). Note the main risk of each.
 3. **Pick one and write the direction card** — the type, color, shape, density, motion, imagery, and signature lines of the brief in [SKILL.md](../SKILL.md#2-write-the-brief-before-any-ui-code).
 4. **Make it specific to the domain.** Replace catalog defaults with details from the product's world: an invoicing tool typesets amounts like a ledger with tabular figures and hairline rules; a climbing gym uses the colors of its real route holds as its status system; a legal research tool sets documents in an editorial serif inside a quiet utility shell.
@@ -137,6 +138,8 @@ Banning one cliché tends to produce the next one (when one font is banned, mode
 - Avoid both flat, empty backgrounds and decorative blobs. Get atmosphere from real imagery, texture tied to the domain, a confident section color change, or typographic scale.
 - **Brand test:** hide the logo and the product name. If the page could belong to any startup, strengthen the signature, the imagery, and the copy.
 - **Swap test:** if you can replace the product name with a competitor's and every sentence still works, the copy is generic.
+
+Make the connection executable: name the real material and how it affects hierarchy, grouping, imagery, or interaction. For a repair cooperative, the supplied repair stages might organize the page; for an invoice workspace, the actual document and its overdue state might lead the screen. Neither example authorizes invented claims or extra product features. A local polish task can inherit the existing concept unchanged. Do not force novelty with random directions, a new logo, animation, or a quota of images; an appropriate familiar layout or deliberate type-only page can be the right answer.
 
 ## Alternatives that answer a question
 

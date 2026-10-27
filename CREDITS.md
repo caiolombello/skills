@@ -221,6 +221,17 @@ copied; its craft rules, QA scripts (`ui_lint.py`, `ui_audit.js`,
 `visual_qa.mjs`, `contrast.py`), starter tokens, and critique rubric are
 original work under this repository's MIT license.
 
+The 2026-10-27 frontend refinement also draws on
+[Leonxlnx/taste-skill at 12af471](https://github.com/Leonxlnx/taste-skill/tree/12af471f627f866411b4bd785b19646d3672784c)
+(MIT): connecting supplied product material to a visual concept, keeping
+asset-level provenance, distinguishing dashboard data states, comparing
+before/after captures and shipping output, and evaluating rendered variants
+without revealing their condition. These instructions, scenarios, and comparison
+procedure are independently written. No upstream scripts, wording, visual
+libraries, images, or fonts were copied or installed. Its aesthetic bans,
+image/motion quotas, and model-rated gallery statistics are not adopted as
+universal quality requirements or measured gains for this library.
+
 ### Public AI-humanizer prompts and skills
 
 `blog-posting` was written after reviewing how public "AI humanizer" skills

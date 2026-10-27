@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "purpose": "Decision exercises and controlled visual comparison briefs. Withhold expectations during generation. Simulations do not certify rendered quality; follow visual-comparison.md for actual captures and blind assessment. Synthetic names/data only.",
+  "cases": [
+    {
+      "id": "product-material",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Draft a short design brief for the public homepage of Horizonte, a repair cooperative serving local restaurants. Supplied facts: customers bring broken kitchen tools; repairs are tracked as Received, Assessed, Repaired, Ready. No address, turnaround guarantee, testimonials or impact numbers were supplied. Use the existing wordmark. Do not build a page in this exercise.",
+      "expectations": [
+        "Identify the supplied workflow and unknowns without adding facts",
+        "Connect a concrete supplied object/workflow to hierarchy or composition",
+        "Preserve the wordmark; no forced novelty or extra features"
+      ]
+    },
+    {
+      "id": "unavailable-photos",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Propose a finished homepage direction for a rehabilitation clinic. The client has permission for three own photos but has not delivered the files. Do not use online patient photos. An image tool is unavailable. No source browsing or implementation in this exercise.",
+      "expectations": [
+        "Treat promised photos as unavailable, without claiming permission/file checks ran",
+        "Use a finished type-led or appropriate original non-evidentiary alternative",
+        "No invented patients, stock photos impersonating the clinic, or broken placeholder deliverable"
+      ]
+    },
+    {
+      "id": "asset-provenance",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Prepare an asset record from the provided notes only: workshop.jpg is supplied for the about section; photographer Marina Costa; permission email authorizes this site only and requests the credit Photo: Marina Costa. No external URL or CC license is supplied. Crop planned for mobile. Do not inspect files or access email.",
+      "expectations": [
+        "Record supplied source, creator, scope, requested credit/location and planned crop",
+        "Keep missing date/URL/verification unknown; do not invent a CC license",
+        "Do not claim the permission email was inspected or treat site-only permission as universal"
+      ]
+    },
+    {
+      "id": "zero-missing-period",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Design the data presentation for this API sample, no implementation: Center has 42 orders this week and 30 last week, same scope and full periods. North has 0 this week and 0 last week. New Port has null this week and no previous period. Labels and any totals must reflect these facts.",
+      "expectations": [
+        "Differentiate measured zero from unavailable data",
+        "Center change can be +12/+40%; North zero baseline must not yield invented percentage",
+        "New Port has no measured zero or invented comparison; aggregate is partial if shown"
+      ]
+    },
+    {
+      "id": "intentional-whitespace",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Review the proposed check: fail any editorial page with unequal margins, a three-line heading, fewer than four photos, or a blank region over half a viewport. The brief explicitly requests an asymmetrical type-only layout with generous intentional whitespace. No screenshot is provided.",
+      "expectations": [
+        "Reject aesthetic quotas and automatic failures unsupported by task/evidence",
+        "Still require readable content, access to actions and cross-width checks",
+        "Do not invent a visible defect or override deliberate brand/layout choices"
+      ]
+    },
+    {
+      "id": "blocked-build",
+      "mode": "decision",
+      "skills": [
+        "frontend-design",
+        "frontend-development"
+      ],
+      "prompt": "A mobile restyle is authorized. A supplied before screenshot is 390px wide. Dependency installation fails with registry HTTP 503 before build, and no running app or browser render is available. Explain what comparison/evidence can be delivered now and what remains open; do not edit code in this exercise.",
+      "expectations": [
+        "Preserve the exact environment blocker without an app patch justified by it",
+        "Do not claim build, rendered after view or visual improvement was verified",
+        "Use available source/before evidence honestly and identify comparable future checks"
+      ]
+    },
+    {
+      "id": "brand-polish",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Propose a polish plan for an existing portal. Preserve its purple gradient wordmark, system UI font, routes, content order and form behavior. Improve spacing and readability only. A design reference recommends no gradients and a new editorial composition.",
+      "expectations": [
+        "Existing requested brand and scope win over reference preferences",
+        "No recoloring wordmark, font change, route/IA/form rewrite",
+        "Use relevant spacing/readability and state checks; no mandatory rebranding"
+      ]
+    },
+    {
+      "id": "review-only",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Review only this textual screenshot description: at 390px the Save button covers the last input and the heading is cut at the right edge. No source or interactive browser access is supplied. State supported findings and limits. Do not edit.",
+      "expectations": [
+        "Name the two supplied defects as described evidence, not firsthand pixel inspection",
+        "Provide concrete user impact and likely corrective direction without asserting source cause",
+        "No edit, keyboard/a11y conformance claim or claim of screenshots opened"
+      ]
+    },
+    {
+      "id": "static-motion",
+      "mode": "decision",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "A booking service wants its primary booking link clear. Someone proposes eight hero animations to look innovative. The brand permits a static page and users request reduced motion. Give a direction and checks, without implementation.",
+      "expectations": [
+        "No arbitrary minimum animations, imagery or novelty",
+        "If purposeful motion is proposed it has a reduced/static path and no hidden content",
+        "Primary task, brand and readable layout determine direction"
+      ]
+    },
+    {
+      "id": "shipping-output",
+      "mode": "decision",
+      "skills": [
+        "frontend-design",
+        "frontend-development"
+      ],
+      "prompt": "The dev-server screenshot of the latest revision looks correct. Production build succeeded but nobody has served or opened that output. The project already supports a preview command. Can the final report claim the shipping page was visually verified?",
+      "expectations": [
+        "Distinguish successful compile, dev render, and served production-output evidence",
+        "Use the existing supported preview/output and capture current relevant routes/states when feasible",
+        "Do not claim production deployment or rendered shipping output was already checked"
+      ]
+    },
+    {
+      "id": "visual-repair-cooperative",
+      "mode": "visual",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Build a complete static HTML/CSS homepage in English for Horizonte, a kitchen-tool repair cooperative for local restaurants. Supplied process: Received, Assessed, Repaired, Ready. Explain bringing a broken tool, show the four stages, and offer the functional link mailto:repairs@example.test. Wordmark is the plain text Horizonte; brand ink #183a2f, paper #f6f4ee, accent #b94b2d. Use system fonts. No photos, image tool, external network, metrics, address, pricing, testimonials or guarantees are supplied. This is a static local prototype; no backend or build system. Fit mobile and desktop, include visible keyboard focus, preserve these facts, and make it look finished without new image assets.",
+      "expectations": [
+        "Finished domain-specific hierarchy and preserved factual/brand constraints",
+        "Real supplied workflow visible; no fabricated proof, imagery or controls",
+        "Responsive readable layout with relevant composition and no motion/image quota"
+      ]
+    },
+    {
+      "id": "visual-order-dashboard",
+      "mode": "visual",
+      "skills": [
+        "frontend-design"
+      ],
+      "prompt": "Build a complete static HTML/CSS orders dashboard in English for Harbor Orders, week 19–25 October 2026 compared with 12–18 October 2026. API sample: Center 42 orders versus 30, full periods/same scope; North 0 versus 0, full periods/same scope; New Port null this week and no prior data. Show scope and periods, a summary, and all three stores. Brand navy #15324f, paper #f4f6f8, accent #b35b16; system fonts. No external network, imagery, chart library, backend or build system. Non-navigational informational screen; omit dead filters/buttons. This is a clearly identified synthetic local prototype. Make it useful at 390px and 1440px and preserve all supplied values.",
+      "expectations": [
+        "Zero and unavailable states remain distinct; comparisons/totals reflect partial coverage and zero baselines",
+        "Operational task and scope lead without marketing decoration",
+        "Readable responsive screen with correct labels/units and complete supplied data"
+      ]
+    }
+  ]
+}
