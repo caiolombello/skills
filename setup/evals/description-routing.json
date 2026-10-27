@@ -160,6 +160,49 @@
       "id": "historical-why",
       "prompt": "Explain why this subsystem has an unusual retry limit, separating recorded rationale from inference.",
       "primary": "zoom-out"
+    },
+    {
+      "id": "content-video",
+      "prompt": "Edit existing footage into a short product promo with captions, preserved offer and an inspected final export.",
+      "primary": "content-production"
+    },
+    {
+      "id": "content-tool-independent",
+      "prompt": "Prepare a zero-budget storyboard/script and a practical media production route for my startup demo; no rendering tools are available.",
+      "primary": "content-production"
+    },
+    {
+      "id": "content-higgsfield",
+      "prompt": "Plan and produce a small video campaign using Higgsfield if actually connected, within the existing approved budget.",
+      "primary": "content-production"
+    },
+    {
+      "id": "content-message-near-miss",
+      "prompt": "Rewrite this private message to a friend naturally; no media or campaign.",
+      "primary": "natural-writing",
+      "avoid": [
+        "content-production"
+      ]
+    },
+    {
+      "id": "content-image-near-miss",
+      "prompt": "Edit this attached portrait photo to change its background. No campaign or other content package.",
+      "primary": "none",
+      "avoid": [
+        "content-production"
+      ],
+      "acceptable_primary": [
+        "none",
+        "imagegen"
+      ]
+    },
+    {
+      "id": "content-product-strategy-near-miss",
+      "prompt": "Choose which product opportunity we should pursue based on market evidence, outcomes and strategic priorities, not producing media.",
+      "primary": "product-management",
+      "avoid": [
+        "content-production"
+      ]
     }
   ]
 }

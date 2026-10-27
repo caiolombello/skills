@@ -1,0 +1,5 @@
+# Optional production workflows. Image generation uses the host's actual tool/skill.
+content-production
+natural-writing
+blog-posting
+computer-use

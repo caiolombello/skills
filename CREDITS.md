@@ -22,6 +22,32 @@ required.
 
 ## Upstream projects referenced
 
+### Content-production tool references
+
+`content-production` is an original production/marketing workflow. It references
+the following primary sources, reviewed on 2026-10-27, without vendoring their
+software, templates, API clients or manuals:
+
+- [Recordly](https://github.com/webadderallorg/Recordly/tree/109ca3a13c362e969d9add25d1f93406c36dba2a),
+  snapshot `109ca3a13c362e969d9add25d1f93406c36dba2a`, package 1.4.0;
+  its LICENSE.md states AGPL-3.0 and includes branding/attribution summary language.
+  No Recordly source is included; use as an editor is distinct from incorporating
+  or distributing its code. Native capture/export was not exercised here.
+- [Higgsfield Claude integration](https://higgsfield.ai/claude-ai-video-generator),
+  [Cinema Studio](https://higgsfield.ai/creator-hub/help-center/tools/how-do-i-use-cinema-studio),
+  [Content Factory](https://higgsfield.ai/blog/higgsfield-introduces-content-factory),
+  and [independent API billing](https://higgsfield.ai/blog/higgsfield-api).
+  A catalog listing does not establish connected access or a paid entitlement.
+- [Claude Motion](https://support.claude.com/en/articles/17454997-get-started-with-claude-motion),
+  code-based animation versus realistic video generation.
+- [Kdenlive](https://docs.kdenlive.org/en/), [FFmpeg](https://ffmpeg.org/documentation.html),
+  [Blender](https://www.blender.org/features/video-editing/) and
+  [Remotion's conditional license](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+  Optional tool descriptions are not installed dependencies or commercial-rights clearance.
+
+The media-probe helper is original standard-library Python invoking an installed
+ffprobe. It does not include FFmpeg code, transcode assets, or judge media quality.
+
 ### [cursor/plugins pstack](https://github.com/cursor/plugins/tree/519d36aa98955bf680db01bcde5fdfba686dc901/pstack) — MIT
 
 Reviewed snapshot: `519d36aa98955bf680db01bcde5fdfba686dc901` (2026-10-27).
