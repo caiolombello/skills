@@ -9,6 +9,8 @@ description: "Use to create, repair, or maintain a reusable project-specific ver
 
 Leave a repeatable way for the next agent to exercise a real project behavior and inspect the result. Use existing project checks first. Do not generate a harness, feature inventory, or local skill merely because an ordinary edit needs testing.
 
+For a consequential invariant, interleaving or code-level proof that needs formal methods, use [formal-verification](../formal-verification/SKILL.md). Runtime journeys and formal checks complement each other; neither certifies the other's unexamined assumptions.
+
 ## Define the boundary
 
 Identify the requested create/repair/maintenance task, target project/area, allowed writes, runtime surface, and useful completion evidence. Reuse existing authorization. A request for a reusable project skill authorizes its necessary instructions/helpers; it does not authorize product fixes, dependency installation, external sends, production changes, or broader documentation by default.

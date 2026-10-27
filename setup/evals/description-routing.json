@@ -203,6 +203,40 @@
       "avoid": [
         "content-production"
       ]
+    },
+    {
+      "id": "formal-invariant",
+      "prompt": "Model-check this critical two-worker retry protocol for duplicate irreversible execution, with bounds and source correspondence.",
+      "primary": "formal-verification"
+    },
+    {
+      "id": "formal-maintenance",
+      "prompt": "Audit whether this TLA model still represents the changed code; update verification artifacts and replay counterexamples, no product edits.",
+      "primary": "formal-verification"
+    },
+    {
+      "id": "formal-near-miss-tests",
+      "prompt": "Run the existing regression test for a simple validation bug and report the result.",
+      "primary": "verification-before-completion",
+      "avoid": [
+        "formal-verification"
+      ]
+    },
+    {
+      "id": "formal-near-miss-runtime",
+      "prompt": "Create a reusable project verification procedure that launches our local app and drives a real user journey. No formal property is requested.",
+      "primary": "project-verification",
+      "avoid": [
+        "formal-verification"
+      ]
+    },
+    {
+      "id": "formal-near-miss-static-review",
+      "prompt": "Review this small authorization diff statically for a concrete defect. Do not execute code or build a formal model.",
+      "primary": "code-review",
+      "avoid": [
+        "formal-verification"
+      ]
     }
   ]
 }

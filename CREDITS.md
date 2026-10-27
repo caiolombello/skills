@@ -58,6 +58,7 @@ pstack runtime, agent fleet, or executable tool.
 | Our skill | Upstream inspiration |
 | --- | --- |
 | `project-verification` | `create-verification-skill`, `maintain-verification-skill` |
+| `formal-verification` | `create-formal-verification-skill`, `maintain-formal-verification-skill`; rewritten with explicit scope/correspondence and a separate original finite-state example |
 | `technical-writing` | `technical-writing`, its reader/task distinction and Diataxis organization |
 | `zoom-out`, `investigate-before-editing` | `how`, `why`, evidence-backed design rationale |
 | `spec-first-planning` | `architect`, caller sketches and empirical comparison |
@@ -70,9 +71,17 @@ linked by [poteto's post](https://x.com/poteto/status/2114095305910280363).
 The article body was recovered through an X-content mirror when direct access
 was blocked, with its title/id corroborated by X's syndication response.
 Model presets, compulsory multi-agent choreography, automatic external writes,
-blanket comment deletion and the formal-verification/statechart toolchain were
-not imported. [Diataxis](https://diataxis.fr/) is a writing framework reference;
+blanket comment deletion and the statechart runtime/toolchain were not imported.
+Formal creation/maintenance procedures were adapted separately without vendoring
+a verifier. [Diataxis](https://diataxis.fr/) is a writing framework reference;
 no manual text was copied.
+
+Formal-method technical references reviewed on 2026-10-27:
+[TLA+/TLC](https://docs.tlapl.us/using:tlc:start),
+[official TLA+ tools](https://github.com/tlaplus/tlaplus) and
+[CBMC](https://diffblue.github.io/cbmc/cprover_documentation.html).
+These are tool documentation references. The two-actor TLA+/Python fixtures are
+original calibration material; no external verifier binary or source is shipped.
 
 ### [NousResearch/hermes-agent computer-use](https://github.com/NousResearch/hermes-agent/blob/69f73ec5f11f5a945cc864f29c4e2ad2307eaec3/skills/autonomous-ai-agents/computer-use/SKILL.md) — MIT
 

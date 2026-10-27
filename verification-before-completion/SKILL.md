@@ -30,6 +30,8 @@ Choose the evidence that demonstrates this change's behavior; the list below is 
 
 For behavior changes, compilation alone is not enough.
 
+For a formal result, [formal-verification](../formal-verification/SKILL.md) owns method-specific scope and code correspondence. Report verified model/bounds, remaining obligations and actual implementation evidence separately; "checker passed" is not a universal production claim.
+
 Match evidence to consequences, uncertainty, and reversibility, not just diff size. Focused checks may suffice for a routine change; a one-line authorization change may need additional cases and independent review. A purely visual adjustment can be demonstrated with suitable before/after captures rather than a new test that repeats styling or markup.
 
 ## Select checks deliberately

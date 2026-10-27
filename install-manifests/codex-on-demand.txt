@@ -22,5 +22,6 @@ pr-followup
 computer-use
 t3-workflows
 project-verification
+formal-verification
 technical-writing
 content-production

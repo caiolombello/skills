@@ -126,6 +126,7 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`test-driven-development`](./test-driven-development) | Red-green-refactor with vertical slices. Bug fixes via the Prove-It pattern (reproduce with a test before fixing). |
 | [`verification-before-completion`](./verification-before-completion) | Prove work is complete before saying done. Records exact checks run, skipped checks, and evidence quality. |
 | [`project-verification`](./project-verification) | Create or maintain a reusable project-specific verification procedure: isolated launch, doctor, real journeys, evidence, cleanup and drift checks. |
+| [`formal-verification`](./formal-verification) | Create and maintain scoped formal checks, code/model correspondence, bounds, counterexamples and proof drift; includes an isolated finite-state calibration example. |
 | [`api-and-interface-design`](./api-and-interface-design) | Stable API design — REST / GraphQL / gRPC / webhooks / events / SDK. Versioning, deprecation lifecycle, error shapes, contract testing. |
 | [`mcp-development`](./mcp-development) | Secure MCP client/server development — protocol and SDK selection, trust boundaries, strict tool contracts, per-call authorization, sandboxing, poisoning defenses, and adversarial tests. |
 | [`diagnose`](./diagnose) | Disciplined debug loop: feedback-loop-first, reproduce, hypothesise, instrument, fix, regression-test, cleanup. For hard bugs, flaky tests, perf regressions. |
