@@ -1,0 +1,2 @@
+# Metadata/diagnostic/catalog checks only; install.py remains standard-library only.
+PyYAML==6.0.3

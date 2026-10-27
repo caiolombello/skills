@@ -1,6 +1,6 @@
 # skills
 
-A provider-agnostic library of **agent skills** for LLM coding assistants. Works across Claude Code, OpenCode, Codex CLI, Kiro, Gemini, and any agent that reads `SKILL.md`-style skills.
+A provider-agnostic library of **agent skills** for LLM coding assistants that read `SKILL.md`. See [provider setup](setup/README.md) for installation paths and the separate limits of file validation, native discovery, and runtime checks.
 
 ## What this is, in 30 seconds
 
@@ -28,9 +28,22 @@ python3 setup/install.py --provider codex --manifest install-manifests/frontend.
 ```
 
 Use `codex-keep.txt` instead of `frontend.txt` for the existing keep-set.
+For narrower selections, use `review.txt`, `writing.txt`, or `aws-infra.txt`.
 Repeat `--provider` for the local tools you use. The installer defaults to
 preview, preserves other installations, detects managed updates, and provides
 backup and rollback. Existing links into this checkout remain links.
+
+The generated [full catalog](CATALOG.md) lists every source description,
+profile membership, and available behavioral scenarios. Preview repository or
+local installation problems without changing anything:
+
+```sh
+python3 -m pip install -r setup/requirements-checks.txt
+python3 -B setup/doctor.py
+python3 -B setup/doctor.py --installed --provider codex
+```
+
+The diagnostic reports issues; it never repairs or prunes installations.
 
 For UI work with any model (Codex/GPT, Claude, Gemini, Cursor), install the
 frontend subset and paste
@@ -51,7 +64,7 @@ repository does not claim one universal plugin format or automatic cloud sync.
 | [`llm-coding-discipline`](./llm-coding-discipline) | Baseline anti-failure-mode behaviors. |
 | [`investigate-before-editing`](./investigate-before-editing) | Read code + conventions before editing. |
 | [`diagnose`](./diagnose) | Disciplined bug / flaky-test loop. |
-| [`code-review`](./code-review) | Multi-axis review before merge. |
+| [`code-review`](./code-review) | Find supported defects with review depth proportional to risk. |
 | [`git-hygiene`](./git-hygiene) | Safe git defaults, Conventional Commits. |
 | [`no-docs-unless-asked`](./no-docs-unless-asked) | Stop unrequested README/CHANGELOG creation. |
 | [`verification-before-completion`](./verification-before-completion) | Prove done with evidence. |
@@ -108,7 +121,7 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`frontend-development`](./frontend-development) | Implement production frontend UI in the project’s stack (or a minimal new one) and design system, with complete states, accessibility, security, tests, and frontend-design's visual gate. |
 | [`docs-verified-coding`](./docs-verified-coding) | Detect version → fetch official docs → implement as documented → cite the source. Prevents the "library API invented from memory" failure mode. |
 | [`investigate-before-editing`](./investigate-before-editing) | Forces the agent to read relevant code and learn repo conventions before changing anything. Match house style, never invent symbols. |
-| [`incremental-implementation`](./incremental-implementation) | Build in thin vertical slices — implement, test, verify, commit, expand. Tracer-bullet first. Prevents 1000-line-PR failure mode. |
+| [`incremental-implementation`](./incremental-implementation) | Build in small usable slices, verify each, and commit only within the authorized workflow. |
 | [`executing-plans`](./executing-plans) | Execute an approved plan task-by-task with TDD, verification, and checkpoints. Stops when the plan conflicts with reality. |
 | [`test-driven-development`](./test-driven-development) | Red-green-refactor with vertical slices. Bug fixes via the Prove-It pattern (reproduce with a test before fixing). |
 | [`verification-before-completion`](./verification-before-completion) | Prove work is complete before saying done. Records exact checks run, skipped checks, and evidence quality. |
@@ -116,11 +129,11 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`mcp-development`](./mcp-development) | Secure MCP client/server development — protocol and SDK selection, trust boundaries, strict tool contracts, per-call authorization, sandboxing, poisoning defenses, and adversarial tests. |
 | [`diagnose`](./diagnose) | Disciplined debug loop: feedback-loop-first, reproduce, hypothesise, instrument, fix, regression-test, cleanup. For hard bugs, flaky tests, perf regressions. |
 | [`performance-optimization`](./performance-optimization) | Measure → identify → fix → verify → guard. Profile before optimizing. Frontend, backend, DB, build. |
-| [`code-review`](./code-review) | Multi-axis review across correctness, readability, architecture, security, performance. Before merging any non-trivial change. |
+| [`code-review`](./code-review) | Review actionable defects and material risks, with supported scenarios and proportionate depth. |
 | [`receiving-code-review`](./receiving-code-review) | Process PR/MR review feedback: classify accept/clarify/defer/reject, apply surgically, verify, and respond with evidence. |
 | [`code-simplification`](./code-simplification) | Reduce complexity while preserving exact behavior. Chesterton's Fence; rule of three; refactor split from feature work. |
 | [`security-hardening`](./security-hardening) | Application-layer security — OWASP Top 10 patterns for input validation, authn/authz, injection, SSRF, CSP. Separate from container/IaC/secret storage. |
-| [`doubt-driven-review`](./doubt-driven-review) | In-flight adversarial fresh-context review of non-trivial decisions, BEFORE the PR is open. Provider-agnostic. |
+| [`doubt-driven-review`](./doubt-driven-review) | Independently challenge consequential decisions or uncertain correctness claims when the risk justifies it. |
 | [`dispatching-parallel-agents`](./dispatching-parallel-agents) | Coordinate parallel subagents or sessions safely with tight briefs, file ownership, worktree isolation, and result synthesis. |
 | [`no-docs-unless-asked`](./no-docs-unless-asked) | Blocks the reflex to create `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md` etc. "to be helpful". Updates to existing docs are fine. |
 

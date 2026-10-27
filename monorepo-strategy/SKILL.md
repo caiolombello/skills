@@ -1,6 +1,6 @@
 ---
 name: monorepo-strategy
-description: Design, audit, and operate a monorepo — shared tooling, incremental builds, boundary enforcement, cache, CI that only rebuilds changed packages. Use WHENEVER the user (1) considers adopting or migrating to a monorepo (from polyrepo or the other way); (2) sets up or changes build tooling in a monorepo (Turborepo, Nx, Bazel, pnpm workspaces, Yarn workspaces, npm workspaces, Rush, Lage, Moon, Gradle, Cargo workspaces, Go workspaces, uv workspaces, Poetry workspaces); (3) debugs a slow monorepo CI (why is every push rebuilding everything?); (4) enforces package boundaries (imports / dependency rules / ownership / codeowners); (5) mentions "monorepo", "polyrepo", "workspaces", "affected graph", "remote cache", "task graph", "package boundary", "dependency cruiser", "syncpack", "changesets". Covers the practical shape across JS/TS, Python, Go, Rust, and polyglot repos. Does NOT cover Git LFS / large-binary repos — that is a different problem.
+description: "Use when choosing, migrating, or operating a monorepo: workspace/build tooling, affected-graph CI, caching, package boundaries, ownership, and release versioning."
 ---
 
 # Monorepo Strategy

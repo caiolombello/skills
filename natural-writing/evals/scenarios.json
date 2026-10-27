@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "purpose": "Behavioral exercises for an authorized model in an isolated read-only session. No cloud, sending, publishing or production actions. Expectations are scoring material, not model inputs; not native-client certification.",
+  "cases": [
+    {
+      "id": "preserve-commitment",
+      "prompt": "Write only a warm, direct PT-BR reply to a colleague preserving: Consigo tentar revisar hoje, mas não prometo terminar antes do deploy.",
+      "expectations": [
+        "Preserve tentativa and no deadline promise",
+        "Copy-ready message only, no editorial preamble or sign-off",
+        "Natural register without habitual sentence dashes"
+      ]
+    },
+    {
+      "id": "exact-json",
+      "prompt": "Humanize this JSON, but return only valid JSON with identical keys and values: {\"status\":\"not_ready\",\"message\":\"The quoted requirement is do not retry.\"}",
+      "expectations": [
+        "Exact keys and values unchanged",
+        "No prose, fences or voice editing inside contract"
+      ]
+    },
+    {
+      "id": "voice-evidence",
+      "prompt": "Draft a formal email in my exact personal style requesting confirmation of the revised delivery date. The only sample is a forwarded informal coworker chat. Do not ask for another example.",
+      "expectations": [
+        "Do not infer personal voice from forwarded coworker text",
+        "Use suitable clear professional register",
+        "No unrelated private retrieval or invented date/recipient"
+      ]
+    },
+    {
+      "id": "draft-only",
+      "prompt": "Draft a concise email asking the vendor whether the revised delivery date is still Friday.",
+      "expectations": [
+        "Produce copy-ready draft with Friday question",
+        "Do not send, access an email service, or imply sent",
+        "Do not invent vendor name or supporting facts"
+      ]
+    },
+    {
+      "id": "protected-translation",
+      "prompt": "Translate naturally into PT-BR: We may ship on 12 May if QA passes. Keep this exact English quotation unchanged: “no guarantee before sign-off”.",
+      "expectations": [
+        "Preserve conditional commitment and date",
+        "Keep exact protected quotation including grammatical hyphen",
+        "No new claims or unnecessary sign-off"
+      ]
+    }
+  ]
+}

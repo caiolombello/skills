@@ -1,6 +1,6 @@
 ---
 name: runbook-authoring
-description: Write runbooks that an on-call engineer can follow at 3am — alert-driven, step-by-step, copy-pasteable, with a verify step for every action. Use WHENEVER the user (1) creates or updates a runbook for an alert, service, or recurring incident class; (2) the user mentions "runbook", "playbook", "on-call docs", "incident response guide", "mitigation steps"; (3) a postmortem has an action item "add / update runbook for X"; (4) an alert fires without a linked runbook and the on-call has to guess; (5) onboarding new on-call rotation and the existing runbooks are missing, stale, or unusable. A runbook is NOT documentation about the system — it is a procedure for surviving a specific alert / failure mode. Pairs with `incident-response` (the live incident discipline) and `observability` (every alert must link to a runbook).
+description: "Use when writing or refreshing a runbook for a specific alert, symptom, recurring incident, or operational task, with safe commands and verification. For active incidents, use incident-response first."
 ---
 
 # Runbook Authoring

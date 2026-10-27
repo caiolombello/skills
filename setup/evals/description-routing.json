@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "purpose": "Description-only routing exercise. Not native discovery certification. Compare primary skill or an equivalent explicit abstention; do not score complementary skills as errors.",
+  "cases": [
+    {
+      "id": "adr-positive",
+      "prompt": "We chose Kafka over direct HTTP for order events. Record the rationale, trade-offs and consequences for future maintainers.",
+      "primary": "architecture-decision-records"
+    },
+    {
+      "id": "adr-near-miss",
+      "prompt": "Change this button color from blue to green; the choice is local and easily reversible.",
+      "primary": "frontend-design",
+      "acceptable_primary": [
+        "frontend-design",
+        "none"
+      ],
+      "avoid": [
+        "architecture-decision-records"
+      ]
+    },
+    {
+      "id": "monorepo-positive",
+      "prompt": "Plan a polyrepo migration to pnpm/Nx with affected-graph CI, package boundaries and versioned releases.",
+      "primary": "monorepo-strategy"
+    },
+    {
+      "id": "monorepo-near-miss",
+      "prompt": "Split one long function into two functions in this small single-package app.",
+      "primary": "code-simplification",
+      "acceptable_primary": [
+        "code-simplification",
+        "none"
+      ],
+      "avoid": [
+        "monorepo-strategy"
+      ]
+    },
+    {
+      "id": "gitlab-positive",
+      "prompt": "Fix duplicate pipelines in .gitlab-ci.yml and review the included runner/cache/cloud-auth configuration.",
+      "primary": "gitlab-ci-workflows"
+    },
+    {
+      "id": "gitlab-near-miss",
+      "prompt": "Optimize dependency caching in .github/workflows/build.yml.",
+      "primary": "github-actions-workflows"
+    },
+    {
+      "id": "recovery-positive",
+      "prompt": "Define RTO/RPO and test PITR restore, region failover and data integrity after losing the primary database.",
+      "primary": "disaster-recovery"
+    },
+    {
+      "id": "recovery-near-miss",
+      "prompt": "A deploy just caused 500 responses in production. Stabilize the service; no data loss is reported.",
+      "primary": "incident-response"
+    },
+    {
+      "id": "performance-positive",
+      "prompt": "API p95 latency doubled under the same load. Profile the request and database path, then verify an improvement.",
+      "primary": "performance-optimization"
+    },
+    {
+      "id": "performance-near-miss",
+      "prompt": "This function returns the wrong total. There is no latency problem. Diagnose the regression.",
+      "primary": "diagnose"
+    },
+    {
+      "id": "docs-positive",
+      "prompt": "Implement a hook using our pinned React version. Check its official version-specific API before coding.",
+      "primary": "docs-verified-coding"
+    },
+    {
+      "id": "docs-near-miss",
+      "prompt": "Explain this supplied pure sorting algorithm. No framework or library API is involved.",
+      "primary": "none"
+    },
+    {
+      "id": "runbook-positive",
+      "prompt": "Write an on-call runbook for queue_lag_high with safe commands and verification after each step.",
+      "primary": "runbook-authoring"
+    },
+    {
+      "id": "runbook-near-miss",
+      "prompt": "Explain the architecture of this module for onboarding; no operational procedure is requested.",
+      "primary": "zoom-out"
+    },
+    {
+      "id": "api-positive",
+      "prompt": "Design webhook v2 with a compatibility plan and deprecation timeline for existing consumers.",
+      "primary": "api-and-interface-design"
+    },
+    {
+      "id": "api-near-miss",
+      "prompt": "Use the third-party SDK createWidget method; verify the signature for our pinned package version.",
+      "primary": "docs-verified-coding"
+    }
+  ]
+}

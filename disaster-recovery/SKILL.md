@@ -1,6 +1,6 @@
 ---
 name: disaster-recovery
-description: Design, test, and operate disaster-recovery capability — backups that restore, RTO/RPO targets tied to business impact, failover drills, data-integrity verification, region-loss scenarios. Use WHENEVER the user (1) designs or reviews a backup strategy (RDS snapshots, PITR, S3 versioning, EBS snapshots, Velero, pg_dump schedules); (2) sets RTO (recovery time) or RPO (recovery point) targets; (3) runs a DR drill / game-day / chaos experiment / failover test; (4) audits whether backups actually work (untested backup = no backup); (5) plans multi-region / multi-AZ / cold-standby / warm-standby / hot-standby architecture; (6) mentions "backup", "restore", "DR", "disaster recovery", "RTO", "RPO", "pilot light", "warm standby", "failover", "region down", "data loss", "chaos engineering". Pairs with `incident-response` (a DR event IS an incident) and `observability` (backup-age and restore-success are themselves SLIs).
+description: "Use when designing or auditing backup and recovery: restore tests, integrity, RTO/RPO, failover drills, and multi-region or ransomware recovery. Not routine deploy rollback."
 ---
 
 # Disaster Recovery

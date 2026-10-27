@@ -1,0 +1,10 @@
+# AWS infrastructure work. Does not grant cloud access or install CLI tools.
+awscli-workflows
+pass-cli-secrets
+terraform-iac-expert
+aws-security-architecture
+aws-security-posture
+aws-security-incident-response
+cost-optimization-aws
+deploy-safety
+disaster-recovery

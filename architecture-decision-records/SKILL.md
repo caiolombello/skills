@@ -1,6 +1,6 @@
 ---
 name: architecture-decision-records
-description: Capture significant technical decisions as short, version-controlled Architecture Decision Records (ADRs). An ADR is 1-2 pages that answer "what did we decide, why, and what else did we consider?". Use WHENEVER (1) the user or the team makes a non-trivial technical decision that will constrain future work — choosing a framework, picking a data store, adopting a pattern, setting a policy, accepting a trade-off; (2) the user asks to "document a decision", "write an ADR", "capture the rationale", "we need to remember why we did X"; (3) onboarding reveals that no one remembers why a load-bearing choice was made; (4) a PR introduces a decision with long-term consequences and the reviewer asks "is this an ADR?"; (5) deprecating or replacing a prior decision — write a new ADR that `Supersedes` the old one instead of editing the old one. Uses MADR (Markdown Architectural Decision Records) as the default format. Pairs with `project-rules-file` (which references ADRs from the rules file).
+description: "Use when recording consequential technical decisions, policies, trade-offs, or reversals as concise, versioned ADRs. Avoid trivial, local, easily reversible choices."
 ---
 
 # Architecture Decision Records (ADRs)

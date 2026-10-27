@@ -1,6 +1,6 @@
 ---
 name: docs-verified-coding
-description: Ground every framework-specific code decision in official, version-matched documentation. Fetch the docs for the feature you are about to write — do not implement from memory. Use WHENEVER the agent is about to (1) write framework- or library-specific code (React hooks, Django views, Rails controllers, Spring annotations, Terraform resources, Kubernetes APIs, SDK calls); (2) introduce a pattern that will be copied across the codebase (auth, routing, data fetching, forms, state); (3) the user asks for "current best practice", "the right way", "modern pattern", "up-to-date"; (4) working with a library the user names explicitly; (5) editing code that already uses version-sensitive APIs. Training data is stale; APIs get deprecated; best practices change between minor versions. The skill enforces detect-version → fetch-docs → implement-as-documented → cite-source.
+description: "Use before version-sensitive framework/library coding: verify APIs and patterns against official docs for the project's pinned version. Not pure logic or already-verified APIs."
 ---
 
 <!-- Inspired by addyosmani/agent-skills source-driven-development (MIT). See ../CREDITS.md -->

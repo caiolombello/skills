@@ -1,6 +1,6 @@
 ---
 name: api-and-interface-design
-description: Design stable APIs and module interfaces. Use WHENEVER the user (1) designs, reviews, or refactors a public API — REST, GraphQL, gRPC, webhook, RPC, event bus message, SDK; (2) defines or changes a module boundary / public interface / type contract between parts of a codebase; (3) versions, deprecates, or migrates an existing API; (4) mentions "breaking change", "backwards compatibility", "semver", "API versioning", "v2 endpoint", "deprecation policy", "contract", "interface design", "Consumer-Driven Contracts", "schema evolution"; (5) is about to name a new endpoint, method, or type that will be called by code you do not own. Pairs with `docs-verified-coding` (for consuming an API), `architecture-decision-records` (capture interface choices), and `security-hardening` (input validation at boundaries).
+description: "Use when designing or changing public APIs, SDKs, events, or module contracts: compatibility, versioning, deprecation, and migration. For verifying third-party API usage, use docs-verified-coding."
 ---
 
 # API and Interface Design

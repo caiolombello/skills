@@ -20,6 +20,60 @@ The first run is a dry-run. Repeat `--provider` for multiple local tools or
 existing keep-set. Private manifests remain opt-in; no skill collection is
 installed by default. Missing manifest entries fail before copying any skill.
 
+Focused public profiles complement the existing keep-set:
+
+| Profile | Selection |
+| --- | --- |
+| `writing.txt` | Natural messages and article writing |
+| `review.txt` | Code review, feedback handling, verification, and PR workflow |
+| `aws-infra.txt` | AWS CLI, infrastructure, security, cost, deployment, and recovery |
+| `frontend.txt` | Design, AI interfaces, and frontend implementation |
+
+Use the [generated catalog](../CATALOG.md) for exact membership. Profiles are
+additive; selecting a smaller profile does not remove skills already installed.
+They do not install CLI dependencies, grant account access, or change models.
+
+## Read-only diagnostics and generated catalog
+
+The installer remains standard-library only. Metadata/catalog checks use
+the pinned PyYAML dependency and its safe loader; they never execute skill payloads.
+
+```sh
+python3 -m pip install -r setup/requirements-checks.txt
+python3 -B setup/doctor.py
+python3 -B setup/doctor.py --installed --provider codex --provider claude
+python3 -B setup/doctor.py --installed --format json
+python3 -B setup/build_catalog.py
+```
+
+Doctor checks source frontmatter, public profile entries and inline Markdown
+local links outside fenced examples, plus scenario shape, unique IDs and fixture
+paths in the maintained evaluation datasets. It does not resolve prose/code paths,
+reference-style Markdown links, remote URLs or heading anchors. Missing local
+references are warnings because some target optional/private skills. `--strict`
+also fails on warnings; default exit codes are 0 for no blocking errors, 1 for
+findings with errors, and 2 for invalid invocation or an unreadable root.
+
+`--installed` explicitly opts into known local provider roots and installer
+ownership state under the selected `--home`. It distinguishes valid source
+links, managed copies needing updates, local edits, unmanaged divergent copies,
+broken links, and duplicate skill names/aliases for the same client. Shared
+roots are checked for Codex, Gemini, OpenCode and Cursor; Codex's legacy root
+is also inspected. Unknown external links and roots outside the selected home
+are not read. No provider is launched and no installation is repaired or pruned.
+This is a stable-filesystem inspection, not protection against hostile concurrent
+path replacement or a complete inventory of project/plugin discovery roots.
+
+Regenerate the catalog only when authoring an intended source change:
+
+```sh
+python3 -B setup/build_catalog.py --apply
+```
+
+The default checks freshness and never writes. The generated catalog contains
+public source metadata, profiles and scenario links, with no local paths,
+credentials, private manifests, client-version claims or activation guarantees.
+
 | Provider / local surface | `--provider` | Native destination | Official reference |
 |---|---|---|---|
 | Codex CLI/IDE/desktop local | `codex` | `~/.agents/skills` | [Build skills](https://learn.chatgpt.com/docs/build-skills) |
@@ -180,6 +234,8 @@ skills directly; a separate Gemini extension is not required for this workflow.
 
 ```sh
 python3 -m unittest discover -s setup/tests -v
+python3 -B setup/doctor.py
+python3 -B setup/build_catalog.py
 python3 setup/build_frontend.py
 claude plugin validate ./plugins/caio-frontend --strict
 claude plugin validate . --strict
@@ -191,6 +247,23 @@ original root skills; `--apply` regenerates only those payloads and bundled
 license files. Bundle regeneration is a sequential authoring operation, not
 the installer transaction system; if interrupted, rerun the builder and checks. It does not change account settings. Keep generated copies
 and sources in the same commit; bump every plugin manifest together for releases.
+
+`.github/workflows/validate.yml` runs these inexpensive checks on pushes and
+pull requests with Python 3.9/3.14, SHA-pinned actions, a read-only repository
+token and no persisted checkout credentials. It does not access AWS, send
+messages, publish content, run model evaluations, modify approval rules, or
+certify a provider. Browser tests skip when Playwright/Chromium is unavailable;
+a successful structural job does not imply those checks ran.
+
+Behavioral model scenarios live under individual skills' `evals/scenarios.json`;
+description-only selection cases live in `setup/evals/description-routing.json`.
+Run them separately with an explicitly selected, authorized model in an isolated
+read-only session. Supply prompts and relevant skill instructions, withhold the
+expectations while generating answers, then inspect actual outputs against the
+expectations. Include abstention and near misses; record model/version, checked
+source revision, deviations and unexecuted integrations. No cost-incurring
+model runner is attached to push/PR CI. A simulation is not native discovery,
+live cloud validation, or evidence that a message was sent or content published.
 
 Claude manifest validation is executable locally. Codex's plugin-creator helpers
 are not available in this executor; the compatible shape was checked against
