@@ -19,7 +19,8 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import shutil
+import os
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -56,27 +57,57 @@ def run_one(
     outer = max(120, timeout * len(eval_set) * runs_per_query + 30)
 
     try:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             cmd,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=outer,
+            start_new_session=(os.name == "posix"),
         )
-    except subprocess.TimeoutExpired:
+        try:
+            stdout, stderr = proc.communicate(timeout=outer)
+        except subprocess.TimeoutExpired:
+            # The adapter and any per-query OpenCode children share this
+            # isolated process group. Give cleanup a chance, then stop all of it.
+            if os.name == "posix":
+                try:
+                    os.killpg(proc.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+            else:
+                proc.terminate()
+            try:
+                stdout, stderr = proc.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                if os.name == "posix":
+                    try:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                else:
+                    proc.kill()
+                stdout, stderr = proc.communicate()
+            return {
+                "skill_name": skill_path.name,
+                "error": f"outer timeout ({outer}s)",
+                "stdout": stdout or "",
+                "stderr": stderr or "",
+            }
+    except OSError as exc:
         return {
             "skill_name": skill_path.name,
-            "error": f"outer timeout ({outer}s)",
+            "error": f"could not start evaluator: {exc}",
             "stdout": "",
             "stderr": "",
         }
 
-    out = proc.stdout.strip()
+    out = stdout.strip()
     if not out:
         return {
             "skill_name": skill_path.name,
             "error": "no stdout",
-            "stdout": proc.stdout,
-            "stderr": proc.stderr,
+            "stdout": stdout,
+            "stderr": stderr,
         }
     try:
         return json.loads(out)
@@ -85,7 +116,7 @@ def run_one(
             "skill_name": skill_path.name,
             "error": f"json parse: {exc}",
             "stdout": out,
-            "stderr": proc.stderr,
+            "stderr": stderr,
         }
 
 

@@ -249,7 +249,7 @@ URL versioning is the default for public APIs — simplest operationally, even i
 | Remove a field | **No** | Break |
 | Rename a field | **No** | Add new, deprecate old |
 | Narrow a type (string → enum) | **No** | Break |
-| Widen a type (enum → string) | Yes, for output; **No** for input |
+| Widen a type (enum → string) | **Request/input:** usually additive because the server accepts at least the old values. **Response/output:** potentially breaking for clients that deserialize into a closed enum; assess generated clients and tolerant-reader behavior. |
 | Make a required field optional | Yes, for input; **No** for output |
 | Change an enum value | **No** | Break; add new value, deprecate old |
 | Remove an endpoint | **No** | Break (deprecate + sunset instead) |
@@ -263,7 +263,7 @@ Breaking changes happen eventually. Do it with a plan, not by surprise.
 
 ### The four-stage deprecation
 
-1. **Announce.** Mark deprecated in docs, OpenAPI `deprecated: true`, JSDoc `@deprecated`, proto `[deprecated=true]`. Add a header / log: `Deprecation: true`, `Sunset: Wed, 31 Dec 2025 00:00:00 GMT` (see [RFC 8594 / RFC 9745](https://datatracker.ietf.org/doc/html/rfc9745)).
+1. **Announce.** Mark deprecated in docs, OpenAPI `deprecated: true`, JSDoc `@deprecated`, proto `[deprecated=true]`. If sending HTTP headers, `Deprecation` uses an RFC 9745 Structured Field date (for example, `Deprecation: @<unix-seconds>`; replace the placeholder with the actual date), while `Sunset` uses the HTTP-date syntax from [RFC 8594](https://www.rfc-editor.org/rfc/rfc8594.html). See [RFC 9745](https://www.rfc-editor.org/rfc/rfc9745.html) for `Deprecation`.
 2. **Measure use.** Instrument the endpoint. You cannot deprecate what you cannot see.
 3. **Migrate users.** Reach out to the top N consumers. Provide migration docs with concrete before/after.
 4. **Sunset.** Only when usage is zero (or the announced date has passed and you are prepared to break stragglers). Return 410 Gone, not 404.

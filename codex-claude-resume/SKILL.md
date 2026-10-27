@@ -25,7 +25,7 @@ Run the helper script (path depends on where you installed the skill):
 python3 ~/.claude/skills/codex-claude-resume/claude_resume.py
 
 # OpenCode install
-python3 ~/.config/opencode/skill/codex-claude-resume/claude_resume.py
+python3 ~/.config/opencode/skills/codex-claude-resume/claude_resume.py
 ```
 
 Always pass the current repository path:

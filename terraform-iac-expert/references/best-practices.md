@@ -239,7 +239,7 @@ moved {
 
 - `depends_on` only when needed (not as a crutch)
 - Prefer reference-based dependencies (IDs / outputs)
-- **IMPORTANT**: when a module depends on another, do not use `depends_on`. The dependency is created by passing outputs of module A as inputs to module B.
+- Prefer references to upstream outputs when they express the dependency; Terraform can then model the specific values and avoid unnecessary ordering constraints. Module-level `depends_on` is supported and appropriate for a genuine hidden dependency on upstream behavior that cannot be expressed through an input reference. Document why it is needed: it orders all operations, including reads, for the dependent module and can make plans more conservative or leave more values unknown until apply.
 
 Example:
 ```hcl
@@ -255,11 +255,23 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets # implicit dependency
 }
 
-# INCORRECT — do not use depends_on between modules
+# INCORRECT — redundant here because the module already consumes vpc outputs
 module "eks" {
   source     = "./modules/eks"
   vpc_id     = module.vpc.vpc_id
-  depends_on = [module.vpc]  # UNNECESSARY and hides dependencies
+  # No depends_on needed: the input references already establish the dependency.
+}
+```
+
+Use a module `depends_on` only when the downstream module relies on an upstream side effect or behavior that is not represented by any input value, for example a policy attachment required before a workload starts. Add a comment describing that hidden dependency and inspect the plan for the broader ordering/unknown-value effects. See the [Terraform depends_on reference](https://developer.hashicorp.com/terraform/language/meta-arguments/depends_on).
+
+```hcl
+module "workload" {
+  source = "./modules/workload"
+
+  # The workload needs this policy attached before its instances can start;
+  # the module exposes no input that references this policy.
+  depends_on = [aws_iam_role_policy.workload_runtime]
 }
 ```
 

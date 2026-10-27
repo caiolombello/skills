@@ -187,6 +187,55 @@ class FrontendToolTests(unittest.TestCase):
         with socket.socket() as sock:
             self.assertNotEqual(sock.connect_ex(("127.0.0.1", port)), 0, "dev server left running")
 
+    def test_static_server_rejects_symlink_escapes_for_files_indexes_and_fallback(self):
+        if not shutil.which("node"):
+            self.skipTest("node unavailable")
+        site = self.root / "site"
+        outside = self.root / "outside"
+        (site / "dir").mkdir(parents=True)
+        outside.mkdir()
+        (outside / "sentinel.html").write_text("OUTSIDE SENTINEL")
+        (site / "index.html").symlink_to(outside / "sentinel.html")
+        (site / "dir/index.html").symlink_to(outside / "sentinel.html")
+        (site / "leak.txt").symlink_to(outside / "sentinel.html")
+        (site / "safe.txt").write_text("inside")
+        module = (SCRIPTS / "static_server.mjs").as_uri()
+        script = (
+            f"import {{ serveDirectory }} from {json.dumps(module)};"
+            "const {server, origin} = await serveDirectory(process.argv[1]);"
+            "try { const paths=['/safe.txt','/leak.txt','/dir/','/missing-route'];"
+            "const results=[]; for (const p of paths) { const r=await fetch(origin+p); results.push([r.status, await r.text()]); }"
+            "console.log(JSON.stringify(results)); } finally { await new Promise(r=>server.close(r)); }"
+        )
+        result = subprocess.run(["node", "--input-type=module", "-e", script, str(site)],
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        results = json.loads(result.stdout)
+        self.assertEqual(results[0], [200, "inside"])
+        self.assertEqual([row[0] for row in results[1:]], [403, 403, 403], results)
+        self.assertNotIn("OUTSIDE SENTINEL", result.stdout)
+
+    def test_ui_audit_marks_ancestor_opacity_contrast_unknown(self):
+        if not shutil.which("node"):
+            self.skipTest("node unavailable")
+        page = self.root / "opacity.html"
+        page.write_text("""<!doctype html><html lang="en"><head><title>Opacity fixture</title>
+          <style>body{background:white}.panel{background:black;opacity:.5;color:white;padding:24px}</style>
+          </head><body><main><div class="panel">Normal contrast text</div></main></body></html>""")
+        out = self.root / "opacity-qa"
+        result = subprocess.run(["node", str(SCRIPTS / "visual_qa.mjs"), "--file", str(page), "--widths", "390",
+                                 "--audit-widths", "390", "--themes", "light", "--focus-steps", "0",
+                                 "--out", str(out), "--json"], capture_output=True, text=True, cwd=self.root, timeout=180)
+        if result.returncode == 2 and ("Playwright not found" in result.stderr or "could not launch" in result.stderr):
+            self.skipTest("Playwright/Chromium unavailable")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        summary = json.loads(result.stdout)
+        report = json.loads((self.root / summary["report"]).read_text())
+        findings = [f for t in report["targets"] for f in t["findings"]]
+        unknown = [f for f in findings if f["id"] == "contrast-unverified"]
+        self.assertTrue(unknown, findings)
+        self.assertFalse([f for f in findings if f["id"] == "contrast"], findings)
+
 
 if __name__ == "__main__":
     unittest.main()

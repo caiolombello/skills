@@ -1,6 +1,6 @@
 ---
 name: skill-creator-opencode
-description: 'Adapter that lets the official Anthropic skill-creator evaluation loop run against OpenCode instead of Claude Code. Use when the user wants to run `run_eval` / trigger benchmarks against OpenCode (opencode run --format json) using whichever model they are currently using, instead of depending on the `claude` CLI. Ships a drop-in `run_eval_opencode.py` that mirrors the upstream run_eval.py API (--eval-set, --skill-path, --model, --runs-per-query, --trigger-threshold), detects skill triggering by scanning OpenCode''s JSON event stream for `tool_use` events with `tool: "skill"`, and manages a disposable probe skill under ~/.config/opencode/skill/ for description overrides. Does NOT cover the rest of the skill-creator loop (improve_description, run_loop, eval-viewer) — those still need adaptation.'
+description: 'Adapter that lets the official Anthropic skill-creator evaluation loop run against OpenCode instead of Claude Code. Use when the user wants to run `run_eval` / trigger benchmarks against OpenCode (opencode run --format json) using whichever model they are currently using, instead of depending on the `claude` CLI. Ships a drop-in `run_eval_opencode.py` that mirrors the upstream run_eval.py API (--eval-set, --skill-path, --model, --runs-per-query, --trigger-threshold), detects skill triggering by scanning OpenCode''s JSON event stream for `tool_use` events with `tool: "skill"`, and creates a disposable probe in a unique temporary OpenCode project for description overrides. Does NOT cover the rest of the skill-creator loop (improve_description, run_loop, eval-viewer) — those still need adaptation.'
 ---
 
 # skill-creator-opencode
@@ -20,7 +20,7 @@ None of that works for an OpenCode-based workflow. This adapter swaps:
 | Concern | Upstream (Claude) | OpenCode |
 |---|---|---|
 | Invocation | `claude -p <query> --output-format stream-json` | `opencode run --format json <query>` |
-| Description override | `.claude/commands/<id>.md` in project root | Disposable skill dir under `~/.config/opencode/skill/<name>-probe-<id>/` |
+| Description override | `.claude/commands/<id>.md` in project root | Disposable project-local skill under a unique temporary OpenCode project |
 | Trigger signal | `tool_use.name == "Skill"` + probe id in `input.skill` | `tool_use` event `part.tool == "skill"` + `part.state.input.name` matches probe name |
 | Model selection | `--model <id>` | `--model provider/model` (e.g. `anthropic/claude-haiku-4-5`) |
 
@@ -91,25 +91,13 @@ One call to `opencode run --format json` produces newline-delimited JSON events.
 
 If any line in the stream matches that shape **and** `name` equals the skill being probed, the run is counted as triggered.
 
-### Probe installation model — important
+### Probe isolation and recovery
 
-Agents select a skill by its **exact name**. That means the probe description must be installed under the real skill's name. This adapter:
+The evaluator validates the frontmatter name (`^[a-z0-9]+(?:-[a-z0-9]+)*$`) before creating any paths. Each evaluator invocation creates a unique temporary project and config directory, then places the candidate at `.opencode/skills/<name>/SKILL.md`. The subprocess runs with that project as its working directory and `OPENCODE_CONFIG_DIR` set to the private config directory. OpenCode project skills have higher precedence than global skill roots, so the probe overrides the same ID without renaming or removing the installed skill. The evaluator also disables external `.agents` and `.claude` skill discovery for that run.
 
-1. Moves the real `~/.config/opencode/skill/<name>` directory aside to `<name>.shadow` (symlinks and directories both handled).
-2. Writes the probe `SKILL.md` with the description being tested at `~/.config/opencode/skill/<name>`.
-3. Runs `opencode run --format json <query>`.
-4. Restores the real directory in `finally`, whether or not the run triggered or crashed.
+Concurrent evaluations of the same skill use separate project roots. Query workers within one evaluation share only that evaluation's probe. A per-query timeout sends SIGTERM, waits five seconds, then escalates to SIGKILL. On POSIX, the batch harness uses a separate process group and the same graceful-then-forced shutdown for its outer timeout. A forced kill can leave a temporary directory under the system temp root, but cannot strand or overwrite an installed skill.
 
-One consequence: concurrent runs for the **same skill name** race on the single-slot probe. Run serially per skill (`--num-workers 1`) when probing the same skill repeatedly. Different skills can be probed in parallel.
-
-## Limits and known gaps
-
-1. **No `run_loop.py` / `improve_description.py` port yet.** The description rewrite step in the upstream loop is a Claude-only call; porting it means either using the local OpenCode model for rewrites (via another `opencode run` call) or accepting that description optimization stays manual.
-2. **Single-slot probe.** Because the probe must land at the real skill's exact name, only one probe can exist per skill at a time. Runs against the same skill must be serialized (`--num-workers 1`). Different skills can run in parallel across workers safely.
-3. **Timeout.** OpenCode's TUI-oriented `run` has more overhead than `claude -p`; 60s default is safer than the 30s upstream default. Very long-model cold starts can exceed even that — raise `--timeout` if a known-good query reports false negatives.
-4. **Session reuse.** `opencode run` starts a new session per call. That is what we want for clean trigger evaluation — do not add `-c` / `--continue`.
-5. **Cost.** `opencode run` against `anthropic/*` or any direct-API provider bills per call. 20 queries × 3 runs = 60 calls, not free. Prefer cheap models (haiku family, mimo, glm, kimi) for trigger eval; reserve the Sonnet/Opus tier for evaluating qualitative skill output, not for measuring whether the description triggers.
-6. **Crash recovery.** If the adapter crashes between `shadow_real_skill` and `restore_real_skill`, the real skill will be at `<name>.shadow` on disk. Rename it back manually (or rerun — the shadow handler detects and cleans stale shadows at start of the next run against the same name).
+The evaluator never attempts to recover legacy `<name>.shadow` files. If an older run left `<name>` and `<name>.shadow` together, inspect both manually and restore the intended skill only after confirming their contents. The evaluator will not delete either path.
 
 ## Extending to a full loop
 

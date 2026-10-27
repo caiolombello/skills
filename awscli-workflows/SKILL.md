@@ -147,27 +147,63 @@ For Route 53 zone edits, `change-resource-record-sets` accepts a JSON change bat
 
 ### IAM rotation pattern (access keys)
 
-Classic footgun: create new → switch apps → deactivate old → test → delete old. Do **not** delete the old key before new is in use.
+Classic footgun: create new → switch apps → deactivate old → test → delete old. Do not delete the old key before the new one is in use. `create-access-key` returns the one-time secret on stdout; capture it locally before it can enter agent output. The following keeps the AWS response and Proton Pass template in a private temporary directory, then gives Proton Pass a file path rather than a secret argument. The temp files are plaintext while present.
 
 ```bash
-# 1. Inventory
-aws --profile <p> iam list-access-keys --user-name <u>
+set +x
+set -eu
+umask 077
+tmpdir="$(mktemp -d)"
+transfer_complete=0
+cleanup_transfer() {
+  if [ "$transfer_complete" -eq 1 ]; then
+    rm -rf -- "$tmpdir"
+  else
+    printf 'Transfer incomplete; protected recovery files remain at %s\n' "$tmpdir" >&2
+  fi
+}
+trap cleanup_transfer EXIT
 
-# 2. Create new key (STDOUT contains the new secret — handle via pass-cli-secrets skill)
-aws --profile <p> iam create-access-key --user-name <u>
+# 1. Inventory and verify the target user first.
+AWS_PAGER='' aws --profile <profile> --region <region> iam list-access-keys --user-name <user>
 
-# 3. Test new key works before touching the old one.
+# 2. Capture the one-time response without printing it.
+AWS_PAGER='' aws --profile <profile> --region <region> iam create-access-key \
+  --user-name <user> --output json > "$tmpdir/aws-response.json" 2> "$tmpdir/aws-error.log"
 
-# 4. Deactivate old
-aws --profile <p> iam update-access-key --user-name <u> --access-key-id <old-id> --status Inactive
+# 3. Build a Proton Pass login template without putting the secret in argv.
+python3 - "$tmpdir/aws-response.json" "$tmpdir/pass-login.json" <<'PY'
+import json
+from pathlib import Path
+import sys
+key = json.loads(Path(sys.argv[1]).read_text())["AccessKey"]
+template = {
+    "title": "IAM <user> access key <rotation-date>",
+    "username": key["AccessKeyId"],
+    "password": key["SecretAccessKey"],
+}
+Path(sys.argv[2]).write_text(json.dumps(template))
+PY
+pass-cli item create login --vault-name '<vault-name>' --from-template "$tmpdir/pass-login.json" \
+  > "$tmpdir/pass-result.json" 2> "$tmpdir/pass-error.log"
+transfer_complete=1
 
-# 5. Verify workloads still healthy over a reasonable window.
-
-# 6. Delete old
-aws --profile <p> iam delete-access-key --user-name <u> --access-key-id <old-id>
+# 4. Stop here until consumers use the replacement and verification succeeds.
 ```
 
-Follow the `pass-cli-secrets` skill for handling the new secret — never echo it.
+The template schema is documented by [Proton Pass](https://protonpass.github.io/pass-cli/commands/item/). Keep create/import responses private because a consumer may echo fields. On failure, the private directory is deliberately retained: report its path and failed operation without dumping the response or deleting the only one-time key copy. Reconcile whether creation succeeded, then recover the import or explicitly revoke the unused replacement within the authorized scope; remove retained files after reconciliation. If this retention is not permitted, choose an approved secret-transfer/recovery path before creating a key. This sequence creates and stores a replacement; it does not prove any consumer migrated.
+
+After the verified consumer cutover and within the existing rotation authority, deactivate the old key. Run deletion separately only after the agreed observation window and health checks:
+
+```bash
+aws --profile <profile> --region <region> iam update-access-key \
+  --user-name <user> --access-key-id <old-access-key-id> --status Inactive
+# 6. After the agreed observation window, delete the old key if still healthy.
+aws --profile <profile> --region <region> iam delete-access-key \
+  --user-name <user> --access-key-id <old-access-key-id>
+```
+
+The new item is created from a protected template; do not substitute a secret-bearing argv update. Keep the old Pass item until the replacement is verified, then archive it through an authorized Proton Pass workflow. Follow [`pass-cli-secrets`](../pass-cli-secrets) and the existing write/target authorization; this recipe grants no additional authority.
 
 ## Assume-role chains
 

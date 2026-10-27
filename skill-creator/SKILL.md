@@ -3,6 +3,8 @@ name: skill-creator
 description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
 ---
 
+<!-- Modified locally on 2026-10-27 for evaluator/report safety and correctness; upstream Apache-2.0 license retained. -->
+
 # Skill Creator
 
 A skill for creating new skills and iteratively improving them.
@@ -363,9 +365,9 @@ Present the eval set to the user for review using the HTML template:
 
 1. Read the template from `assets/eval_review.html`
 2. Replace the placeholders:
-   - `__EVAL_DATA_PLACEHOLDER__` → the JSON array of eval items (no quotes around it — it's a JS variable assignment)
-   - `__SKILL_NAME_PLACEHOLDER__` → the skill's name
-   - `__SKILL_DESCRIPTION_PLACEHOLDER__` → the skill's current description
+   - `__EVAL_DATA_PLACEHOLDER__` → JSON-serialize the eval array as UTF-8, then Base64-encode those bytes and insert only the Base64 text. The template decodes it before parsing. Never put raw JSON in a script element: JSON escaping alone does not protect it from `</script>` in a query.
+   - `__SKILL_NAME_PLACEHOLDER__` → the skill's name escaped for an HTML text context (for example, with Python `html.escape`)
+   - `__SKILL_DESCRIPTION_PLACEHOLDER__` → the skill's current description escaped for an HTML text context
 3. Write to a temp file (e.g., `/tmp/eval_review_<skill-name>.html`) and open it: `open /tmp/eval_review_<skill-name>.html`
 4. The user can edit queries, toggle should-trigger, add/remove entries, then click "Export Eval Set"
 5. The file downloads to `~/Downloads/eval_set.json` — check the Downloads folder for the most recent version in case there are multiple (e.g., `eval_set (1).json`)

@@ -1,14 +1,12 @@
 ---
 name: context-check
-description: "Verifique o uso atual de contexto usando /context internamente."
+description: "Compatibilidade: encaminha à orientação de context-engineering para avaliar contexto com métricas disponíveis."
 ---
 
-Verifique o uso atual de contexto usando /context internamente.
+Este nome é mantido como alias para compatibilidade. Siga [`context-engineering`](../context-engineering) para avaliar e reduzir o contexto.
 
-Com base no resultado, sugira uma das acoes:
+Use apenas métricas expostas pela superfície e ferramentas disponíveis nesta sessão. Se a interface mostrar uma medida de uso, informe o valor observado e sua fonte. Não presuma que exista um comando `/context` nem invente percentuais. Se não houver métrica acessível, diga que o uso exato está indisponível e faça uma recomendação qualitativa baseada em sinais observáveis, como repetição de contexto, referências obsoletas ou perda de foco.
 
-1. **Continuar normalmente** - Se o contexto estiver abaixo de 40%
-2. **Fazer /compact** - Se estiver entre 40-60% e a tarefa atual for complexa
-3. **Iniciar nova conversa** - Se estiver acima de 60% ou se a qualidade das respostas parecer estar degradando
+Quando a superfície fornecer ações suportadas de compactação ou nova conversa, sugira-as apenas se os sinais justificarem. Limiares numéricos são heurísticas específicas da superfície, não regras universais; não recomende um comando que não esteja disponível.
 
-Explique brevemente o motivo da recomendacao.
+Explique brevemente a evidência e a recomendação.

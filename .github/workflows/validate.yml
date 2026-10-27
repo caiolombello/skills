@@ -40,4 +40,6 @@ jobs:
           python -B setup/build_catalog.py
           python -B setup/build_frontend.py
       - name: Offline behavioral tests and provider manifest checks
-        run: python -B -m unittest discover -s setup/tests -v
+        run: |
+          python -B -m unittest discover -s setup/tests -v
+          python -B -m unittest discover -s codex-claude-resume/tests -v

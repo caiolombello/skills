@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Modified locally on 2026-10-27 for evaluator/report safety and correctness; upstream Apache-2.0 license retained.
 """
 Aggregate individual run results into benchmark summary statistics.
 
@@ -119,14 +120,16 @@ def load_run_results(benchmark_dir: Path) -> dict:
                 try:
                     with open(grading_file) as f:
                         grading = json.load(f)
-                except json.JSONDecodeError as e:
+                except (json.JSONDecodeError, OSError) as e:
                     print(f"Warning: Invalid JSON in {grading_file}: {e}")
                     continue
 
                 # Extract metrics
                 result = {
                     "eval_id": eval_id,
+                    "_eval_dir": eval_dir.name,
                     "run_number": run_number,
+                    "_grading_file": str(grading_file.relative_to(benchmark_dir)),
                     "pass_rate": grading.get("summary", {}).get("pass_rate", 0.0),
                     "passed": grading.get("summary", {}).get("passed", 0),
                     "failed": grading.get("summary", {}).get("failed", 0),
@@ -253,12 +256,71 @@ def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: st
                 "notes": result["notes"]
             })
 
-    # Determine eval IDs from results
-    eval_ids = sorted(set(
+    # Determine eval IDs from loaded results and discovered eval directories.
+    eval_ids = {
         r["eval_id"]
         for config in results.values()
         for r in config
-    ))
+    }
+    search_root = benchmark_dir / "runs" if (benchmark_dir / "runs").is_dir() else benchmark_dir
+    discovered_eval_ids: dict[str, int | str] = {}
+    eval_dirs = sorted(search_root.glob("eval-*"))
+    for eval_dir in eval_dirs:
+        metadata_path = eval_dir / "eval_metadata.json"
+        if metadata_path.exists():
+            try:
+                metadata_eval_id = json.loads(metadata_path.read_text()).get("eval_id")
+                if metadata_eval_id is not None:
+                    discovered_eval_ids[eval_dir.name] = metadata_eval_id
+                else:
+                    discovered_eval_ids[eval_dir.name] = int(eval_dir.name.split("-")[1])
+            except (json.JSONDecodeError, OSError, ValueError, IndexError):
+                discovered_eval_ids[eval_dir.name] = eval_dir.name
+        else:
+            try:
+                discovered_eval_ids[eval_dir.name] = int(eval_dir.name.split("-")[1])
+            except (ValueError, IndexError):
+                discovered_eval_ids[eval_dir.name] = eval_dir.name
+    eval_ids.update(discovered_eval_ids.values())
+    missing_grading_files = sorted(
+        str(run_dir.relative_to(benchmark_dir) / "grading.json")
+        for run_dir in search_root.rglob("run-*")
+        if run_dir.is_dir() and run_dir.parent.parent.name.startswith("eval-")
+        and not (run_dir / "grading.json").exists()
+    )
+    accepted_grading_files = {
+        result["_grading_file"]
+        for config_runs in results.values()
+        for result in config_runs
+    }
+    skipped_grading_files = sorted(
+        str(grading_file.relative_to(benchmark_dir))
+        for run_dir in search_root.rglob("run-*")
+        if run_dir.is_dir() and run_dir.parent.parent.name.startswith("eval-")
+        for grading_file in [run_dir / "grading.json"]
+        if grading_file.is_file()
+        and str(grading_file.relative_to(benchmark_dir)) not in accepted_grading_files
+    )
+    discovered_configs = sorted({
+        config_dir.name
+        for eval_dir in eval_dirs
+        for config_dir in eval_dir.iterdir()
+        if config_dir.is_dir() and list(config_dir.glob("run-*"))
+    })
+    run_counts: dict[str, dict[str, int]] = {}
+    for config in discovered_configs:
+        for eval_dir in eval_dirs:
+            eval_key = str(discovered_eval_ids[eval_dir.name])
+            valid_count = sum(
+                1 for result in results.get(config, [])
+                if result["_eval_dir"] == eval_dir.name
+            )
+            run_counts.setdefault(config, {})[eval_key] = valid_count
+    observed_counts = [count for counts in run_counts.values() for count in counts.values()]
+    runs_per_configuration = (observed_counts[0]
+                              if (observed_counts and len(set(observed_counts)) == 1
+                                  and not missing_grading_files and not skipped_grading_files)
+                              else None)
 
     benchmark = {
         "metadata": {
@@ -267,8 +329,11 @@ def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: st
             "executor_model": "<model-name>",
             "analyzer_model": "<model-name>",
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "evals_run": eval_ids,
-            "runs_per_configuration": 3
+            "evals_run": sorted(eval_ids, key=str),
+            "runs_per_configuration": runs_per_configuration,
+            "run_counts_per_configuration": run_counts,
+            "missing_grading_files": missing_grading_files,
+            "skipped_grading_files": skipped_grading_files,
         },
         "runs": runs,
         "run_summary": run_summary,
@@ -295,13 +360,26 @@ def generate_markdown(benchmark: dict) -> str:
         "",
         f"**Model**: {metadata['executor_model']}",
         f"**Date**: {metadata['timestamp']}",
-        f"**Evals**: {', '.join(map(str, metadata['evals_run']))} ({metadata['runs_per_configuration']} runs each per configuration)",
+        f"**Evals**: {', '.join(map(str, metadata['evals_run']))} " +
+        (f"({metadata['runs_per_configuration']} runs each per configuration)"
+         if metadata.get("runs_per_configuration") is not None
+         else "(run counts vary by configuration or eval; see benchmark metadata)"),
         "",
         "## Summary",
         "",
         f"| Metric | {label_a} | {label_b} | Delta |",
         "|--------|------------|---------------|-------|",
     ]
+    if metadata.get("runs_per_configuration") is None:
+        lines.append("**Observed grading runs**: " + "; ".join(
+            f"{config} (" + ", ".join(
+                f"eval {eval_id}: {count}" for eval_id, count in counts.items()) + ")"
+            for config, counts in metadata.get("run_counts_per_configuration", {}).items()
+        ))
+        if metadata.get("missing_grading_files"):
+            lines.append("**Runs missing grading**: " + ", ".join(metadata["missing_grading_files"]))
+        if metadata.get("skipped_grading_files"):
+            lines.append("**Runs skipped due to invalid grading**: " + ", ".join(metadata["skipped_grading_files"]))
 
     a_summary = run_summary.get(config_a, {})
     b_summary = run_summary.get(config_b, {})

@@ -56,7 +56,7 @@ Keep every runbook in the same shape. Predictability is the whole point — on-c
 
 ```bash
 # example: confirm 5xx rate on the LB is actually elevated
-aws cloudwatch get-metric-statistics --namespace AWS/ApplicationELB ...
+aws --profile <verified-profile> --region <verified-region> cloudwatch get-metric-statistics --namespace AWS/ApplicationELB ...
 ```
 
 **If false alarm**: <silence steps, link to alert tuning issue>. Go no further.
@@ -74,13 +74,15 @@ logcli query '{app="api"} | json | status>=500' --limit 100 | ...
 
 <In order of preference. Most reversible / cheapest first.>
 
+Record the verified environment/account/cluster, applicable incident authority, and destination before these writes. Reuse authorization that already covers the mitigation; a runbook template alone does not authorize an operation. Replace every placeholder with the actual target and complete service-specific parameters before execution.
+
 ### 3.1 Rollback most-recent deploy (most common fix)
 
 ```bash
 # Verify there was a recent deploy
-argocd app get api-prod -o json | jq '.status.operationState.startedAt'
+argocd --server <verified-argocd-server> app get <verified-app-name> -o json | jq '{destination: .spec.destination, startedAt: .status.operationState.startedAt}'
 # If < 30 min ago and symptom started around then:
-argocd app rollback api-prod <previous-revision>
+argocd --server <verified-argocd-server> app rollback <verified-app-name> <previous-revision>
 ```
 
 **Verify**: 5xx rate returns to baseline within 5 min. Dashboard: <URL>.
@@ -88,10 +90,10 @@ argocd app rollback api-prod <previous-revision>
 ### 3.2 Shed load
 
 ```bash
-kubectl -n prod patch deployment api -p '{"spec":{"replicas":12}}'
+kubectl --context <verified-cluster-context> --namespace <verified-namespace> patch deployment <verified-deployment> -p '{"spec":{"replicas":12}}'
 ```
 
-**Verify**: `kubectl -n prod get pods -l app=api -w` until all Ready; latency drops.
+**Verify**: query `kubectl --context <verified-cluster-context> --namespace <verified-namespace> get pods -l app=<verified-service>` and the relevant latency signal. Use a bounded watch only if the current host permits it; an indefinite watch is not a verification result.
 
 ### 3.3 Enable circuit-breaker feature flag
 

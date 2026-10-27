@@ -55,6 +55,14 @@ Important keys often found in labels or annotations:
 
 ## Normalized Target Shape
 
+For Alertmanager, the helper also returns `alert_count` and an `alerts` array
+containing every normalized member. A single member retains the legacy top-level
+target fields. For groups, a top-level field is populated only when every member
+shares it; use the member list for differing targets, symptoms and severities.
+String labels/annotations, including custom routing metadata, are preserved.
+Normalization is not secret redaction: follow source access/privacy rules and
+do not label the resulting JSON a sanitized report merely because it normalized.
+
 Try to end up with:
 
 ```json

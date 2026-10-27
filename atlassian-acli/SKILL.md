@@ -4,7 +4,7 @@ description: Use when working Jira or Confluence via acli (issue keys, JQL, tran
 ---
 # atlassian-acli — Jira and Confluence Cloud via `acli`
 
-The user has `acli` (Atlassian CLI) installed and authenticated globally via OAuth. All Jira and Confluence work should go through `acli`, not raw REST calls.
+Prefer `acli` for Jira and for Confluence operations it currently supports. Do not assume it is installed or authenticated; check only when needed. For an unsupported Confluence operation, use the documented fallback below only when the user has authorized that operation and the environment's authentication and security rules permit it; otherwise use the UI or explain that the operation is unavailable. Do not treat this fallback as permission to bypass the `acli` preference for operations the CLI supports.
 
 ## Auth model
 
@@ -312,7 +312,7 @@ acli jira workitem search --jql "project = ABC AND sprint in openSprints()" --js
 
 ## Confluence
 
-Current `acli` exposes `view` only for pages/blogs. For creating/updating pages, fall back to the Atlassian REST API via authenticated HTTP, or tell the user to update via the UI.
+Use `acli` for supported Confluence page and blog operations. If the installed CLI does not support a requested create/update operation, an authenticated Atlassian REST API call is an approved fallback only when the user authorized the mutation and applicable credential, network, and tool policies allow it. Otherwise, use the UI or report the capability gap. Never infer authorization to mutate Confluence from mere tool availability.
 
 ```bash
 acli confluence page view <page-id>

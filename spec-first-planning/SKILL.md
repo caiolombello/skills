@@ -39,17 +39,13 @@ Scale the artifact, not the discipline:
 State the chosen depth and rationale. A short task can still need comprehensive
 security or rollout treatment; document depth and test depth are independent.
 
-## The gated workflow
+## The workflow and decision points
 
 ```
 SPECIFY ──▶ PLAN ──▶ TASKS ──▶ IMPLEMENT
-   │          │       │          │
-   ▼          ▼       ▼          ▼
- Human      Human   Human      Human
- reviews    reviews reviews    reviews
 ```
 
-Do **not** advance to the next phase until the current one is validated by the human. Each phase is cheap; each phase catches misunderstandings while they are cheaper than code.
+Use checkpoints where a user decision is needed. The request or an already approved plan can authorize the phases it clearly covers; do not ask for the same approval again. Continue with reversible choices inside the authorized scope, and pause only for missing authority or a material unresolved trade-off. For a planning-only request, stop at the plan and do not begin implementation.
 
 ## Phase 1: Specify
 
@@ -109,7 +105,7 @@ A good spec is short and scannable — not a novel. Target 1-2 pages.
 - <Link to related prior art in the repo>
 ```
 
-**Exit criterion**: the human has signed off on the spec. Do not proceed until they have.
+**Exit criterion**: the spec is consistent with the request and any decisions needed to proceed are resolved or explicitly recorded. Ask for sign-off only when requested or when a material ambiguity remains; treat prior approval as covering the scope it explicitly approved.
 
 ## Phase 2: Plan
 
@@ -175,7 +171,7 @@ DB schema
 <Anything the codebase reading revealed that was not in the spec>
 ```
 
-**Exit criterion**: human has signed off on the approach. Still no code.
+**Exit criterion**: the approach is consistent with the approved scope and required decisions are resolved or recorded. Ask for sign-off only when requested or when a material ambiguity remains; this phase remains planning-only and does not authorize code by itself.
 
 ## Phase 3: Tasks
 
@@ -256,16 +252,16 @@ Decompose the plan into small, ordered, verifiable tasks. Prefer **vertical slic
 - Deps: 5, 6.
 ```
 
-**Exit criterion**: task list agreed with the human, and todos exist in the agent's task tracker (TodoWrite or similar).
+**Exit criterion**: tasks cover the approved result, essential decisions are resolved, and progress is recorded in the available task tracker. An approved request/plan can already supply this agreement; ask again only for a material unresolved decision.
 
 ## Phase 4: Implement
 
-Now code. One task at a time. Do **not** mix tasks in one commit.
+Now implement the scoped tasks in useful, verifiable increments. If commits are authorized, group related changes into coherent commits; task boundaries do not mandate a commit.
 
 - Use [`incremental-implementation`](../incremental-implementation) for the per-slice loop.
 - Use [`test-driven-development`](../test-driven-development) inside each task.
-- Mark the todo `in_progress` at start, `completed` at commit. Update at real time, not in batches.
-- If a task explodes (depends on something not planned), **stop**, update the task list, re-align with the human — do not silently expand the task.
+- Mark work `in_progress` at start and `completed` when its result is verified, independently of whether a commit was requested.
+- When an unexpected dependency appears, update the plan and investigate routine obstacles within scope. Ask only if the dependency introduces a material decision or needs authority not already supplied; do not silently expand the result.
 
 ## Re-planning
 
@@ -282,7 +278,7 @@ Plans are hypotheses. When you learn something mid-flight:
 | Anti-pattern | Why it fails |
 |--------------|--------------|
 | Skip the spec, "it's obvious" | Silent assumptions ship wrong features |
-| Write 10 pages of spec before any sign-off | Review cycle collapses; humans skim and miss issues |
+| Write 10 pages of spec before a needed decision | Review cycle collapses; humans skim and miss issues |
 | Plan = tasks (no approach phase) | Wrong approach wastes the whole task list |
 | Horizontal slicing by default | Nothing is demoable until the end |
 | Tasks without verification criteria | "Done" becomes subjective |
@@ -299,7 +295,7 @@ Plans are hypotheses. When you learn something mid-flight:
 - [`incremental-implementation`](../incremental-implementation) — Phase 4 execution per task.
 - [`test-driven-development`](../test-driven-development) — each task's verification criteria map to a test.
 - [`llm-coding-discipline`](../llm-coding-discipline) — "surface assumptions" is the first action in Phase 1.
-- [`doubt-driven-review`](../doubt-driven-review) — for architectural decisions in Phase 2, run a fresh-context review before sign-off.
+- [`doubt-driven-review`](../doubt-driven-review) — use a fresh-context challenge for consequential uncertain architectural decisions when it improves the evidence; it is not a gate for every plan.
 - [`aidlc-workflow`](../aidlc-workflow) — composes this planning discipline into
   an explicit adaptive lifecycle when the user asks for AI-DLC.
 
@@ -309,17 +305,17 @@ Before moving from a phase to the next:
 
 **Leaving Specify → Plan**
 - [ ] Planning depth is stated and justified.
-- [ ] Assumptions listed explicitly and the human did not correct them.
+- [ ] Assumptions are explicit; essential ones are resolved or tested. Silence is not approval or evidence.
 - [ ] "In scope" and "Out of scope" are both filled.
 - [ ] At least one measurable success criterion.
 - [ ] Open questions either resolved or explicitly deferred.
-- [ ] Human signed off.
+- [ ] Required user decisions are resolved; prior approval covers this phase or a checkpoint was requested.
 
 **Leaving Plan → Tasks**
 - [ ] Read the relevant code end-to-end.
 - [ ] Dependency map exists.
 - [ ] Testing strategy stated.
-- [ ] Human signed off.
+- [ ] Required user decisions are resolved; prior approval covers this phase or a checkpoint was requested.
 
 **Leaving Tasks → Implement**
 - [ ] Every task has description, acceptance criteria, verification, dependencies, files.
@@ -327,11 +323,11 @@ Before moving from a phase to the next:
 - [ ] Task 1 is a tracer bullet.
 - [ ] Dependencies form a DAG (no cycles).
 - [ ] Risk-first or scary-part-first is respected.
-- [ ] Human agreed on the task list.
+- [ ] Required user decisions are resolved; prior approval covers this phase or a checkpoint was requested.
 - [ ] Todos are in the agent's task tracker.
 
 **During Implement**
 - [ ] One task `in_progress` at a time.
-- [ ] Each task commits separately with Conventional Commits.
+- [ ] Keep task progress and verification visible. Commit coherent units only when committing is already authorized; do not create a commit per task by default.
 - [ ] Task scope is not expanded silently.
-- [ ] Re-planning happens visibly, not inside a single commit.
+- [ ] Re-planning happens visibly; keep history coherent when an authorized commit is made.

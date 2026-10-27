@@ -176,7 +176,7 @@ renders are different evidence. A static page needs no build ceremony. Use the
 [verification matrix](references/verification-matrix.md#beforeafter-and-shipping-output)
 for comparable before/after views and unavailable-build reporting.
 
-Do not say “responsive,” “accessible,” or “all tests pass” unless the evidence supports that exact scope. When the app needs a dev server, leave it running and give the user the URL; for a static page, give the file path.
+Do not say “responsive,” “accessible,” or “all tests pass” unless the evidence supports that exact scope. The server launched by `visual_qa.mjs --start` is temporary and is stopped when QA finishes; its URL is not a persistent preview. When a live preview is requested and useful, use the project's supported preview workflow separately, state which process owns it and how it will be stopped, and give the URL only while that preview is running. For a static page, give the file path.
 
 ## Anti-patterns
 

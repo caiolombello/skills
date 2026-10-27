@@ -228,12 +228,12 @@ See [`kubectl-workflows`](../kubectl-workflows) and [`helm-workflows`](../helm-w
 
 ### RDS / Aurora
 
-- Automated backups on (retention 7-35 days).
-- Manual snapshots before risky DDL.
-- PITR to any second within retention.
-- Cross-region automated backups (Aurora: `CopyTagsToSnapshot`, `KmsKeyId`).
-- Read replicas across AZs (and regions for warm standby).
-- Test: quarterly `RestoreDBInstanceFromDBSnapshot` into a scratch VPC, run schema diff + row-count parity.
+- **RDS DB instances:** enable automated backups with a retention period that meets the recovery target; use `RestoreDBInstanceToPointInTime` for point-in-time recovery within that retention window. Cross-Region automated backup replication is available only for supported engine/Region and instance configurations; verify current support and destination KMS settings. For snapshot recovery, restore a new DB instance with `RestoreDBInstanceFromDBSnapshot`.
+- **Aurora DB clusters:** automated backups support PITR within the cluster retention window; use `RestoreDBClusterToPointInTime` to create a cluster from a selected time. Aurora does not support cross-Region automated backup replication. For regional DR, configure a supported manual cluster snapshot copy or AWS Backup cross-Region copy policy, including destination Region/KMS key, cadence, retention, and copy completion monitoring. These copies are snapshots, not continuous replicated transaction logs.
+- For either product, test the matching restore path in an isolated account/VPC: restore an RDS DB instance from its DB snapshot/PITR, or restore an Aurora DB cluster from a cluster snapshot using `RestoreDBClusterFromSnapshot` (then create/verify the writer DB instance when required by the chosen API path). Validate connectivity, schema, representative data, permissions, and measured RTO/RPO. Never use an instance-restore API as an Aurora cluster procedure.
+- Manual snapshots before risky DDL can supplement the recovery plan, but do not replace scheduled recovery tests. Read replicas are availability/replication mechanisms and should not be treated as independent backups.
+
+Official references: [RDS automated backup replication](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReplicateBackups.html), [Aurora backup retention limitations](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Managing.Backups.Retaining.html), [copying Aurora cluster snapshots](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-copy-snapshot.html), and [restoring an Aurora cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-restore-snapshot.html). Recheck engine/Region and API details before a real recovery.
 
 ### EBS
 

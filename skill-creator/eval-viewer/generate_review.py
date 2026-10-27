@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Modified locally on 2026-10-27 for evaluator/report safety and correctness; upstream Apache-2.0 license retained.
 """Generate and serve a review page for eval results.
 
 Reads the workspace directory, discovers runs (directories with outputs/),
@@ -12,16 +13,19 @@ Usage:
 No dependencies beyond the Python stdlib are required.
 """
 
+from __future__ import annotations
+
 import argparse
 import base64
+import errno
 import json
 import mimetypes
 import os
 import re
-import signal
-import subprocess
+import secrets
+import stat
 import sys
-import time
+from urllib.parse import urlsplit
 import webbrowser
 from functools import partial
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -252,6 +256,7 @@ def generate_html(
     skill_name: str,
     previous: dict[str, dict] | None = None,
     benchmark: dict | None = None,
+    feedback_token: str | None = None,
 ) -> str:
     """Generate the complete standalone HTML page with embedded data."""
     template_path = Path(__file__).parent / "viewer.html"
@@ -272,11 +277,17 @@ def generate_html(
         "runs": runs,
         "previous_feedback": previous_feedback,
         "previous_outputs": previous_outputs,
+        "feedback_token": feedback_token,
     }
     if benchmark:
         embedded["benchmark"] = benchmark
 
-    data_json = json.dumps(embedded)
+    data_json = (json.dumps(embedded)
+                 .replace("<", r"\u003c")
+                 .replace(">", r"\u003e")
+                 .replace("&", r"\u0026")
+                 .replace("\u2028", r"\u2028")
+                 .replace("\u2029", r"\u2029"))
 
     return template.replace("/*__EMBEDDED_DATA__*/", f"const EMBEDDED_DATA = {data_json};")
 
@@ -285,25 +296,93 @@ def generate_html(
 # HTTP server (stdlib only, zero dependencies)
 # ---------------------------------------------------------------------------
 
-def _kill_port(port: int) -> None:
-    """Kill any process listening on the given port."""
+MAX_FEEDBACK_BYTES = 1024 * 1024
+MAX_REVIEWS = 10000
+
+
+def validate_feedback(data: object) -> dict:
+    if not isinstance(data, dict) or data.get("status") not in {"in_progress", "complete"}:
+        raise ValueError("Expected an object with a valid status and reviews")
+    reviews = data.get("reviews")
+    if not isinstance(reviews, list) or len(reviews) > MAX_REVIEWS:
+        raise ValueError("reviews must be a bounded array")
+    for review in reviews:
+        if not isinstance(review, dict):
+            raise ValueError("each review must be an object")
+        if not isinstance(review.get("run_id"), str) or len(review["run_id"]) > 512:
+            raise ValueError("review run_id must be a bounded string")
+        if not isinstance(review.get("feedback"), str) or len(review["feedback"]) > 100000:
+            raise ValueError("review feedback must be a bounded string")
+        if "timestamp" in review and (not isinstance(review["timestamp"], str)
+                                       or len(review["timestamp"]) > 64):
+            raise ValueError("review timestamp must be a bounded string")
+    return data
+
+
+def write_feedback(workspace: Path, data: dict) -> None:
+    """Atomically write feedback without following a pre-existing target link."""
+    workspace = workspace.resolve(strict=True)
+    directory_fd = os.open(workspace, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    temp_name = f".feedback-{secrets.token_hex(12)}.tmp"
     try:
-        result = subprocess.run(
-            ["lsof", "-ti", f":{port}"],
-            capture_output=True, text=True, timeout=5,
-        )
-        for pid_str in result.stdout.strip().split("\n"):
-            if pid_str.strip():
-                try:
-                    os.kill(int(pid_str.strip()), signal.SIGTERM)
-                except (ProcessLookupError, ValueError):
-                    pass
-        if result.stdout.strip():
-            time.sleep(0.5)
-    except subprocess.TimeoutExpired:
-        pass
-    except FileNotFoundError:
-        print("Note: lsof not found, cannot check if port is in use", file=sys.stderr)
+        try:
+            target_stat = os.stat("feedback.json", dir_fd=directory_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            target_stat = None
+        if target_stat is not None and (stat.S_ISLNK(target_stat.st_mode)
+                                        or not stat.S_ISREG(target_stat.st_mode)):
+            raise ValueError("feedback.json must be a regular file, not a link or special file")
+        fd = os.open(temp_name, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600,
+                     dir_fd=directory_fd)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                stream.write(json.dumps(data, indent=2) + "\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temp_name, "feedback.json", src_dir_fd=directory_fd,
+                       dst_dir_fd=directory_fd)
+            os.fsync(directory_fd)
+        except BaseException:
+            try:
+                os.unlink(temp_name, dir_fd=directory_fd)
+            except FileNotFoundError:
+                pass
+            raise
+    finally:
+        os.close(directory_fd)
+
+
+def read_feedback(workspace: Path) -> bytes:
+    workspace = workspace.resolve(strict=True)
+    directory_fd = os.open(workspace, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        try:
+            info = os.stat("feedback.json", dir_fd=directory_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            return b"{}"
+        if not stat.S_ISREG(info.st_mode) or info.st_size > MAX_FEEDBACK_BYTES:
+            raise ValueError("feedback.json must be a bounded regular file")
+        fd = os.open("feedback.json", os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+                     dir_fd=directory_fd)
+        with os.fdopen(fd, "rb") as stream:
+            return stream.read(MAX_FEEDBACK_BYTES + 1)
+    finally:
+        os.close(directory_fd)
+
+
+def create_server(workspace: Path, skill_name: str, port: int,
+                  previous: dict[str, dict] | None = None,
+                  benchmark_path: Path | None = None,
+                  feedback_token: str | None = None) -> HTTPServer:
+    token = feedback_token or secrets.token_urlsafe(32)
+    handler = partial(ReviewHandler, workspace, skill_name, workspace / "feedback.json",
+                      previous or {}, benchmark_path, token)
+    try:
+        return HTTPServer(("127.0.0.1", port), handler)
+    except OSError as error:
+        if error.errno != errno.EADDRINUSE:
+            raise
+        return HTTPServer(("127.0.0.1", 0), handler)
 
 class ReviewHandler(BaseHTTPRequestHandler):
     """Serves the review HTML and handles feedback saves.
@@ -319,6 +398,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
         feedback_path: Path,
         previous: dict[str, dict],
         benchmark_path: Path | None,
+        feedback_token: str,
         *args,
         **kwargs,
     ):
@@ -327,9 +407,13 @@ class ReviewHandler(BaseHTTPRequestHandler):
         self.feedback_path = feedback_path
         self.previous = previous
         self.benchmark_path = benchmark_path
+        self.feedback_token = feedback_token
         super().__init__(*args, **kwargs)
 
     def do_GET(self) -> None:
+        if not self._valid_loopback_host():
+            self.send_error(403, "Invalid Host header")
+            return
         if self.path == "/" or self.path == "/index.html":
             # Regenerate HTML on each request (re-scans workspace for new outputs)
             runs = find_runs(self.workspace)
@@ -339,7 +423,8 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     benchmark = json.loads(self.benchmark_path.read_text())
                 except (json.JSONDecodeError, OSError):
                     pass
-            html = generate_html(runs, self.skill_name, self.previous, benchmark)
+            html = generate_html(runs, self.skill_name, self.previous, benchmark,
+                                 self.feedback_token)
             content = html.encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -347,9 +432,11 @@ class ReviewHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(content)
         elif self.path == "/api/feedback":
-            data = b"{}"
-            if self.feedback_path.exists():
-                data = self.feedback_path.read_bytes()
+            try:
+                data = read_feedback(self.workspace)
+            except (OSError, ValueError):
+                self.send_error(400, "Feedback file is not safe to read")
+                return
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(data)))
@@ -360,24 +447,45 @@ class ReviewHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         if self.path == "/api/feedback":
-            length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(length)
+            if (not self._valid_loopback_host()
+                    or not self._valid_origin()
+                    or not secrets.compare_digest(self.headers.get("X-Feedback-Token", ""),
+                                                  self.feedback_token)):
+                self.send_error(403, "Invalid feedback token")
+                return
             try:
-                data = json.loads(body)
-                if not isinstance(data, dict) or "reviews" not in data:
-                    raise ValueError("Expected JSON object with 'reviews' key")
-                self.feedback_path.write_text(json.dumps(data, indent=2) + "\n")
+                if self.headers.get("Transfer-Encoding"):
+                    raise ValueError("Transfer-Encoding is not supported")
+                raw_length = self.headers.get("Content-Length", "")
+                if not raw_length.isdigit():
+                    raise ValueError("Content-Length is required")
+                length = int(raw_length)
+                if length > MAX_FEEDBACK_BYTES:
+                    self.send_error(413, "Feedback body is too large")
+                    return
+                data = validate_feedback(json.loads(self.rfile.read(length)))
+                write_feedback(self.workspace, data)
                 resp = b'{"ok":true}'
                 self.send_response(200)
-            except (json.JSONDecodeError, OSError, ValueError) as e:
+            except (json.JSONDecodeError, OSError, ValueError, UnicodeDecodeError) as e:
                 resp = json.dumps({"error": str(e)}).encode()
-                self.send_response(500)
+                self.send_response(400)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(resp)))
             self.end_headers()
             self.wfile.write(resp)
         else:
             self.send_error(404)
+
+    def _valid_loopback_host(self) -> bool:
+        host = urlsplit("//" + self.headers.get("Host", "")).hostname
+        return host in {"localhost", "127.0.0.1", "::1"}
+
+    def _valid_origin(self) -> bool:
+        origin = self.headers.get("Origin", "")
+        parsed = urlsplit(origin)
+        return (parsed.scheme == "http" and parsed.netloc == self.headers.get("Host")
+                and parsed.hostname in {"localhost", "127.0.0.1", "::1"})
 
     def log_message(self, format: str, *args: object) -> None:
         # Suppress request logging to keep terminal clean
@@ -435,16 +543,10 @@ def main() -> None:
         print(f"\n  Static viewer written to: {args.static}\n")
         sys.exit(0)
 
-    # Kill any existing process on the target port
-    port = args.port
-    _kill_port(port)
-    handler = partial(ReviewHandler, workspace, skill_name, feedback_path, previous, benchmark_path)
-    try:
-        server = HTTPServer(("127.0.0.1", port), handler)
-    except OSError:
-        # Port still in use after kill attempt — find a free one
-        server = HTTPServer(("127.0.0.1", 0), handler)
-        port = server.server_address[1]
+    feedback_token = secrets.token_urlsafe(32)
+    server = create_server(workspace, skill_name, args.port, previous,
+                           benchmark_path, feedback_token)
+    port = server.server_address[1]
 
     url = f"http://localhost:{port}"
     print(f"\n  Eval Viewer")

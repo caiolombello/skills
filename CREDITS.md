@@ -16,7 +16,7 @@ source-available terms. Authoritative standards and government publications
 used as technical sources are identified separately. Our original and adapted
 skill text is MIT unless a skill directory says otherwise (see
 [LICENSE](LICENSE)). Vendored projects retain their original license; see
-[Vendored verbatim](#vendored-verbatim-distinct-from-the-above) below. We
+[Vendored projects](#vendored-projects-distinct-from-the-above) below. We
 acknowledge every source because provenance matters even when attribution is not
 required.
 
@@ -382,13 +382,13 @@ of the upstream projects above. They are noted here only for completeness:
 - `frontend-development` (W3C WCAG, WAI-ARIA Authoring Practices, web.dev, Testing Library, Playwright, and Storybook documentation)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
 
-## Vendored verbatim (distinct from the above)
+## Vendored projects (distinct from the above)
 
-Some skills in this repository are **vendored verbatim** from upstream projects under their original license. Those directories include the upstream `LICENSE` and a `README.md` documenting modifications (if any). As of this writing:
+Some skills in this repository are vendored from upstream projects under their original license. Those directories retain the upstream license and a `README.md` documenting local modifications. Current exceptions include:
 
 - [`skill-creator/`](skill-creator/) — vendored from [anthropics/skills](https://github.com/anthropics/skills), Apache 2.0. See [`skill-creator/README.md`](skill-creator/README.md) for details.
 
-The difference matters: vendored projects keep their upstream license file and we avoid modifying them. Inspired skills are new works under our MIT license.
+Vendored projects keep their upstream license, copyright and per-file modification notices. The local 2026-10-27 skill-creator patches address evaluator, viewer and benchmark safety/correctness; they are documented in its README and tested offline. Original/adapted skill text is MIT unless the skill directory provides different terms, including the AI-interface source-available exception.
 
 ## How to acknowledge in individual skills
 

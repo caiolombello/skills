@@ -359,82 +359,16 @@ Rollback is a real release (it bumps the revision). Monitor after rollback just 
 | Error | Cause | Fix |
 |-------|-------|-----|
 | `immutable field: spec.selector` | Selector labels changed | Never change `selectorLabels`. Revert selector change; add a new deployment if needed. |
-| `release has no deployed releases` | Previous install failed | `helm rollback` to a healthy revision, or `helm uninstall` + reinstall if first-time. |
-| `UPGRADE FAILED: another operation (install/upgrade/rollback) is in progress` | Previous release stuck in `pending-install` or `pending-upgrade` | `helm history` + `kubectl edit secret sh.helm.release.v1.api.v<N>` to inspect; roll back or delete stuck secret; restart upgrade. |
+| `release has no deployed releases` | No revision is currently marked deployed | Inspect `helm status`/`helm history` and live resource ownership first. If this was an initial install, decide whether to clean up any created resources under a scoped recovery plan; do not assume uninstall/reinstall is harmless. |
+| `UPGRADE FAILED: another operation (install/upgrade/rollback) is in progress` | Previous operation may still be running or the release is left in a pending state | Stop concurrent writers. Inspect `helm status <release> -n <namespace>`, `helm history <release> -n <namespace>`, workload/job status, and scoped Kubernetes events. If a prior deployed revision exists and is known healthy, use supported `helm rollback <release> <revision> -n <namespace> --wait` and monitor it. Preserve Helm's release Secrets; do not edit or delete them as routine recovery. |
 | `context deadline exceeded` | `--wait` timed out | Check readiness probes; check events; raise `--timeout` only if justified by workload size. |
 | `Forbidden: patching objects without annotation` | Resource was created outside Helm | Add `meta.helm.sh/release-name` + `meta.helm.sh/release-namespace` annotations or delete+recreate. |
 
-## Values hierarchy — one chart, many environments
+If no healthy revision exists or the release remains pending, treat recovery as an incident: stop automation that could mutate the release, preserve release storage and evidence, capture Helm/Kubernetes versions and status/history, and consult the matching Helm-version documentation or support path. Any manual release-storage repair requires a case-specific recovery plan, verified backup, explicit authorization, and post-recovery status/history validation; there is no generic safe secret-edit/delete command.
 
-Do not fork charts per environment. Overlay values.
+## Values hierarchy and multi-release orchestration
 
-### Pattern: repo layout
-
-```
-charts/
-  api/
-    Chart.yaml
-    values.yaml                  # documented defaults — dev-safe
-    templates/
-    values.schema.json
-environments/
-  dev/
-    values.yaml
-  staging/
-    values.yaml
-  prod/
-    values.yaml
-  prod-eu/
-    values.yaml
-```
-
-Install:
-
-```bash
-helm upgrade --install api charts/api \
-  --namespace prod \
-  --values environments/prod/values.yaml \
-  --atomic --wait
-```
-
-Production override only the keys that differ. Keep env files short and scannable.
-
-### Pattern: Helmfile (orchestration)
-
-[Helmfile](https://github.com/helmfile/helmfile) wraps Helm for declarative multi-release management. Useful when you run many charts in one cluster.
-
-```yaml
-# helmfile.yaml
-environments:
-  prod:
-    values:
-      - environments/prod/globals.yaml
-
-releases:
-  - name: api
-    chart: ./charts/api
-    namespace: prod
-    version: 1.7.2
-    values:
-      - environments/prod/api.yaml
-    secrets:
-      - environments/prod/api.secrets.yaml    # helm-secrets / SOPS
-
-  - name: worker
-    chart: ./charts/worker
-    namespace: prod
-    version: 0.5.1
-    values:
-      - environments/prod/worker.yaml
-```
-
-```bash
-helmfile -e prod apply
-```
-
-### Pattern: ArgoCD / Flux (pull-based GitOps)
-
-Commit values files to a git repo. ArgoCD/Flux watches, applies. The sync window + drift detection + rollback UI are the value. See [`deploy-safety`](../deploy-safety) for the progressive-rollout shape on top.
+Keep one chart and overlay short environment-specific values; do not fork a chart per environment. Repository layout, Helmfile, and pull-based GitOps examples are in [references/multi-environment-values.md](references/multi-environment-values.md). Keep secrets out of ordinary values files and review the rendered diff for the exact target before applying.
 
 ## Secrets — never in values.yaml
 

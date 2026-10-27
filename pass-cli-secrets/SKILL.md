@@ -4,282 +4,111 @@ description: Use when the user needs a password, token, or credential, or genera
 ---
 # pass-cli (Proton Pass CLI) — single source of secrets
 
-The user has `pass-cli` installed and logged in. All secrets (passwords, tokens, API keys, SSH keys, certificates) **must** come from `pass-cli` instead of:
-
-- Hardcoded in code, scripts, configs, IaC
-- Requests directly to the user ("give me the password")
-- Read from versioned `.env` / `.envrc` files
-- Copied from browser password managers
+Use Proton Pass for local credentials. For AWS workloads, use Secrets Manager or SSM SecureString so the workload can retrieve secrets through its own IAM identity.
 
 Official docs: https://protonpass.github.io/pass-cli/ — repo: https://github.com/protonpass/pass-cli
 
+Changing instructions or researching a command does not authorize executing secret/account operations. Prefer official documentation or installed source for schemas: a template/metadata command can still initialize the client and affect authentication state. If the session or local key provider fails, stop credential operations; do not force logout, switch key providers, repair credential files, or reauthenticate as a documentation check. Follow the runtime's private credential/authentication workflow when that work is actually requested.
+
 ## Non-negotiable rules
 
-1. **Never** print, log, comment or write the value of a retrieved secret. Use it only in the final command.
-2. **Never** suggest `echo $TOKEN` or similar to "verify" a secret. To validate, use the secret in the real command.
-3. **Never** save secrets to project files (`.env`, `secrets.yaml`, etc.) without confirming with the user that the file is in `.gitignore`.
-4. **Never** run `pass-cli` with `--output json` redirected to a file without explicit warning.
-5. In scripts, prefer **passing the secret via stdin or ephemeral environment variable** to the process that needs it. Do not persist it to disk.
-6. When creating a new secret (generating a token, API key, DB password), offer to **store it in Proton Pass** at the end.
+1. Never print, log, comment, or pass a retrieved secret as a command-line argument.
+2. Never run a secret-returning command by itself through an agent tool; its stdout becomes agent context.
+3. Use a documented consumer input channel: stdin, a protected temporary file, or `pass-cli run` environment injection. Confirm that the consumer actually supports that channel.
+4. Disable shell tracing before handling secrets. Keep temporary files under a private directory, use `umask 077`, and remove them with a trap.
+5. Never save secrets to project files. Offer to store a newly generated secret in Proton Pass.
 
-## Standard flow to retrieve a secret
+## Retrieve and consume a secret
 
-### 1. List to find the item
-```bash
-pass-cli item list --output json | jq '.[] | {title, item_id, share_id}'
-```
-Or list vaults first:
-```bash
-pass-cli vault list --output json
-pass-cli item list "Personal" --output json
-```
+Use `item view` only as part of a pipeline or redirect its output to a protected temporary file. A standalone `item view --field password` prints the secret and is for a human's private terminal only, never an agent tool result.
 
-### 2. Retrieve ONE specific field (normal use)
-Use `--field` to extract only what you need, without exposing the rest:
-```bash
-pass-cli item view --item-title "GitHub Token" --field password
-pass-cli item view --vault-name "Work" --item-title "AWS prod" --field "access_key"
-```
-
-Or via Pass URI (preferred in scripts — does not depend on title match):
-```bash
-pass-cli item view "pass://SHARE_ID/ITEM_ID/password"
-```
-
-### 3. Use in commands without exposing them in shell history
-
-**Ephemeral local variable (preferred):**
-```bash
-GITHUB_TOKEN="$(pass-cli item view --item-title 'GitHub Token' --field password)" \
-  gh auth login --with-token <<< "$GITHUB_TOKEN"
-unset GITHUB_TOKEN
-```
-
-**Direct pipe when the command accepts stdin:**
-```bash
-pass-cli item view --item-title 'DB Prod' --field password | \
-  psql -h db.prod -U admin
-```
-
-**Without showing it in the terminal:**
-```bash
-read -rs DB_PASS < <(pass-cli item view --item-title 'DB Prod' --field password)
-```
-
-## AI-blind patterns (when an agent is running the command)
-
-When you (the AI) execute `pass-cli` through a Bash tool, **everything that comes out on stdout/stderr is returned as tool result and becomes visible to you and to the context**. To use secrets without seeing them:
-
-### Golden rule
-**The secret must never appear in the final output of the command.** Use a direct pipe or an inline env var into the consumer, in a single Bash line.
-
-### Safe patterns (secret invisible to the agent)
+For tools that accept a password on stdin, pipe it directly:
 
 ```bash
-# Direct pipe into the consumer's stdin
-pass-cli item view --field password --vault-name V --item-title T | \
-  docker login -u user --password-stdin
+pass-cli item view --vault-name 'Work' --item-title 'Docker Registry' --field password |
+  docker login --username '<user>' --password-stdin
 
-pass-cli item view --field password --vault-name V --item-title T | \
-  gh auth login --with-token
-
-pass-cli item view --field password --vault-name V --item-title T | \
-  psql -h db.host -U admin
-
-# Inline env var, command that does not echo the value
-PGPASSWORD="$(pass-cli item view --field password ... )" \
-  psql -h db -U user -c '\dt'
-
-# Process substitution for tools that want a file
-kubectl create secret generic foo \
-  --from-file=token=<(pass-cli item view --field password ... )
-
-# Command that only returns an exit code
-PASS="$(pass-cli item view --field password ... )" \
-  curl -fsS -u "user:$PASS" https://api.example.com/healthz -o /dev/null && echo OK
+pass-cli item view --vault-name 'Work' --item-title 'GitLab Token' --field password |
+  glab auth login --stdin
 ```
 
-### Anti-patterns (leak to the agent)
+Use `pass-cli run` for a command that consumes a credential from an environment variable. Proton Pass documents `pass://` references in environment variables and resolves them before starting the command:
 
 ```bash
-# Direct stdout: the secret becomes a tool result
-pass-cli item view --field password ...
+GITLAB_TOKEN='pass://Work/GitLab/token' pass-cli run -- \
+  glab mr list --repo 'https://<gitlab-host>/<group>/<project>'
 
-# Assign to a variable then "check" — echo/printf leaks
-TOKEN="$(pass-cli item view --field password ... )"
-echo "$TOKEN"          # bad
-printenv TOKEN         # bad
-
-# set -x / bash -x expands commands on stderr
-set -x; CMD="$(pass-cli item view --field password ...)"  # bad: leaks in trace
-
-# Passing as argv — visible in ps, history, program logs
-mysql --password="$(pass-cli item view --field password ...)"  # bad
-# Use --password-stdin or MYSQL_PWD env var instead
+PGPASSWORD='pass://Work/DBProd/password' pass-cli run -- \
+  psql -h <db-host> -U <db-user> -d <database> -c '\dt'
 ```
 
-### Extra pitfalls
+`psql` reads `PGPASSWORD` through libpq; stdin to `psql` is SQL input, not a password channel. Environment variables can be visible to processes with sufficient local privileges, so prefer a consumer's supported stdin or secret-file interface when available. Do not put an environment variable value into the same command that expands it, for example `TOKEN=... command "$TOKEN"`; the expansion happens before the assignment.
 
-- **`curl -v` / `-vvv`** logs headers, including `Authorization`.
-- **`docker run -e SECRET=$X`** shows up in `docker inspect`.
-- **Error messages**: many tools echo the full connection string (with password) on failure — redirect with `2>&1 | grep -v -i password` or `2>/dev/null` when safe.
-- **`tee`, `>>` into a file** that you will later read with `Read` or `cat`.
-- **History**: commands with secrets in argv persist in `~/.zsh_history`. Use an env var or a pipe.
-
-### When you really need to see the value (bootstrap a config, populate another store)
-
-If the task **requires** you to manipulate the value (for example, initial bootstrap into Secrets Manager, generating `.env.local` for dev), warn the user before executing:
-
-> "I'm going to retrieve secret X via pass-cli — the value will appear in my context. Confirm?"
-
-After using it, suggest cleanup:
-```bash
-history -d $(history 1)   # remove the last command from history
-```
-
-### Real limit
-
-Even with a direct pipe, the secret lives decrypted in memory on the shell you triggered. The sandbox runs as the user — so technically a malicious agent could read `/proc/<pid>/environ`. The guarantee here is "honest agent + no accidental context leak", not "agent without any possible access". For strong guarantees (secret never touches the agent's machine), use IRSA/OIDC for AWS workloads or require human approval on the final command.
-
-## Patterns by context
-
-### Terraform / IaC
-NEVER put secrets in `.tfvars`. Instead, export before running:
-```bash
-export TF_VAR_db_password="$(pass-cli item view --item-title 'RDS prod' --field password)"
-terraform apply
-```
-Mark the variable as `sensitive = true` in the `.tf`.
-
-### Docker / docker-compose
-Use `--env-file` pointing to a file generated on-the-fly and deleted afterwards, or:
-```bash
-docker run -e API_KEY="$(pass-cli item view --item-title 'X' --field password)" image
-```
-For compose, prefer `secrets:` pointing to a temporary file generated from pass-cli.
-
-### CI/CD (GitHub Actions, GitLab CI)
-Do NOT commit secrets. Recommend:
-- GitHub Actions: `secrets.NAME` in the repository settings
-- To populate those secrets from pass-cli locally:
-  ```bash
-  gh secret set MY_SECRET --body "$(pass-cli item view --item-title 'X' --field password)"
-  ```
-
-### Application code (Python, Node, Go)
-Do NOT embed a secret in the code. Always via env var, and instruct the user to populate it through pass-cli in the shell before running:
-```bash
-export OPENAI_API_KEY="$(pass-cli item view --item-title 'OpenAI' --field password)"
-python app.py
-```
-
-### SSH / private keys
-Use the built-in ssh-agent from pass-cli instead of copying the key into `~/.ssh/`:
-```bash
-pass-cli ssh-agent start          # start the agent
-pass-cli ssh-agent load --item-title "GitHub Deploy"
-```
-
-## Creating new secrets in Proton Pass
-
-When you generate a new token/password/key (for example rotating an API key, creating a new IAM user, issuing a new deploy key), offer to save it:
+For a shell variable that must be used in a later statement, assign it first, keep tracing disabled, and clear it on exit:
 
 ```bash
-# Generate and save a strong password directly into Pass
-pass-cli item create login \
-  --vault-name "Work" \
-  --title "Service X - prod" \
-  --username "svc-account" \
-  --generate-password="32,uppercase,symbols" \
-  --url "https://servicex.com"
-
-# Save a secret that was already generated externally
-pass-cli item create login \
-  --vault-name "Work" \
-  --title "AWS access key - userY" \
-  --username "AKIA..." \
-  --password "$(cat /tmp/secret)" && shred -u /tmp/secret
+set +x
+GITLAB_TOKEN="$(pass-cli item view --vault-name 'Work' --item-title 'GitLab Token' --field password)"
+trap 'unset GITLAB_TOKEN' EXIT
+printf '%s\n' "$GITLAB_TOKEN" | glab auth login --stdin
 ```
 
-## Exception: AWS context — Secrets Manager / SSM Parameter Store take precedence
+Use only consumer flags confirmed by that consumer's installed help or official documentation. Do not assume a CLI accepts stdin because another CLI does. Avoid `curl -u "user:$TOKEN"`, headers containing an expanded token, or any other secret-bearing argument: those expose the value in process arguments. Never use `kubectl create secret` as a supposedly agent-blind path; the Kubernetes API persists that value as a Secret object.
 
-When the work involves **AWS runtime** (Lambda, ECS, EKS, EC2, CodeBuild, App Runner, Glue, etc.) or **AWS IaC** (Terraform, CDK, CloudFormation, SAM), the canonical source of secrets becomes:
+## Keep secrets out of output and history
 
-- **AWS Secrets Manager** — credentials with rotation, structured JSON, DB/API secrets with versioning.
-- **AWS Systems Manager Parameter Store (SecureString)** — config + simple secrets, cheaper, tightly integrated with SSM.
+- Do not use `set -x`, `bash -x`, `echo`, `printf` to terminal, `printenv`, verbose HTTP logging, or debug flags with credentials in scope.
+- Do not put credentials in command arguments, container environment options, URLs, error-prone connection strings, CI command bodies, or shell history.
+- Do not use `tee` or redirect a secret to a project file. A process substitution does not stop the receiving tool from storing a Kubernetes Secret or logging the value.
+- Treat any command's stdout and stderr as agent-visible. Redirect only to a private temporary file when the tool's output contains a one-time secret and the next operation consumes that file safely.
 
-Reason: AWS workloads already have IAM/IRSA to access these services natively, without exposing secrets in env vars inside manifests, without depending on pass-cli at runtime, with CloudTrail audit logging and automatic rotation.
+## Local applications and CI
 
-### How to decide between pass-cli vs AWS Secrets/SSM
+For an application with a documented environment variable, prefer `pass-cli run`:
 
-| Scenario | Canonical source |
-|----------|------------------|
-| Secret consumed by a workload running **inside AWS** | Secrets Manager / SSM SecureString |
-| **AWS infra** secret referenced in IaC (RDS password, provider API key) | Secrets Manager / SSM (data source in Terraform) |
-| **Local user** credential on the workstation (gh token, kubeconfig token, npm token) | pass-cli |
-| Credential to **access AWS itself** (AWS access keys, SSO refresh) | AWS CLI profiles / SSO — not both |
-| Secret used in **CI** that deploys to AWS | GitHub Actions secrets (populated via pass-cli locally OR via OIDC into AWS) |
-| Secret being **bootstrapped** into Secrets Manager for the first time | pass-cli locally → script that runs `aws secretsmanager create-secret` |
-
-### AWS patterns
-
-**Terraform — reference Secrets Manager:**
-```hcl
-data "aws_secretsmanager_secret_version" "db" {
-  secret_id = "prod/rds/master"
-}
-
-resource "aws_db_instance" "this" {
-  password = jsondecode(data.aws_secretsmanager_secret_version.db.secret_string)["password"]
-}
-```
-
-**Terraform — reference SSM SecureString:**
-```hcl
-data "aws_ssm_parameter" "api_key" {
-  name            = "/prod/external-api/key"
-  with_decryption = true
-}
-# use data.aws_ssm_parameter.api_key.value (mark variable as sensitive)
-```
-
-**EKS — mount via Secrets Store CSI Driver (no value in manifest):**
-Use `SecretProviderClass` pointing to Secrets Manager via IRSA. NEVER `kubectl create secret` with a literal value.
-
-**Initial bootstrap (pass-cli → AWS):**
 ```bash
-aws secretsmanager create-secret \
-  --name prod/external-api/key \
-  --secret-string "$(pass-cli item view --item-title 'External API prod' --field password)"
+OPENAI_API_KEY='pass://Work/OpenAI/api-key' pass-cli run -- python app.py
 ```
 
-**Rotation — generate a new credential and store it in both places:**
+Mark secret-bearing Terraform variables and outputs sensitive, and avoid printing plans or state that may contain values. For Docker and CI secret creation, use the platform's secret-management interface or a documented file/stdin facility. Do not use `docker run -e`, `gh secret set --body`, or an equivalent command argument to transfer a secret.
+
+## Creating or rotating secrets
+
+Proton Pass documents `item create login --from-template <file>` and `--from-template -` for a JSON template on stdin in its [item reference](https://protonpass.github.io/pass-cli/commands/item/); environment injection is covered by the [run reference](https://protonpass.github.io/pass-cli/commands/contents/run/). The template schema has `title`, `username`, `email`, `password`, and `urls`. Prefer the file/stdin template route when importing an externally generated credential; never use `--password <secret>` or `item update --field password=<secret>` because those put the value in argv. Protect temporary plaintext with `umask 077`, keep it outside the project, remove it on exit, and capture the consumer's response privately if it can contain the supplied secret. If these limits are unacceptable, use an approved private UI/API transfer.
+
+For an AWS IAM access-key rotation, see the capture-and-import procedure in [`awscli-workflows`](../awscli-workflows). It redirects the one-time AWS response away from tool output and passes a protected template file to Proton Pass. Do not delete or deactivate an old credential until the replacement is in use and verified.
+
+When bootstrapping an existing Proton Pass value into AWS Secrets Manager, use a private temporary file and AWS CLI's documented `file://` input. Use an explicit profile and region and follow [`awscli-workflows`](../awscli-workflows) preflight rules:
+
 ```bash
-NEW_PASS="$(openssl rand -base64 32)"
-aws secretsmanager put-secret-value --secret-id prod/rds/master \
-  --secret-string "{\"password\":\"$NEW_PASS\"}"
-pass-cli item update --item-title "RDS prod backup" --field password --value "$NEW_PASS"
-unset NEW_PASS
+set +x
+set -eu
+umask 077
+tmpdir="$(mktemp -d)"
+trap 'rm -rf -- "$tmpdir"' EXIT
+pass-cli item view --vault-name 'Work' --item-title 'External API prod' --field password > "$tmpdir/secret"
+AWS_PAGER='' aws --profile <profile> --region <region> secretsmanager create-secret \
+  --name <secret-name> --secret-string "file://$tmpdir/secret"
 ```
 
-### AWS rules
+The file is temporary plaintext and may remain recoverable on some storage. If policy prohibits it, use a human-operated secure transfer or a supported API/stream path; do not fall back to putting the value in argv or agent-visible output.
 
-1. **Never** put a literal secret in `*.tfvars`, k8s manifests, ECS task definitions, or Lambda env blocks.
-2. In Terraform, always mark `sensitive = true` on outputs/variables that touch secrets.
-3. For Lambda/ECS, prefer `secrets:` (direct reference to Secrets Manager) over `environment:` with the raw value.
-4. For EKS, use IRSA + Secrets Store CSI Driver, not a Kubernetes `Secret` populated manually.
-5. Mandatory tags (`Environment`, `Project`, `Owner`) also apply to secrets created in AWS.
+## AWS runtime preference
 
-## When pass-cli is not available
+For Lambda, ECS, EKS, EC2, CodeBuild, App Runner, Glue, and other AWS workloads, the canonical runtime source is:
 
-If `pass-cli` fails (expired session, no network), stop and warn the user:
-- `pass-cli login` to re-authenticate
-- Do NOT fall back to asking for the secret in plain text in chat without an explicit warning.
+- AWS Secrets Manager for credentials with rotation, structured JSON, and DB/API secrets.
+- SSM Parameter Store SecureString for simple secret configuration.
+
+Use IAM roles, EKS Pod Identity or IRSA as supported so workloads read their own secret. Prefer Secrets Store CSI Driver when the EKS design calls for mounting external secrets. An explicitly approved Kubernetes Secret is a different persisted resource and needs the cluster's access/encryption controls; process substitution does not change that. For Terraform, reference Secrets Manager/SSM using data sources where appropriate and mark outputs/variables sensitive; sensitive display flags do not encrypt state, whose backend and access need protection.
+
+## When pass-cli is unavailable
+
+If `pass-cli` fails (for example, an expired session), stop and tell the user. Do not fall back to asking for the secret in chat. The user can re-authenticate locally with the documented `pass-cli login` workflow.
 
 ## Auto-check before responding
 
-Before any response that touches a password/token/credential, ask yourself:
-- [ ] Am I about to write a literal secret? → Stop. Use `pass-cli item view --field`.
-- [ ] Am I going to ask the user for the secret? → Stop. Suggest `pass-cli item view ...`.
-- [ ] Will the secret land in a versioned file? → Stop. Use an env var via pass-cli at execution time.
-- [ ] Am I generating a new secret? → Offer to save it in Pass at the end.
+- [ ] Is a secret about to appear in stdout, stderr, argv, shell history, a project file, or a container/CI command body? Stop and use a supported input channel.
+- [ ] Is a secret retrieval command being run alone through an agent tool? Do not run it.
+- [ ] Is a consumer's stdin/environment/file interface documented? Verify before writing the example.
+- [ ] Was a new secret generated? Offer to store it in Proton Pass.

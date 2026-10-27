@@ -136,7 +136,7 @@ spec:
             periodSeconds: 5
           lifecycle:
             preStop:
-              exec: { command: ["/bin/sh", "-c", "sleep 10"] }   # drain connections
+              httpGet: { path: /internal/drain, port: 8080, scheme: HTTP } # app must implement this handler
           resources:
             requests: { cpu: 100m, memory: 256Mi }
             limits:   { memory: 512Mi }                           # no CPU limit by default
@@ -147,7 +147,7 @@ Key rules:
 - **`readinessProbe` gates traffic**, not `livenessProbe`. Wrong probe config is the #1 cause of fake "successful" deploys that immediately error.
 - **`livenessProbe` restarts the pod** when it is truly stuck. Make it lenient; tight liveness checks cause restart storms.
 - **`startupProbe`** for slow-starting apps — do not abuse `initialDelaySeconds` on liveness.
-- **`preStop` + `terminationGracePeriodSeconds`** — let the LB notice the pod is going before it dies.
+- **`preStop` + `terminationGracePeriodSeconds`** — use an application-native drain endpoint or another handler supported by the exact image/runtime. An `exec` handler runs inside the container and requires the executable to exist; `/bin/sh -c sleep ...` fails in shell-less distroless images. The sample HTTP endpoint must idempotently stop readiness/traffic and wait for the app's drain condition before returning. Ensure the grace period covers endpoint propagation, hook time, and application shutdown; test the behavior with the selected image and Kubernetes version.
 - **Pin the image by digest** (`@sha256:...`), not tag. Tags are mutable; digests are not.
 - **`PodDisruptionBudget`** for any workload that must stay available during cluster operations.
 - **`revisionHistoryLimit`** > 0 so `kubectl rollout undo` works.

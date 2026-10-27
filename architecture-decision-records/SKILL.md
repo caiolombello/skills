@@ -124,7 +124,7 @@ Chosen option: **Option A**, because <primary reason tied to the drivers>.
 
 ## Lifecycle and status
 
-ADRs are append-only. Do not edit a decided ADR. Instead:
+The decision record's body is append-only: do not rewrite the rationale or consequences of a decided ADR. A narrowly scoped lifecycle exception permits updating only its status/relationship metadata to record that it was superseded. Instead:
 
 | Status | Meaning |
 |--------|---------|
@@ -135,7 +135,7 @@ ADRs are append-only. Do not edit a decided ADR. Instead:
 
 ### Superseding an ADR
 
-When a decision changes, **write a new ADR** that supersedes the old one. Do **not** edit the old ADR.
+When a decision changes, **write a new ADR** that supersedes the old one. Do not edit the old decision's body; update only its status/relationship metadata as the explicit lifecycle exception below.
 
 In the old ADR, update only the front matter:
 

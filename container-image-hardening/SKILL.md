@@ -150,23 +150,7 @@ Both use the `org.opencontainers.image.*` namespace. Prefer labels for anything 
 | `org.opencontainers.image.base.name` | Base image tag used | `gcr.io/distroless/python3-debian12:nonroot` |
 | `org.opencontainers.image.base.digest` | Base image digest used | `sha256:...` |
 
-GitHub's `docker/metadata-action` emits most of these automatically when fed the right inputs:
-
-```yaml
-- id: meta
-  uses: docker/metadata-action@v5
-  with:
-    images: ghcr.io/${{ github.repository }}
-    tags: |
-      type=sha,format=long
-      type=ref,event=branch
-      type=semver,pattern={{version}}
-    labels: |
-      org.opencontainers.image.title=<service>
-      org.opencontainers.image.description=<one-line>
-      org.opencontainers.image.licenses=Apache-2.0
-      org.opencontainers.image.vendor=<org>
-```
+GitHub's `docker/metadata-action` can emit most of these labels when given the image name, source ref, and release metadata. If using it in a workflow, pin it to a reviewed full commit SHA; see [the CI publishing reference](references/github-actions.md) and [`github-actions-workflows`](../github-actions-workflows).
 
 Then pass `labels: ${{ steps.meta.outputs.labels }}` to `docker/build-push-action`.
 
@@ -294,14 +278,7 @@ hadolint --ignore DL3008 Dockerfile     # ignore "pin apt versions" when base is
 hadolint --failure-threshold error Dockerfile
 ```
 
-Run it alongside `trivy config` in CI:
-
-```yaml
-- uses: hadolint/hadolint-action@v3
-  with:
-    dockerfile: Dockerfile
-    failure-threshold: error
-```
+Run `hadolint Dockerfile` alongside `trivy config` in CI. If wrapping Hadolint in a GitHub Action, pin that action to a reviewed full commit SHA and scope its permissions to the lint job.
 
 ## Build acceleration
 
@@ -362,14 +339,7 @@ docker buildx build \
 
 `mode=max` caches every layer of every stage; `mode=min` (default) caches only final-stage layers. For CI, prefer `max` — the slight registry cost pays for itself on repeated builds.
 
-GitHub Actions native cache alternative:
-```yaml
-- uses: docker/setup-buildx-action@v3
-- uses: docker/build-push-action@v6
-  with:
-    cache-from: type=gha
-    cache-to: type=gha,mode=max
-```
+GitHub Actions can use its native cache backend for BuildKit. Set it up with the official Docker Buildx actions pinned to reviewed full commit SHAs; keep cache scope and trust boundaries appropriate to the repository. See the [CI publishing reference](references/github-actions.md).
 
 ### Multi-arch
 
@@ -562,62 +532,11 @@ docker buildx build --ssh default ...
 
 See the `pass-cli-secrets` skill for handling the host-side secret before it reaches buildx.
 
-## CI reference (GitHub Actions example)
+## CI image publishing and signing
 
-```yaml
-jobs:
-  image:
-    permissions:
-      contents: read
-      id-token: write       # required for cosign keyless
-      packages: write       # ghcr.io push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+The detailed GitHub Actions recipe is in [references/github-actions.md](references/github-actions.md). External actions in privileged jobs must be pinned to reviewed full commit SHAs; never copy a mutable tag or branch into a job with package-write or OIDC signing permissions. Confirm the SHA and release against the action's official repository at review time.
 
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=sha,format=long
-            type=ref,event=branch
-
-      - id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          provenance: mode=max
-          sbom: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: 1
-
-      - uses: sigstore/cosign-installer@v3
-      - run: |
-          cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
-```
-
-Adapt to GitLab CI, CircleCI, Buildkite as needed — the structure (build → scan → sign → publish) is the same.
+Keep build/test permissions separate from publish/sign permissions where practical. Grant `packages: write` only to the job that publishes, and `id-token: write` only to the job that performs keyless signing. For general workflow structure and SHA pinning, follow [`github-actions-workflows`](../github-actions-workflows).
 
 ## Anti-patterns cheat sheet
 

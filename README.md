@@ -298,6 +298,10 @@ PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions (skill layou
 
 ## License
 
-The skills written here are MIT (see [LICENSE](LICENSE)).
+Original and adapted material is MIT under the root [LICENSE](LICENSE), except
+where a skill directory specifies different terms. In particular,
+[`ai-interface-design`](ai-interface-design/LICENSE) is source-available with
+attribution and a restriction on gambling/betting use; it is not MIT. These terms
+also accompany its copy in the frontend package.
 
 `skill-creator/` is a vendored copy of the [official Anthropic skill](https://github.com/anthropics/skills/tree/main/skills/skill-creator) and is licensed under Apache 2.0 — see `skill-creator/LICENSE.txt` and `skill-creator/README.md` for attribution details.

@@ -1,6 +1,6 @@
 ---
 name: diagnose
-description: Use when tests fail, builds break, behavior is wrong/flaky/slow, a regression appears, or a fix is about to land without a reproducible failure. Reproduce first, then hypothesise.
+description: Use when tests fail, builds break, behavior is wrong/flaky/slow, a regression appears, or a fix is about to land without adequate evidence. Reproduce when feasible; otherwise analyze captured evidence with clearly qualified hypotheses.
 ---
 <!-- Inspired by mattpocock/skills engineering/diagnose (MIT) and addyosmani/agent-skills debugging-and-error-recovery (MIT). See ../CREDITS.md -->
 
@@ -93,13 +93,13 @@ A 50%-flaky bug is debuggable; 1% is not — keep raising the rate until it is.
 
 ### When you genuinely cannot build a loop
 
-Stop and say so explicitly. List what you tried. Ask the user for either:
+State the reproduction limit and what you tried. Use captured artifacts already available before asking for more access. If a missing input actually blocks progress, request the relevant option:
 
 - **Access** to an environment that reproduces it.
 - **A captured artifact** — HAR file, log dump, core dump, screen recording with timestamps.
 - **Permission to add temporary instrumentation** in the environment that exhibits the bug.
 
-Do **not** proceed to hypothesise without a loop. A hypothesis without a loop is a guess, and guesses ship wrong fixes.
+When a loop is unavailable, do not present a hypothesis as a confirmed cause. You may analyze captured logs, traces, dumps, or other observations and list falsifiable, qualified hypotheses; label evidence, inference, and unknowns separately, and state what observation would confirm or reject each hypothesis. A missing loop limits confidence and the claims you can make, but does not erase captured evidence.
 
 ## Phase 2 — Reproduce + minimize
 
@@ -109,13 +109,13 @@ Run the loop. Watch the bug appear. Confirm:
 - [ ] The failure is reproducible across multiple runs (or at a high enough rate to debug against).
 - [ ] You have captured the exact symptom (error message, wrong output, timing) so later phases can verify the fix.
 
-Do not proceed until you reproduce the bug.
+Do not claim the failure is reproduced until the loop demonstrates the reported symptom. If reproduction is unavailable, record that limitation and proceed only with evidence-qualified analysis; do not claim that a proposed fix is proven.
 
 ### Minimize the reproduction
 
 Once the loop is red, remove inputs, callers, configuration, data, and steps one at a time. Keep only what is load-bearing for the failure, rerunning the loop after each reduction. The minimized case becomes the regression test and narrows the hypothesis space.
 
-Do not proceed to Phase 3 until the failure is reproduced and minimized, unless a reduction would destroy the only evidence of an environment-dependent failure; record that exception explicitly.
+For a reproducible failure, minimize it before Phase 3 unless reduction would destroy the only environment-dependent evidence. When reproduction is unavailable, Phase 3 may instead analyze captured evidence with explicitly qualified hypotheses and unrun reproduction/verification. Preserve that limitation through the final report.
 
 ## Phase 3 — Localize + hypothesise
 
@@ -198,11 +198,11 @@ Fix the **root cause**, not the symptom. If the fix is a `try/catch` around the 
 
 Required before declaring done:
 
-- [ ] Original repro no longer reproduces (re-run the Phase 1 loop).
+- [ ] Re-run the original reproduction when available; otherwise report which captured-evidence checks ran and that the proposed fix remains unverified against the original runtime failure.
 - [ ] Regression test passes (or absence of a seam is documented).
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix).
 - [ ] Throwaway harnesses / prototypes deleted or moved to a clearly-marked debug location.
-- [ ] The hypothesis that turned out correct is stated in the commit / PR message — so the next debugger learns.
+- [ ] State the established cause or remaining hypothesis in the requested result; include it in a commit/PR message only when that endpoint is authorized.
 - [ ] Any secrets, tokens, or production data used in reproduction are scrubbed.
 
 **Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling), surface it as a follow-up after the fix is in. You have more information now than when you started.

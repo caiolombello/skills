@@ -12,7 +12,7 @@ This skill is the GitLab companion of [`gh-cli-workflows`](../gh-cli-workflows).
 ## Golden rules
 
 1. **Verify the auth host matches the remote host.** The classic failure: `glab mr create` against a self-hosted GitLab while authenticated only to `gitlab.com`, or vice versa.
-2. **Use `--repo OWNER/REPO` (or `--host HOST`) for any command that could target the wrong project.** Do not trust the working-directory remote alone when you have multiple accounts.
+2. **Use a fully qualified `--repo https://HOST/GROUP/PROJECT` for project commands when the host is ambiguous.** For host-scoped operations use that command's documented `--hostname` or `GITLAB_HOST` route; `--host` is not a universal flag. Do not trust the working-directory remote alone.
 3. **Authenticate once per host.** `glab auth login --hostname gitlab.example.com` gives you a distinct token per host.
 4. **Short-lived tokens.** Prefer Personal Access Tokens with minimal scopes; rotate. Do not commit `GITLAB_TOKEN` to dotfiles.
 5. **Use `glab auth status` at the start of any risky action.** Catches wrong-account drift before it causes a 403.
@@ -89,8 +89,7 @@ Every `glab` command becomes ambiguous. Be explicit:
 # Against the internal remote's project:
 glab mr create --source-branch feature/xyz \
   --target-branch main \
-  --repo private-group/my-project \
-  --host gitlab.internal.example.com
+  --repo https://gitlab.internal.example.com/private-group/my-project
 
 # Against origin (gitlab.com) — default host:
 glab mr create --source-branch feature/xyz \
@@ -121,12 +120,12 @@ Then in a repo:
 git remote set-url origin git@gitlab-internal:private-group/my-project.git
 ```
 
-Now `git push` / `git fetch` always hit the correct identity. **However**, `glab` reads `--host` based on the **hostname in the URL**, not your SSH alias. So:
+SSH aliases select Git's configured transport identity. `glab` resolves the GitLab API host from its repository/configuration inputs, which can differ from that alias:
 
-- If the remote URL is `git@gitlab-internal:...`, `glab` tries to talk to `gitlab-internal.example.com` (no such thing) → error.
-- **Fix**: either pass `--host gitlab.internal.example.com` explicitly to every `glab` command, or keep the real hostname in the URL and rely on SSH key selection via `IdentityFile` + `IdentitiesOnly yes`.
+- If a remote uses `git@gitlab-internal:...`, confirm how the installed client resolves that alias; do not invent a hostname by appending a suffix.
+- **Fix**: for project commands pass a real-host repository URL with `--repo`; use documented host-specific inputs for other commands. Do not change Git remotes or SSH configuration unless that change is requested.
 
-Pragmatic advice: **use real hostnames in `git remote`**, use SSH key selection per-host. This makes `glab` work without `--host` in most cases.
+The [MR list reference](https://docs.gitlab.com/cli/mr/list/) documents full repository URLs; the [login reference](https://docs.gitlab.com/cli/auth/login/) documents `--hostname`, stdin and host-scoped environment overrides. Verify the target without changing the user's account/configuration as a test.
 
 ## Multi-account on the same host
 
@@ -134,23 +133,21 @@ Pragmatic advice: **use real hostnames in `git remote`**, use SSH key selection 
 
 ### Option A: environment variable override
 
-```bash
-# Default config
-export GITLAB_TOKEN=""
-# Repo-scoped shell: use a different token
-GITLAB_TOKEN=glpat-xxxxxx glab mr list --repo other-org/other-repo
-```
-
-Combined with [`direnv`](https://direnv.net/) or a repo-local `.envrc`, this cleanly scopes per directory:
+For a local token, use Proton Pass environment injection for the command. `pass-cli run` resolves the `pass://` URI before starting `glab`, so the credential is not a command-line argument:
 
 ```bash
-# .envrc
-export GITLAB_TOKEN=glpat-xxxxxx
+GITLAB_TOKEN='pass://Work/GitLab/token' pass-cli run -- \
+  glab mr list --repo 'https://<gitlab-host>/<group>/<project>'
 ```
 
-(Then `direnv allow` once, and the token is active only inside the repo.)
+For a one-time login, GitLab documents `glab auth login --stdin`; pipe the secret directly and set the intended host explicitly:
 
-Never commit `.envrc` with secrets. See [`pass-cli-secrets`](../pass-cli-secrets) for secret sourcing.
+```bash
+pass-cli item view --vault-name 'Work' --item-title 'GitLab Token' --field password |
+  glab auth login --hostname <gitlab-host> --stdin
+```
+
+Never put a token value in `.envrc`, shell history, or command arguments. See [`pass-cli-secrets`](../pass-cli-secrets) for secret sourcing.
 
 ### Option B: separate `GLAB_CONFIG_DIR`
 
@@ -254,9 +251,9 @@ Every `glab` subcommand supports `--output json` or similar. Prefer JSON output 
 |-------|-------|-----|
 | `authentication required` | No auth for this host, or token expired | `glab auth login --hostname <host>` |
 | `403 Forbidden` on push or MR create | Token lacks `write_repository` or is from wrong account | Check `glab auth status`; re-login with correct scopes |
-| `project not found` | Wrong `--repo`, or wrong `--host` | `glab auth status`; pass `--host` explicitly |
+| `project not found` | Wrong repository path or resolved API host | Verify account and a fully qualified `--repo` URL |
 | `invalid token scope` | Token scope too narrow | Rotate token with `api`, `write_repository`, `read_user` as needed |
-| Silent success on wrong project | Default host picked up the wrong repo | Always pass `--repo` and `--host` on machines with multi-host setup |
+| Silent success on wrong project | Default host picked up the wrong repo | Use a fully qualified `--repo` URL on multi-host setups |
 | `glab ci trace` hangs | Pipeline is waiting on approval or runner | `glab ci view` to inspect; may need `glab ci play` on manual jobs |
 
 ## Security hygiene
@@ -288,10 +285,10 @@ See [`gitlab-ci-workflows`](../gitlab-ci-workflows) for the pipeline-side discip
 | Anti-pattern | Why it hurts |
 |--------------|--------------|
 | `glab` commands without checking `auth status` first | Drift: command succeeds against the wrong host / account |
-| SSH alias in `git remote` URL (`git@gitlab-internal:...`) without `--host` | `glab` parses a hostname that does not resolve |
+| Relying on an SSH alias as proof of the API host | Git transport selection and CLI API resolution may differ |
 | Long-lived PAT without expiration | Leak detection is slower than rotation |
 | Full `api` scope tokens | Unnecessary blast radius on leak |
-| Wildcard `--host` flags across a script | Confusing; makes the script's target implicit |
+| Assuming a universal host flag across commands | Unsupported flags fail or leave target selection ambiguous |
 | Using a developer PAT in CI jobs | Lost audit trail; rotation pain; violates separation of concerns |
 | Chaining `glab` commands without `set -e` in scripts | Silent partial execution |
 | `glab` + `gh` installed for the same repo mirror | Wrong tool picked up the wrong remote |

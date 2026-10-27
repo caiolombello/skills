@@ -124,7 +124,7 @@ Before writing any test:
 - [ ] Confirm **which behaviors** matter most. You cannot test everything — pick the critical paths and the hard logic.
 - [ ] Sketch the **public interface** (function signature, endpoint shape, event payload). Design for testability: pure functions and dependency injection beat deep mocking every time.
 - [ ] List behaviors as **observable outcomes**, not implementation steps.
-- [ ] Agree the plan with the user if the interface is new.
+- [ ] Resolve material new interface decisions not already settled by the request, approved plan or project rules; do not repeat an approval already given.
 
 Question to ask: *"What should the public interface look like? Which behaviors are most important to test?"*
 
@@ -137,7 +137,7 @@ Write **one** test for the most important behavior. Make it pass with minimal co
 For each remaining behavior:
 
 ```
-RED → GREEN → refactor-if-needed → commit
+RED → GREEN → refactor-if-needed → checkpoint (commit if authorized)
 ```
 
 Rules:
@@ -145,7 +145,7 @@ Rules:
 - Only enough code to pass the current test.
 - Do not anticipate future tests.
 - Keep tests focused on observable behavior.
-- Commit after each green so the history shows the spec growing.
+- Record each verified GREEN as a progress checkpoint. Commit coherent units only when committing is already authorized; a green test does not itself authorize a Git write.
 
 ### 4. Refactor
 

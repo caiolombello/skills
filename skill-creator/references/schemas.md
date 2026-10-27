@@ -1,3 +1,4 @@
+<!-- Modified locally on 2026-10-27 for evaluator/report safety and correctness; upstream Apache-2.0 license retained. -->
 # JSON Schemas
 
 This document defines the JSON schemas used by skill-creator.
@@ -229,7 +230,13 @@ Output from Benchmark mode. Located at `benchmarks/<timestamp>/benchmark.json`.
     "analyzer_model": "most-capable-model",
     "timestamp": "2026-01-15T10:30:00Z",
     "evals_run": [1, 2, 3],
-    "runs_per_configuration": 3
+    "runs_per_configuration": 3,
+    "run_counts_per_configuration": {
+      "with_skill": {"1": 3, "2": 3, "3": 3},
+      "without_skill": {"1": 3, "2": 3, "3": 3}
+    },
+    "missing_grading_files": [],
+    "skipped_grading_files": []
   },
 
   "runs": [
@@ -290,7 +297,10 @@ Output from Benchmark mode. Located at `benchmarks/<timestamp>/benchmark.json`.
   - `skill_name`: Name of the skill
   - `timestamp`: When the benchmark was run
   - `evals_run`: List of eval names or IDs
-  - `runs_per_configuration`: Number of runs per config (e.g. 3)
+  - `runs_per_configuration`: Common observed count when every configuration/eval has the same count; otherwise `null`
+  - `run_counts_per_configuration`: Observed grading-file count per configuration and eval ID
+  - `missing_grading_files`: Discovered run directories that had no `grading.json`
+  - `skipped_grading_files`: Existing `grading.json` files that could not be parsed
 - `runs[]`: Individual run results
   - `eval_id`: Numeric eval identifier
   - `eval_name`: Human-readable eval name (used as section header in the viewer)

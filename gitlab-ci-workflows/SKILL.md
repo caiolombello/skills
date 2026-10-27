@@ -79,44 +79,31 @@ variables:
   GIT_STRATEGY: fetch
   GIT_DEPTH: "20"                    # deep-enough for diff, shallow for speed
 
-.cache_node: &cache_node
+.cache_pnpm: &cache_pnpm
   key:
     files: [pnpm-lock.yaml]
   paths:
-    - node_modules/
     - .pnpm-store/
   policy: pull-push
-
-install:
-  stage: build
-  image: node:20.15.1-bookworm-slim@sha256:<digest>
-  cache:
-    <<: *cache_node
-    policy: pull-push
-  script:
-    - corepack enable
-    - pnpm install --frozen-lockfile
 
 lint:
   stage: test
   image: node:20.15.1-bookworm-slim@sha256:<digest>
   cache:
-    <<: *cache_node
-    policy: pull                     # read-only after install
-  needs: [install]
+    <<: *cache_pnpm                  # optional package-download cache only
   script:
     - corepack enable
+    - pnpm install --frozen-lockfile
     - pnpm lint
 
 unit-test:
   stage: test
   image: node:20.15.1-bookworm-slim@sha256:<digest>
   cache:
-    <<: *cache_node
-    policy: pull
-  needs: [install]
+    <<: *cache_pnpm                  # cache miss remains correct; install from lockfile
   script:
     - corepack enable
+    - pnpm install --frozen-lockfile
     - pnpm test --reporter=junit --outputFile=reports/junit.xml
   artifacts:
     when: always
@@ -128,7 +115,7 @@ unit-test:
 
 Highlights:
 - `workflow.rules` controls when the whole pipeline runs. Prevents the classic "duplicate pipeline on branch + MR" problem.
-- `needs:` makes `lint` and `unit-test` start as soon as `install` finishes — DAG, not serial.
+- `lint` and `unit-test` install dependencies from the lockfile in their own job; the optional package-store cache only improves download speed and is not a required handoff.
 - Images pinned with `@sha256:<digest>` (paste the real digest).
 - `interruptible: true` lets a fresh push cancel an in-flight pipeline on the same MR.
 - Cache key is file-hash-based; invalidates automatically when the lockfile changes.
@@ -230,6 +217,10 @@ Rules:
 
 **Rule**: if the next job *requires* the file, it is an artifact. If the file *merely speeds things up* it is a cache.
 
+Do not rely on cache availability to provide `node_modules/` or another required job input. GitLab explicitly treats cache as an optimization that can miss; install from the lockfile in each isolated consumer job, or publish required generated outputs as artifacts.
+
+See GitLab's [cache availability guidance](https://docs.gitlab.com/ci/caching/) and [job artifact guidance](https://docs.gitlab.com/ci/jobs/job_artifacts/) for the current cache and handoff contract.
+
 ### Cache keys
 
 ```yaml
@@ -239,13 +230,13 @@ cache:
       - pnpm-lock.yaml
       - .nvmrc
   paths:
-    - node_modules/
     - .pnpm-store/
   policy: pull-push
 ```
 
 - `files:` keys on the hash of these files. Lockfile change → cache invalidation.
-- `policy: pull` for read-only consumers (test jobs); `pull-push` for the install job that builds the cache.
+- Cache package-manager download stores where supported; do not cache `node_modules/` as a required cross-job handoff. Each isolated job should install from the lockfile.
+- `policy: pull` for read-only consumers; `pull-push` for jobs that may refresh the optional cache.
 - Avoid `policy: push` on everything — causes concurrent overwrites.
 
 ### Artifacts with reports
@@ -278,15 +269,15 @@ GitLab MR UI highlights regressions automatically when the reports are uploaded.
   cache:
     key:
       files: [pnpm-lock.yaml]
-    paths: [node_modules/]
-    policy: pull
+    paths: [.pnpm-store/]
+    policy: pull-push                 # optional download cache only
   before_script:
     - corepack enable
+    - pnpm install --frozen-lockfile
 
 unit-test:
   extends: .test-template
   stage: test
-  needs: [install]
   script:
     - pnpm test
 
@@ -298,7 +289,6 @@ integration-test:
       alias: postgres
   variables:
     POSTGRES_PASSWORD: pgpass
-  needs: [install]
   script:
     - pnpm test:integration
 ```
@@ -349,74 +339,9 @@ web:
 
 Child pipelines run in parallel; each service only builds when its files change.
 
-## OIDC for cloud deploys — no long-lived keys
+## OIDC cloud authentication
 
-### AWS
-
-```yaml
-.aws-oidc: &aws-oidc
-  id_tokens:
-    AWS_ID_TOKEN:
-      aud: https://gitlab.com
-  before_script:
-    - >
-      STS=$(aws sts assume-role-with-web-identity
-        --role-arn "$AWS_ROLE_ARN"
-        --role-session-name "gitlab-$CI_PIPELINE_ID"
-        --web-identity-token "$AWS_ID_TOKEN"
-        --query "Credentials" --output json)
-    - export AWS_ACCESS_KEY_ID=$(echo "$STS" | jq -r .AccessKeyId)
-    - export AWS_SECRET_ACCESS_KEY=$(echo "$STS" | jq -r .SecretAccessKey)
-    - export AWS_SESSION_TOKEN=$(echo "$STS" | jq -r .SessionToken)
-
-deploy:prod:
-  <<: *aws-oidc
-  variables:
-    AWS_ROLE_ARN: arn:aws:iam::123456789012:role/gitlab-deploy-prod
-    AWS_DEFAULT_REGION: us-east-1
-  script:
-    - aws sts get-caller-identity
-    - aws deploy create-deployment ...
-  environment: production
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
-```
-
-Trust policy (AWS side):
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Principal": { "Federated": "arn:aws:iam::123456789012:oidc-provider/gitlab.com" },
-    "Action": "sts:AssumeRoleWithWebIdentity",
-    "Condition": {
-      "StringEquals": { "gitlab.com:aud": "https://gitlab.com" },
-      "StringLike":   { "gitlab.com:sub": "project_path:group/repo:ref_type:branch:ref:main" }
-    }
-  }]
-}
-```
-
-### GCP
-
-Use a Workload Identity Pool with GitLab as the provider, bind `sub` to the exact repo + branch.
-
-### Vault
-
-```yaml
-read-secret:
-  id_tokens:
-    VAULT_ID_TOKEN:
-      aud: https://vault.example.com
-  secrets:
-    DATABASE_URL:
-      vault: ops/data/db/prod@secret-store
-      file: false
-  script: ./deploy.sh
-```
+Use provider federation with narrowly scoped trust claims; do not place long-lived cloud keys in CI variables. Detailed AWS, GCP, and Vault patterns are in [references/oidc-cloud-auth.md](references/oidc-cloud-auth.md). Bind trust to the exact project and protected ref/environment, keep token audience exact, and grant only the deployment permissions required.
 
 ## Protected variables and environments
 

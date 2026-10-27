@@ -21,9 +21,10 @@ credentials, or suspected malicious activity. Use
 
 1. Normalize the alert first. If the input is JSON, use `scripts/normalize_alert.py`.
 2. Identify `service`, `environment`, `severity`, `alertname`, `cluster`, `namespace`, `workload`, and likely impact.
-3. Start read-only. Gather evidence before proposing remediation.
-4. Prefer concrete evidence from Grafana, Kubernetes, and AWS over generic advice.
-5. If service or environment is ambiguous, inspect local config and state instead of asking immediately.
+3. For Alertmanager groups, inspect every entry in the normalized `alerts` array. Treat top-level target/severity fields as group-wide only when they are shared; never scope a group from its first member.
+4. Start read-only. Gather evidence before proposing remediation.
+5. Prefer concrete evidence from Grafana, Kubernetes, and AWS over generic advice.
+6. If an operational target, cluster context, namespace, AWS account/profile, or region is absent, ask the service owner or incident lead for it before querying. Do not infer authority or target from ambient local config.
 
 ## Investigation Workflow
 
@@ -58,52 +59,48 @@ Prefer targeted queries and summaries over large dashboard payloads.
 
 #### Kubernetes MCP And `kubectl`
 
-You may use both freely.
+Use the cluster and namespace named by the alert or confirmed by the incident owner. First compare the displayed local context with the expected cluster, then pass the explicit `--context` on every query. A current context is not itself authorization to inspect that cluster.
 
 Prefer Kubernetes MCP for:
 
-- structured resource discovery
-- listing workloads and objects
-- quick cross-resource navigation
+- structured resource discovery scoped to the named cluster and namespace
+- listing only the workloads and objects implicated by the alert
+- quick cross-resource navigation within that scope
 
 Prefer `kubectl` for:
 
-- current context and namespace checks
 - `get`, `describe`, `logs`, `top`, and `events`
-- fast inspection of pod restarts, rollout state, probes, HPA behavior, and recent failures
+- inspection of pod restarts, rollout state, probes, HPA behavior, and recent failures
 
-Useful starting points:
+Useful scoped starting points (replace placeholders with the alert's verified target):
 
 ```bash
 kubectl config current-context
-kubectl get ns
-kubectl get pods -A
-kubectl get events -A --sort-by=.lastTimestamp
-kubectl top pods -A
+kubectl --context <cluster-context> get pods --namespace <namespace> -l app=<service>
+kubectl --context <cluster-context> get events --namespace <namespace> --sort-by=.lastTimestamp
+kubectl --context <cluster-context> top pods --namespace <namespace> -l app=<service>
 ```
 
-If the cluster or namespace is hinted in the alert, filter early.
+Do not begin with `-A` or another broad listing. Expand to additional namespaces or all namespaces only when the incident scope and authority include them, and state why the narrower target did not answer the question.
 
 #### AWS CLI
 
-You may use AWS CLI directly. The machine already has profiles configured.
+Use AWS only after the incident context or service owner identifies the target account, profile, and region. Do not infer the target from local AWS configuration.
 
 Rules:
 
-- Inspect `~/.aws/config` when you need to discover available profiles
-- Always use `--profile`
-- Pass `--region` when relevant; do not assume if the environment suggests another region
-- Start with read-only commands
+- Always pass the explicitly selected `--profile`.
+- Pass the verified `--region` for regional services.
+- Start with read-only commands and confirm the returned account identity matches the incident target before querying resources.
 
-Useful discovery commands:
+Useful scoped discovery commands:
 
 ```bash
-sed -n '1,240p' ~/.aws/config
-aws sts get-caller-identity --profile <profile>
-aws ec2 describe-instances --profile <profile> --region <region>
-aws ecs list-clusters --profile <profile> --region <region>
-aws eks list-clusters --profile <profile> --region <region>
-aws cloudwatch describe-alarms --profile <profile> --region <region>
+aws --profile <profile> --region <region> sts get-caller-identity
+aws --profile <profile> --region <region> ec2 describe-instances --filters 'Name=tag:Service,Values=<service>'
+aws --profile <profile> --region <region> ecs list-clusters
+aws --profile <profile> --region <region> eks list-clusters
+aws --profile <profile> --region <region> cloudwatch describe-alarms --alarm-names <alarm-name>
 ```
 
 ### 4. Build A Hypothesis

@@ -105,15 +105,15 @@ Tactics:
 
 Modern advice: **Compute Savings Plans** for most stable baseline. Do not commit above ~70% of steady-state usage; leave room for the fleet to shrink.
 
-Never commit for the first 3-6 months of a new workload. You do not yet know the baseline.
+For a new workload, establish a credible usage baseline and shrink/migration scenarios before recommending a commitment. A fixed observation period or coverage percentage is not universally appropriate. Verify current pricing, eligible services, Region, term and account discounts; a recommendation does not authorize a purchase.
 
 ### RDS right-sizing
 
-- `gp2` → `gp3` storage for all modern instances: ~20% cheaper, better baseline IOPS.
+- Compare supported `gp2`/`gp3` configurations using the engine's current storage, provisioned IOPS and throughput charges; do not promise a fixed percentage saving.
 - Right-size: CPU / memory / storage IOPS + throughput metrics.
 - Aurora Serverless v2 for spiky workloads.
-- Multi-AZ: not cheap, not optional for prod (see [`disaster-recovery`](../disaster-recovery)).
-- Old snapshots: delete after retention; they cost the same as live EBS snapshots.
+- Choose Multi-AZ against availability/RTO requirements and the cost of failure (see [`disaster-recovery`](../disaster-recovery)); do not remove resilience solely to reduce the bill.
+- Review old DB snapshots against the actual RDS/Aurora backup pricing and approved retention/legal-hold policy. Do not equate their price with EBS snapshots or live volumes. EBS snapshots are incremental; deleting one does not necessarily free all of its apparent size. Estimate marginal savings from billing/storage data and preserve required recovery points.
 
 ### S3 optimization
 
@@ -126,26 +126,27 @@ Never commit for the first 3-6 months of a new workload. You do not yet know the
 
 ### Data transfer — the stealth cost
 
-AWS data transfer pricing is ruthless and often hidden:
+Trace the actual traffic path and check current service/Region pricing and account rates. These are cost dimensions, not universal quoted prices:
 
-| Transfer | Typical cost |
+| Transfer | Cost dimensions to verify |
 |----------|--------------|
-| **Same AZ, same VPC** (private IPs) | Free |
-| **Cross-AZ, same VPC** | ~$0.01/GB each way |
-| **Cross-region** | ~$0.02/GB |
-| **To the internet** | $0.09/GB (first TB) |
-| **Through NAT Gateway** | $0.045/GB + hourly |
-| **VPC Endpoint (S3, DynamoDB)** | Free for same-region |
+| **Same AZ, same VPC** (private IPs) | Service and routing path; intermediaries may still charge |
+| **Cross-AZ, same VPC** | Charged directions/services, GB and AZ topology |
+| **Cross-region** | Source/destination Region and service transfer rates |
+| **To the internet** | Service, volume tier, free allowance and account agreement |
+| **Through NAT Gateway** | Gateway hours, processed GB and any additional transfer |
+| **S3/DynamoDB gateway endpoints** | No endpoint hourly/processing charge; service/request costs still apply |
+| **Interface endpoints** | Per-service/AZ endpoint hours, processed GB and transfer |
 
 Common wins:
-- **VPC endpoints for S3 / DynamoDB / ECR / Secrets Manager / etc.** Every private-subnet call to these services goes through NAT without a VPC endpoint. Adding endpoints routinely saves 4-5 figures / month.
+- **VPC endpoints:** distinguish S3/DynamoDB gateway endpoints from billed interface endpoints for services such as ECR/Secrets Manager. Verify the current route first, then compare avoided NAT hours/GB against endpoint hours per AZ, processed GB and remaining transfer. Fixed endpoint costs can exceed NAT savings at low volume; do not promise savings without the break-even calculation.
 - **Cross-AZ chatty services** (e.g. noisy sidecars replicating across nodes) — use topology-aware routing (K8s `topologyKey`).
 - **CloudFront** for internet egress — cheaper and faster than serving directly.
 - **Inter-region replication** only for truly regional requirements; prefer single-region with multi-AZ.
 
 ### NAT Gateway
 
-One NAT Gateway = ~$32/month + $0.045/GB. For a busy VPC: $1000+/month on data charges.
+Estimate NAT cost from actual gateway hours, processed GB, AZ routing and current Region prices. See [AWS networking cost guidance](https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-networking.html), [EBS snapshot billing behavior](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-snapshots.html) and [RDS pricing](https://aws.amazon.com/rds/pricing/).
 
 Alternatives:
 - **VPC endpoints** for AWS service calls (see above).
@@ -194,7 +195,7 @@ Per [`observability`](../observability), treat bill-anomaly alerts like any othe
 
 ### Run an orphan sweep monthly
 
-Automate a scan for:
+Scan for candidates below. Age or lack of traffic alone does not authorize deletion: verify ownership, restore/reference dependencies, retention/legal holds and the approved remediation scope. Automate deletion only under an explicitly authorized lifecycle policy; otherwise deliver a reviewable candidate list.
 
 - Unattached EBS volumes → delete after snapshot.
 - EBS snapshots older than the retention policy → delete.

@@ -258,10 +258,11 @@
     return compositeBackground(chain);
   }
 
-  function effectiveOpacity(el) {
-    let value = 1;
-    for (let n = el; n && n.nodeType === 1; n = n.parentElement) value *= Number(getComputedStyle(n).opacity);
-    return value;
+  function hasOpacityGroup(el) {
+    for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+      if (Number(getComputedStyle(n).opacity) < 0.999) return true;
+    }
+    return false;
   }
 
   // ---------------------------------------------------------------- collection
@@ -498,11 +499,11 @@
       if (fg) textColors.set(hex(fg), (textColors.get(hex(fg)) || 0) + 1);
       const disabled = el.closest(':disabled, [aria-disabled="true"], [inert]');
       if (fg && !disabled) {
-        const bg = backgroundBehind(el, rect);
+        const bg = hasOpacityGroup(el) ? { unknown: 'opacity group composition' } : backgroundBehind(el, rect);
         if (bg.unknown) {
           unknownContrast += 1;
         } else {
-          const ink = over({ ...fg, a: fg.a * effectiveOpacity(el) }, bg.color);
+          const ink = over(fg, bg.color);
           const ratio = contrast(ink, bg.color);
           const large = size >= 24 || (size >= 18.66 && weight >= 700);
           const needed = large ? 3 : 4.5;
@@ -562,7 +563,7 @@
         report('emoji-ui', 'warn', 'Emoji used as icons or bullets in headings, controls, or lists; use one icon set.', { selector: selectorOf(el), text: snippet(text, 40) });
       }
     }
-    if (unknownContrast) report('contrast-unverified', 'info', `${unknownContrast} text elements sit on images or gradients; verify their contrast in the screenshots.`);
+    if (unknownContrast) report('contrast-unverified', 'info', `${unknownContrast} text elements have contrast the audit could not determine (for example, images, gradients, or opacity groups); verify it in the screenshots.`);
     if (uppercaseLabels > 6) report('eyebrow-overuse', 'info', `${uppercaseLabels} small uppercase tracked labels; eyebrow labels lose meaning when everything has one.`);
 
     // -- copy quality

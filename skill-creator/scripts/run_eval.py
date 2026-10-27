@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+# Modified locally on 2026-10-27 for evaluator/report safety and correctness; upstream Apache-2.0 license retained.
 """Run trigger evaluation for a skill description.
 
 Tests whether a skill's description causes Claude to trigger (read the skill)
 for a set of queries. Outputs results as JSON.
 """
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -17,6 +20,68 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 from scripts.utils import parse_skill_md
+
+
+def validate_eval_set(eval_set: list[dict]) -> None:
+    """Reject ambiguous cases before any provider workers are created."""
+    if not isinstance(eval_set, list):
+        raise ValueError("eval set must be an array")
+    seen: set[str] = set()
+    for item in eval_set:
+        if not isinstance(item, dict) or not isinstance(item.get("query"), str):
+            raise ValueError("each eval case must contain a string query")
+        query = item["query"]
+        if query in seen:
+            raise ValueError(f"duplicate query case: {query!r}")
+        seen.add(query)
+
+
+class StreamTriggerDetector:
+    """Incrementally detect a matching Skill/Read call anywhere in the turn."""
+
+    def __init__(self, clean_name: str):
+        self.clean_name = clean_name
+        self.pending_tool = None
+        self.accumulated_json = ""
+
+    def feed(self, event: dict) -> bool:
+        if event.get("type") == "content_block_start":
+            block = event.get("content_block", {})
+            self.pending_tool = block.get("name") if block.get("type") == "tool_use" else None
+            self.accumulated_json = ""
+        elif event.get("type") == "content_block_delta" and self.pending_tool in ("Skill", "Read"):
+            delta = event.get("delta", {})
+            if delta.get("type") == "input_json_delta":
+                self.accumulated_json += delta.get("partial_json", "")
+                if self.clean_name in self.accumulated_json:
+                    return True
+        elif event.get("type") == "content_block_stop":
+            if (self.pending_tool in ("Skill", "Read")
+                    and self.clean_name in self.accumulated_json):
+                return True
+            self.pending_tool = None
+            self.accumulated_json = ""
+        return False
+
+
+def detect_trigger_from_events(events: list[dict], clean_name: str) -> bool:
+    """Test helper matching a call across a complete ordered event sequence."""
+    detector = StreamTriggerDetector(clean_name)
+    return any(detector.feed(event) for event in events)
+
+
+def detect_trigger_from_message(message: dict, clean_name: str) -> bool:
+    """Check all tool calls in a complete assistant message, not just the first."""
+    for content_item in message.get("content", []):
+        if content_item.get("type") != "tool_use":
+            continue
+        tool_name = content_item.get("name", "")
+        tool_input = content_item.get("input", {})
+        if tool_name == "Skill" and clean_name in str(tool_input.get("skill", "")):
+            return True
+        if tool_name == "Read" and clean_name in str(tool_input.get("file_path", "")):
+            return True
+    return False
 
 
 def find_project_root() -> Path:
@@ -44,9 +109,10 @@ def run_single_query(
 
     Creates a command file in .claude/commands/ so it appears in Claude's
     available_skills list, then runs `claude -p` with the raw query.
-    Uses --include-partial-messages to detect triggering early from
-    stream events (content_block_start) rather than waiting for the
-    full assistant message, which only arrives after tool execution.
+    A query counts as triggered if a Skill call or a Read of the generated
+    skill command appears anywhere in the assistant turn. Earlier unrelated
+    tools do not end detection. --include-partial-messages allows this to be
+    detected before waiting for the full assistant message.
     """
     unique_id = uuid.uuid4().hex[:8]
     clean_name = f"{skill_name}-skill-{unique_id}"
@@ -94,8 +160,7 @@ def run_single_query(
         start_time = time.time()
         buffer = ""
         # Track state for stream event detection
-        pending_tool_name = None
-        accumulated_json = ""
+        trigger_detector = StreamTriggerDetector(clean_name)
 
         try:
             while time.time() - start_time < timeout:
@@ -128,44 +193,15 @@ def run_single_query(
                     # Early detection via stream events
                     if event.get("type") == "stream_event":
                         se = event.get("event", {})
-                        se_type = se.get("type", "")
-
-                        if se_type == "content_block_start":
-                            cb = se.get("content_block", {})
-                            if cb.get("type") == "tool_use":
-                                tool_name = cb.get("name", "")
-                                if tool_name in ("Skill", "Read"):
-                                    pending_tool_name = tool_name
-                                    accumulated_json = ""
-                                else:
-                                    return False
-
-                        elif se_type == "content_block_delta" and pending_tool_name:
-                            delta = se.get("delta", {})
-                            if delta.get("type") == "input_json_delta":
-                                accumulated_json += delta.get("partial_json", "")
-                                if clean_name in accumulated_json:
-                                    return True
-
-                        elif se_type in ("content_block_stop", "message_stop"):
-                            if pending_tool_name:
-                                return clean_name in accumulated_json
-                            if se_type == "message_stop":
-                                return False
+                        if trigger_detector.feed(se):
+                            return True
 
                     # Fallback: full assistant message
                     elif event.get("type") == "assistant":
                         message = event.get("message", {})
-                        for content_item in message.get("content", []):
-                            if content_item.get("type") != "tool_use":
-                                continue
-                            tool_name = content_item.get("name", "")
-                            tool_input = content_item.get("input", {})
-                            if tool_name == "Skill" and clean_name in tool_input.get("skill", ""):
-                                triggered = True
-                            elif tool_name == "Read" and clean_name in tool_input.get("file_path", ""):
-                                triggered = True
-                            return triggered
+                        triggered = detect_trigger_from_message(message, clean_name)
+                        if triggered:
+                            return True
 
                     elif event.get("type") == "result":
                         return triggered
@@ -194,6 +230,7 @@ def run_eval(
 ) -> dict:
     """Run the full eval set and return results."""
     results = []
+    validate_eval_set(eval_set)
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         future_to_info = {}

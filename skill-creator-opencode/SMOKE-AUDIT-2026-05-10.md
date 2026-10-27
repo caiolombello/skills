@@ -6,25 +6,14 @@
 
 ## Executive summary
 
-- **Adapter bug fixed** — `run_eval_opencode.py` was leaving `<skill>.shadow` + probe-copy behind on SIGTERM / timeout / Ctrl-C. New version installs signal handlers + atexit, auto-cleans leftovers on start, and installs/tears down the probe **once per eval** (not per query, which also removed the per-skill-concurrent-collision footgun).
+- **Historical adapter claim superseded.** The 2026-05-10 implementation temporarily moved installed skills to `.shadow` and attempted automatic recovery; a later review found that recovery could delete ambiguous user state. The current adapter uses an isolated temporary project and does not mutate installed skills. The historical cleanup claims below describe that earlier implementation only.
 - **Batch smoke harness added** — `batch_smoke.py` runs the adapter across an arbitrary glob of eval sets and reports pass/fail per skill.
-- **30 new skills evaluated** against `anthropic/claude-haiku-4-5` with 4 queries each (2 positive + 2 negative). 14/30 passed 4/4 at 120s timeout; 16/30 showed one or more false negatives. **Zero false positives** across all 120 queries — negative queries never fired any skill. Strict test at 45s showed 0 pass (all 2/4), confirming the bottleneck was cold-start + skill-load time, not the descriptions.
+- **Historical run:** 30 skills were evaluated against `anthropic/claude-haiku-4-5` with 4 queries each (2 positive + 2 negative). The recorded lists show 14/30 skills passed all 4 cases and 16/30 had one or more positive-query false negatives. The table contains 21 failed positive-query cases out of 120 total queries (17.5%); no false positives were reported in that run. These are historical records, not rerun evidence.
 - **Overlap audit**: systematic pairwise review of all 45 descriptions. **Verdict: no merges, no cuts.** The apparent overlaps (review / read / bug / git / infra / SRE / planning / meta) are orthogonal axes, not duplicates. Each skill's `Interaction with other skills` section already codifies the boundary.
 
-## Adapter fix
+## Adapter implementation note
 
-File: `skill-creator-opencode/scripts/run_eval_opencode.py`
-
-Changes:
-- `signal.SIGINT` + `signal.SIGTERM` handlers restore the shadowed real skill before exiting.
-- `atexit` registration of the same restore path.
-- `autoclean_leftovers(skill_name)` at startup — detects and recovers from `<name>` + `<name>.shadow` debris left by a previous crashed run.
-- Probe install / teardown moved to `setup_probe` / `teardown_probe` called **once per eval** in the parent process; workers no longer mutate the skill dir. Eliminates the per-skill-concurrent-collision failure mode.
-- `run_single_query` is now pure: takes the skill name, runs opencode, scans events. No filesystem side effects.
-
-Tested manually with:
-- Clean 1-query run — probe installs, opencode fires the skill, probe tears down, symlink restored.
-- SIGTERM mid-run — all state restored.
+The cleanup procedure described in the original report is superseded. The evaluator now confines each probe to a unique temporary OpenCode project/config directory. It does not rename installed skills, automatically recover `.shadow` paths, or delete ambiguous leftovers. See `skill-creator-opencode/SKILL.md` for current behavior.
 
 ## Batch tool
 
@@ -106,12 +95,7 @@ Each row is a positive query that did not fire the skill on this 1-shot run. **A
 
 ### Interpretation
 
-The observed 1-shot failure rate (~14/120 queries = ~12%) is consistent with the model's native sampling variance at `claude-haiku-4-5`, not with description defects. Two pieces of evidence:
-
-1. Two skills (`observability`, `code-simplification`) flipped between pass and fail across different runs with identical descriptions and identical queries, indicating variance not a deterministic description problem.
-2. All failures are false negatives. Zero false positives means no skill is over-firing — the descriptions correctly scope **what the skill is about**, just occasionally the model does not pick it on a single shot.
-
-**Recommendation**: for production usage this variance is acceptable (the user retries or rewords). A description-optimization pass targeting single-shot 100% would over-fit to the eval set at the cost of generality. The proper next step, if this matters, is multi-shot aggregation (`--runs-per-query 3`, majority vote), which the adapter already supports.
+The historical table records 21 failed positive-query cases out of 120 (17.5%) across 16 skills. The report also records that 14 skills passed all cases. The mismatch came from labeling the 14 fully passing skills as approximately 14 failed queries; the table itself contains 21 failed cases. The archived evidence does not establish a cause for the false negatives, so this report makes no attribution to sampling variance or description quality. No historical runs were repeated for this correction.
 
 ## Overlap audit
 

@@ -37,39 +37,88 @@ def _pick(mapping: dict[str, object], *keys: str) -> str:
     return ""
 
 
-def _normalize_alertmanager(payload: dict[str, object]) -> dict[str, object]:
-    alerts = payload.get("alerts")
-    first_alert = alerts[0] if isinstance(alerts, list) and alerts else {}
-    if not isinstance(first_alert, dict):
-        first_alert = {}
+_ALERT_MEMBER_FIELDS = (
+    "title", "service", "environment", "severity", "alertname", "cluster",
+    "namespace", "workload", "instance", "summary", "runbook_url", "dashboard_url",
+)
 
-    labels = _merge_dicts(
-        payload.get("groupLabels"),
-        payload.get("commonLabels"),
-        first_alert.get("labels"),
-    )
-    annotations = _merge_dicts(
-        payload.get("commonAnnotations"),
-        first_alert.get("annotations"),
-    )
 
+def _string_fields(mapping: object) -> dict[str, object]:
+    if not isinstance(mapping, dict):
+        return {}
+    return {key: value for key, value in mapping.items() if isinstance(key, str) and isinstance(value, str)}
+
+
+def _normalize_alertmanager_member(alert: object, common_labels: dict[str, object],
+                                   common_annotations: dict[str, object]) -> dict[str, object]:
+    if not isinstance(alert, dict):
+        alert = {}
+    labels = {**common_labels, **_string_fields(alert.get("labels"))}
+    annotations = {
+        **common_annotations,
+        **_string_fields(alert.get("annotations")),
+    }
+    summary = _pick(annotations, "summary", "description")
+    alertname = _pick(labels, "alertname")
     return {
-        "source": "alertmanager",
-        "title": _first_non_empty(
-            _pick(annotations, "summary", "description"),
-            _pick(labels, "alertname"),
-        ),
+        "title": _first_non_empty(summary, alertname),
         "service": _pick(labels, "service", "app", "job"),
         "environment": _pick(labels, "environment", "env"),
         "severity": _pick(labels, "severity"),
-        "alertname": _pick(labels, "alertname"),
+        "alertname": alertname,
         "cluster": _pick(labels, "cluster"),
         "namespace": _pick(labels, "namespace", "kubernetes_namespace"),
         "workload": _pick(labels, "deployment", "statefulset", "daemonset", "job"),
         "instance": _pick(labels, "instance", "pod", "node"),
-        "summary": _pick(annotations, "summary", "description"),
+        "summary": summary,
         "runbook_url": _pick(annotations, "runbook_url"),
         "dashboard_url": _pick(annotations, "dashboard_url"),
+        "labels": labels,
+        "annotations": annotations,
+    }
+
+
+def _shared_values(members: list[dict[str, object]], key: str) -> dict[str, object]:
+    if not members:
+        return {}
+    first = members[0].get(key)
+    if not isinstance(first, dict):
+        return {}
+    return {
+        name: value
+        for name, value in first.items()
+        if all(isinstance(member.get(key), dict) and member[key].get(name) == value
+               for member in members[1:])
+    }
+
+
+def _normalize_alertmanager(payload: dict[str, object]) -> dict[str, object]:
+    alerts = payload.get("alerts")
+    alert_members = alerts if isinstance(alerts, list) else []
+    common_labels = _string_fields(_merge_dicts(payload.get("groupLabels"), payload.get("commonLabels")))
+    common_annotations = _string_fields(payload.get("commonAnnotations"))
+    members = [
+        _normalize_alertmanager_member(alert, common_labels, common_annotations)
+        for alert in alert_members
+    ]
+
+    # Preserve the legacy top-level fields for single alerts. For groups, expose
+    # a top-level field only when every member has the same value.
+    if len(members) == 1:
+        summary = members[0]
+        labels = members[0]["labels"]
+        annotations = members[0]["annotations"]
+    else:
+        labels = _shared_values(members, "labels")
+        annotations = _shared_values(members, "annotations")
+        summary = {}
+        for field in _ALERT_MEMBER_FIELDS:
+            values = [member.get(field, "") for member in members]
+            summary[field] = values[0] if values and values[0] and all(value == values[0] for value in values) else ""
+
+    return {
+        "source": "alertmanager",
+        **{field: summary.get(field, "") for field in _ALERT_MEMBER_FIELDS},
         "incident_url": _first_non_empty(
             payload.get("externalURL") if isinstance(payload.get("externalURL"), str) else "",
         ),
@@ -77,7 +126,8 @@ def _normalize_alertmanager(payload: dict[str, object]) -> dict[str, object]:
         "annotations": annotations,
         "group_status": payload.get("status", ""),
         "receiver": payload.get("receiver", ""),
-        "alert_count": len(alerts) if isinstance(alerts, list) else 0,
+        "alert_count": len(alert_members),
+        "alerts": members,
     }
 
 

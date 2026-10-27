@@ -6,6 +6,7 @@
 #   ./install-manifests/prune-stale-installs.sh              # dry-run all known paths
 #   ./install-manifests/prune-stale-installs.sh --apply      # apply
 #   ./install-manifests/prune-stale-installs.sh --apply ~/.claude/skills
+#   ./install-manifests/prune-stale-installs.sh --home /absolute/selected-home
 #
 set -euo pipefail
 
@@ -14,25 +15,40 @@ KEEP_PUBLIC="$REPO_ROOT/install-manifests/codex-keep.txt"
 KEEP_LOCAL="$REPO_ROOT/install-manifests/codex-keep.local.txt"
 APPLY=0
 TARGETS=()
+SKILLS_INSTALL_HOME="${HOME:?HOME must be set}"
 
-for arg in "$@"; do
-  case "$arg" in
+while [[ $# -gt 0 ]]; do
+  case "$1" in
     --apply) APPLY=1 ;;
+    --home)
+      [[ $# -ge 2 ]] || { echo "--home requires an absolute directory" >&2; exit 2; }
+      SKILLS_INSTALL_HOME="$2"
+      [[ "$SKILLS_INSTALL_HOME" == /* && -d "$SKILLS_INSTALL_HOME" ]] || {
+        echo "--home requires an existing absolute directory" >&2; exit 2;
+      }
+      shift
+      ;;
     -h|--help)
       sed -n '1,12p' "$0"
       exit 0
       ;;
-    *) TARGETS+=("$arg") ;;
+    --*) echo "Unknown option: $1" >&2; exit 2 ;;
+    *) TARGETS+=("$1") ;;
   esac
+  shift
 done
 
 if [[ ${#TARGETS[@]} -eq 0 ]]; then
   TARGETS=(
-    "$HOME/.agents/skills"
-    "$HOME/.claude/skills"
-    "$HOME/.config/opencode/skill"
-    "$HOME/.gemini/skills"
-    "$HOME/.kiro/skills"
+    "$SKILLS_INSTALL_HOME/.agents/skills"
+    "$SKILLS_INSTALL_HOME/.claude/skills"
+    "$SKILLS_INSTALL_HOME/.config/opencode/skills"
+    "$SKILLS_INSTALL_HOME/.config/opencode/skill"
+    "$SKILLS_INSTALL_HOME/.gemini/skills"
+    "$SKILLS_INSTALL_HOME/.gemini/config/skills"
+    "$SKILLS_INSTALL_HOME/.gemini/antigravity-cli/skills"
+    "$SKILLS_INSTALL_HOME/.kiro/skills"
+    "$SKILLS_INSTALL_HOME/.cursor/skills"
   )
 fi
 

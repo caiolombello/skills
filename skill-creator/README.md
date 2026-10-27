@@ -6,7 +6,7 @@ This directory is a vendored copy of the official `skill-creator` skill publishe
 - **License**: Apache License 2.0 (see `LICENSE.txt`)
 - **Copyright**: Anthropic, PBC
 
-The skill is included in this collection so that agents configured with this repo's skills can use it to create new skills. It is kept as a verbatim copy — no edits — to make future upstream updates a simple resync.
+The skill is included so that agents configured with this collection can create and evaluate skills. It is vendored with local modifications under its Apache 2.0 license. The 2026-10-27 patches harden report HTML, feedback persistence, port ownership and evaluator/benchmark correctness; modified files carry a notice. These patches are local changes, not an assertion of upstream endorsement.
 
 ## Agent compatibility notes
 
@@ -24,14 +24,14 @@ The `SKILL.md` itself includes a "Claude.ai-specific instructions" section and a
 
 ## Re-syncing from upstream
 
-```bash
-git clone --depth=1 https://github.com/anthropics/skills.git /tmp/anthropics-skills
-rsync -a --delete /tmp/anthropics-skills/skills/skill-creator/ \
-  ~/Documents/Personal/skills/skill-creator/
-```
-
-Remember to keep this `README.md` file (it is not present upstream).
+Compare the intended upstream revision in a separate temporary source tree and
+review its delta against the local patches before updating this directory. Do
+not blindly rsync with `--delete`: that would remove local safety fixes and this
+README. Preserve `LICENSE.txt`, copyright, modification notices and the offline
+regressions in `setup/tests/test_creator_support.py`; rerun affected checks.
 
 ## Attribution requirements
 
-Apache 2.0 requires retaining the copyright notice, the `LICENSE.txt`, and stating that the files were modified if they have been changed. As of this commit no files under `skill-creator/` have been modified — only this `README.md` was added alongside the upstream content. If anything under `SKILL.md`, `agents/`, `references/`, `scripts/`, `assets/`, or `eval-viewer/` is edited later, add a prominent notice in the modified file per Apache 2.0 §4(b).
+Retain Anthropic's copyright and `LICENSE.txt`. Local modifications in `SKILL.md`,
+`agents/`, `references/`, `scripts/`, `assets/` and `eval-viewer/` must remain
+identified in each changed file, following Apache 2.0 §4(b).

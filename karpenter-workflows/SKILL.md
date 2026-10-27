@@ -133,7 +133,7 @@ spec:
     budgets:
       - nodes: "10%"
       - nodes: "0"
-        reasons: ["Drifted", "Expired"]
+        reasons: ["Drifted", "Underutilized", "Empty"]
         schedule: "0 10 * * mon-fri"
         duration: 8h
   limits:
@@ -149,7 +149,8 @@ spec:
 - Prefer mutually exclusive NodePools as the default design. If two pools can satisfy the same pod, document why.
 - Use `startupTaints` when another DaemonSet / bootstrap phase must run before scheduling normal pods.
 - Use `limits` to prevent runaway capacity growth.
-- Use disruption budgets to fence business-hour churn.
+- Use disruption budgets to fence voluntary drift, consolidation/emptiness, and (where enabled) node repair. They do not rate-limit forceful expiration, interruption, or manual deletion; `expireAfter` is not confined to a maintenance window by this budget. If expiration timing matters, choose a supported lifecycle policy and explicitly account for its forceful drain behavior and termination grace period.
+- Validate `reasons` against the installed Karpenter CRD and version. Supported budget reasons are version-dependent; current docs list `Drifted`, `Underutilized`, `Empty`, and `Unhealthy` (when Node Auto Repair applies). `Expired` is not a supported budget reason.
 - Use `weight` only when overlap is intentional, for example a preferred pool plus an explicit fallback pool.
 
 ## Provider-specific NodeClasses

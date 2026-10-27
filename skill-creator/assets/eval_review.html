@@ -1,3 +1,4 @@
+<!-- Modified locally on 2026-10-27 for evaluator/report safety and correctness; upstream Apache-2.0 license retained. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -60,7 +61,9 @@
   <p class="summary" id="summary"></p>
 
   <script>
-    const EVAL_DATA = __EVAL_DATA_PLACEHOLDER__;
+    const EVAL_DATA = JSON.parse(new TextDecoder().decode(
+      Uint8Array.from(atob("__EVAL_DATA_PLACEHOLDER__"), c => c.charCodeAt(0))
+    ));
 
     let evalItems = [...EVAL_DATA];
 

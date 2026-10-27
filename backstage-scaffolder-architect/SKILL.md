@@ -69,7 +69,7 @@ There are **four distinct contexts** and they do **not** share the same syntax. 
 6. Scaffolder expressions support a short-circuit ternary: `${{ cond and "A" or "B" }}`.
    Inside `.njk` content the same logic works with Nunjucks: `{{ cond and "A" or "B" }}`.
 7. Supported filters include `| lower`, `| upper`, `| title`, `| replace('a','b')`, `| join(', ')`.
-8. To emit a literal `${{` inside `.njk` content (for example, a generated GitHub Actions workflow), wrap with `{% raw %}...{% endraw %}` **or** exclude the file from rendering via `copyWithoutRender`.
+8. To emit a literal `${{` inside `.njk` content (for example, a generated GitHub Actions workflow), wrap with `{% raw %}...{% endraw %}` or exclude the file from rendering using `copyWithoutTemplating` in Backstage v1.40 and later. Use `copyWithoutRender` only when the project's pinned Backstage version predates v1.40 and its installed `fetch:template` schema confirms support; the option was removed in v1.40.
 9. Files that must be rendered should end in `.njk` and the step must set `templateFileExtension: .njk`. The `.njk` suffix is stripped on output.
 
 ## 4. Parameters you should model
@@ -140,7 +140,7 @@ When one run must publish to several destinations (per environment, per account,
 - Every renderable file ends in `.njk`. The step sets `templateFileExtension: .njk`.
 - Directory names can be templated: `./${{ values.environment }}/config/`.
 - Escape literal `${{` (for generated CI workflows, ArgoCD templating) using `{% raw %}...{% endraw %}`.
-- Use `copyWithoutRender` for binaries and lockfiles: `["**/*.png", "**/*.jar", "**/*.lock"]`.
+- Use `copyWithoutTemplating` for binaries and lockfiles on Backstage v1.40+. For older pinned releases, use only the option present in that project's installed action schema; `copyWithoutRender` was removed in v1.40.
 - Keep secrets out of the skeleton. Emit `ExternalSecret` manifests, Secrets Manager references or SSM parameter paths instead.
 
 ## 9. Minimal reference snippets

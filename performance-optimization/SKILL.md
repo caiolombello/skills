@@ -209,7 +209,9 @@ Slow systems are often expensive systems. When optimizing, watch for "this is fa
 
 ## The measurement stack
 
-Every project should have at least:
+Choose measurement and operational guardrails to fit the system, consequence, and performance claim. For a local CLI, script, build, or isolated code path, a repeatable local baseline and before/after measurement may be sufficient. Add production telemetry, CI benchmarks, an SLO, and regression alerts when the system is operated in production, the path is performance-sensitive, or its risk warrants those controls. Do not create infrastructure solely to satisfy this checklist.
+
+For a production user-facing service, the measurement stack will typically include:
 
 - A way to **profile** in development (DevTools, `py-spy`, `pprof`, `JFR`).
 - A way to **measure in production** (APM, OpenTelemetry, `web-vitals`).
@@ -217,7 +219,7 @@ Every project should have at least:
 - An **SLO** for the user-facing path.
 - A **regression alert** tied to the SLO burn rate.
 
-Without these, performance work is storytelling.
+Without evidence appropriate to the claim, do not make that claim. A bounded local measurement supports a conclusion about that environment and workload; claims about production user experience require suitable production evidence.
 
 ## Anti-patterns
 
@@ -252,8 +254,8 @@ Before claiming a perf fix is done:
 - [ ] I identified the specific bottleneck (not "the app is slow in general").
 - [ ] I changed one thing at a time; re-measured after each.
 - [ ] The improvement is on the metric that matters (p95 latency, LCP, throughput), not the mean.
-- [ ] The improvement reproduces in production-like conditions, not just a synthetic benchmark.
-- [ ] The improvement is statistically significant across multiple runs.
-- [ ] A benchmark / SLO / burn-rate alert guards the fix from regressing.
+- [ ] The evidence matches the claim: local results are labeled with their environment and workload; production claims use suitable production evidence.
+- [ ] Repeated runs or statistical analysis are used when noise, effect size, or decision risk makes them material; report uncertainty when they are not warranted or feasible.
+- [ ] A benchmark, SLO, or alert guards the fix when appropriate to the operated system and risk.
 - [ ] No code was added "just in case" — every change traces back to the measurement.
 - [ ] Costs did not balloon elsewhere (memory, disk, cloud bill).
