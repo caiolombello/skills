@@ -1,6 +1,6 @@
 ---
 name: zoom-out
-description: Step back and provide a higher-level map of a section of code instead of diving straight into details. Use WHENEVER (1) the user explicitly says "zoom out", "give me the big picture", "how does this fit together", "where does X live"; (2) the agent is unfamiliar with an area of code and is about to guess; (3) a task requires understanding how several modules interact before picking where to change something; (4) the user asks "what is this codebase", "how is this project structured", "what are the main parts"; (5) after resuming a paused session in an unfamiliar area. The output is a short map — modules, callers, data flow — using the project's own vocabulary, NOT a code change.
+description: "Use to explain a codebase area, runtime flow, ownership, or evidence-backed design rationale before changing it or for onboarding. Produce a focused source-grounded map; read history only when why matters."
 ---
 
 <!-- Inspired by mattpocock/skills engineering/zoom-out (MIT). Adapted and expanded. See ../CREDITS.md -->
@@ -65,6 +65,8 @@ Gotchas:
 ```
 
 ## Source the map from the code, not from guesses
+
+Distinguish the question: **how** traces behavior and data/control flow in current code; **why** investigates documented motivation and constraints. For a runtime walkthrough, follow a concrete entry/input through the important transitions and effects. Do not infer historical intent from a plausible implementation. Read [historical rationale](references/design-rationale.md) only when reasons or prior decisions matter. Explain the result in the reader's terms without requiring a separate teaching agent.
 
 - Read file names and top-of-file comments rather than inferring from imports.
 - Use the project's rules file (`AGENTS.md` / `CLAUDE.md`) for glossary and architecture section if present.

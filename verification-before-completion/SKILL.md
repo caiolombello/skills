@@ -36,6 +36,8 @@ Match evidence to consequences, uncertainty, and reversibility, not just diff si
 
 Use project-defined commands from `AGENTS.md`, manifests, Makefiles, CI, or the approved plan. Do not invent commands when the repo already defines them.
 
+When the task is to build or maintain a reusable per-project verification procedure, use [project-verification](../project-verification/SKILL.md). A routine completion check does not require generating a harness or feature map. UI checks follow the current runtime's tool and authorization rules; a verification requirement cannot enable a disabled surface.
+
 Match check to change:
 
 | Change type | Minimum verification |

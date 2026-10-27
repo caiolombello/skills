@@ -19,3 +19,7 @@ aws-security-posture
 aws-security-incident-response
 blog-posting
 pr-followup
+computer-use
+t3-workflows
+project-verification
+technical-writing

@@ -117,7 +117,7 @@ With the spec agreed, plan the **approach** — not the tasks yet.
 
 ### Read-only mode
 
-Operate read-only in this phase. No code.
+Operate read-only by default in this phase. Do not start production implementation during a planning-only request. Inline caller examples and type/signature sketches are planning artifacts. When a runnable experiment is within the current authorization, use an isolated [throwaway prototype](../throwaway-prototype/SKILL.md) to answer a specific empirical question; otherwise record the untested assumption rather than presenting it as evidence.
 
 - Read the relevant codebase sections.
 - Identify existing patterns and conventions you will follow.
@@ -127,6 +127,10 @@ Operate read-only in this phase. No code.
 Use [`investigate-before-editing`](../investigate-before-editing) to structure the read.
 
 ### Dependency map
+
+For a consequential interface, start from a concrete caller example, core data shape, signatures, failure behavior, and observable result. Work backward to ownership and dependencies. These sketches expose a wrong boundary earlier than a long task list; they do not require adding a README or speculative implementation.
+
+Compare materially different alternatives when the decision is uncertain, costly to reverse, and the comparison can change the choice. State a discriminating check before a prototype or design experiment. Use evidence from that check to choose, and revise the design if implementation repeatedly needs unexplained parameters, hidden state, or escape hatches. Do not require a fixed number of designs, models, or reviewers for every change. Product preferences remain the user's decision; measurements can settle factual questions.
 
 Sketch what depends on what. Implementation order follows dependencies bottom-up.
 

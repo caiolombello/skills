@@ -87,6 +87,8 @@ Use tools like [rtk](../rtk-token-optimized-cli) to compress noisy CLI output be
 
 ### Level 5: Conversation history
 
+On T3 Code, use the bounded thread-read and continuity procedure in [t3-workflows](../t3-workflows/references/surfaces-and-context.md). Read the named thread before reporting its state, preserve exact links, and reconcile recalled history against current artifacts. A request to catch up does not authorize a search of unrelated private conversations or a new top-level thread.
+
 Long conversations accumulate stale context and attention drift.
 
 - Consider a fresh session for unrelated work or demonstrated context drift; preserve useful shared context for tightly related steps.

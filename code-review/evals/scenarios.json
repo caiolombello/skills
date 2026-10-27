@@ -134,6 +134,18 @@
         "Do not transfer A result to changed B",
         "Separate local, unavailable CI, human approval and production"
       ]
+    },
+    {
+      "id": "indirect-consumers",
+      "skills": [
+        "code-review"
+      ],
+      "prompt": "A renamed event field has no callers in symbol search, but old persisted messages and a downstream Python service may consume it. Review statically only.",
+      "expectations": [
+        "Inspect indirect serialized/persisted/cross-language contracts",
+        "State safety assumption and evidence/gaps",
+        "No live production probe required by skill"
+      ]
     }
   ]
 }

@@ -1,3 +1,4 @@
 # Messages and articles, with shared voice rules and separate article workflow.
 natural-writing
 blog-posting
+technical-writing

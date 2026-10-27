@@ -95,6 +95,71 @@
       "id": "api-near-miss",
       "prompt": "Use the third-party SDK createWidget method; verify the signature for our pinned package version.",
       "primary": "docs-verified-coding"
+    },
+    {
+      "id": "computer-positive",
+      "prompt": "Use the available browser controls to fill this form and verify the saved record.",
+      "primary": "computer-use"
+    },
+    {
+      "id": "computer-near-miss",
+      "prompt": "Describe what is visible in this supplied screenshot. Do not operate an app.",
+      "primary": "none",
+      "avoid": [
+        "computer-use",
+        "t3-workflows"
+      ]
+    },
+    {
+      "id": "t3-positive",
+      "prompt": "Schedule a weekly read-only report using T3 Code and show the actual next execution.",
+      "primary": "t3-workflows"
+    },
+    {
+      "id": "t3-near-miss",
+      "prompt": "Implement a small sorting fix in this project; no app orchestration is needed.",
+      "primary": "none",
+      "avoid": [
+        "t3-workflows",
+        "project-verification"
+      ],
+      "acceptable_primary": [
+        "none",
+        "diagnose",
+        "llm-coding-discipline"
+      ]
+    },
+    {
+      "id": "harness-positive",
+      "prompt": "Build a reusable project-local verification skill that launches our CLI in isolated sessions and checks real output.",
+      "primary": "project-verification"
+    },
+    {
+      "id": "harness-near-miss",
+      "prompt": "Run the existing focused regression test and tell me whether this bug is fixed.",
+      "primary": "verification-before-completion",
+      "avoid": [
+        "project-verification"
+      ]
+    },
+    {
+      "id": "technical-writing-positive",
+      "prompt": "Write developer reference for the verified options/defaults and version scope of this API.",
+      "primary": "technical-writing"
+    },
+    {
+      "id": "technical-writing-near-miss",
+      "prompt": "Write a short natural reply to a friend about tomorrow's meeting.",
+      "primary": "natural-writing",
+      "avoid": [
+        "technical-writing",
+        "blog-posting"
+      ]
+    },
+    {
+      "id": "historical-why",
+      "prompt": "Explain why this subsystem has an unusual retry limit, separating recorded rationale from inference.",
+      "primary": "zoom-out"
     }
   ]
 }

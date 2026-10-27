@@ -125,6 +125,7 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`executing-plans`](./executing-plans) | Execute an approved plan task-by-task with TDD, verification, and checkpoints. Stops when the plan conflicts with reality. |
 | [`test-driven-development`](./test-driven-development) | Red-green-refactor with vertical slices. Bug fixes via the Prove-It pattern (reproduce with a test before fixing). |
 | [`verification-before-completion`](./verification-before-completion) | Prove work is complete before saying done. Records exact checks run, skipped checks, and evidence quality. |
+| [`project-verification`](./project-verification) | Create or maintain a reusable project-specific verification procedure: isolated launch, doctor, real journeys, evidence, cleanup and drift checks. |
 | [`api-and-interface-design`](./api-and-interface-design) | Stable API design — REST / GraphQL / gRPC / webhooks / events / SDK. Versioning, deprecation lifecycle, error shapes, contract testing. |
 | [`mcp-development`](./mcp-development) | Secure MCP client/server development — protocol and SDK selection, trust boundaries, strict tool contracts, per-call authorization, sandboxing, poisoning defenses, and adversarial tests. |
 | [`diagnose`](./diagnose) | Disciplined debug loop: feedback-loop-first, reproduce, hypothesise, instrument, fix, regression-test, cleanup. For hard bugs, flaky tests, perf regressions. |
@@ -206,6 +207,9 @@ replacing them.
 | [`rtk-token-optimized-cli`](./rtk-token-optimized-cli) | **tooling-specific: requires [RTK](https://github.com/sigoden/rtk).** When to use RTK to compress noisy CLI output (git diff, kubectl logs, test runners, aws cli). |
 | [`codex-claude-resume`](./codex-claude-resume) | **tooling-specific: requires Claude Code local session history.** Lists, inspects and imports local Claude Code sessions so you can continue the work in another agent. |
 | [`natural-writing`](./natural-writing) | Write natural messages, emails, group notices, and everyday replies with appropriate voice and formality. Preserve facts and commitments; optional personal samples through `write-like-me`. |
+| [`technical-writing`](./technical-writing) | Structure developer tutorials, how-to guides, references and explanations around the reader's task, verified examples and version scope; complements natural-writing. |
+| [`computer-use`](./computer-use) | Operate an actually available UI through observe, act, verify and recovery; preserve session ownership and distinguish input delivery from confirmed effects. |
+| [`t3-workflows`](./t3-workflows) | **tooling-specific: T3 Code.** Route delegation, schedules/webhooks, continuation and supported surfaces through current app-owned tools. |
 | [`blog-posting`](./blog-posting) | Draft and edit articles with a clear purpose, supported claims, and the author's voice. Complements `natural-writing`; the bundled lint offers advisory review, not an authorship test. |
 | [`pr-followup`](./pr-followup) | Follow a requested PR/MR through checks and verified feedback, using native events when available, preserving scope and stopping before any unauthorized merge. |
 | [`backstage-scaffolder-architect`](./backstage-scaffolder-architect) | Generates Backstage Scaffolder templates (template.yaml + skeleton) with correct `${{ ... }}` syntax across all three contexts. Useful if you run a Backstage developer portal. |
@@ -213,9 +217,10 @@ replacing them.
 | [`skill-creator-opencode`](./skill-creator-opencode) | Adapter that runs the skill-creator trigger-eval loop against OpenCode instead of `claude -p`. Works with any provider / model. |
 
 For writing, `natural-writing` is the general keep-set skill; `blog-posting`
-adds article-specific structure and verification on demand. The optional
-`write-like-me` plugin retrieves real style examples; neither local skill
-requires it. Installation enables selection, not guaranteed invocation on every
+adds article-specific structure and verification on demand. `technical-writing`
+owns developer-document purpose and usable examples. The optional `write-like-me`
+plugin retrieves real style examples; these workflows do not require it.
+Installation enables selection, not guaranteed invocation on every
 turn. Put an explicitly requested universal style preference in the applicable
 rules file rather than relying on skill discovery alone.
 

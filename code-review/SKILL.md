@@ -34,6 +34,8 @@ For a bug fix, ask whether the change addresses the cause and whether the eviden
 
 Check for invented APIs, broken compatibility, unintended access or data changes, unsafe state transitions, unsupported claims, and scope creep when relevant. Use deterministic lint/type/test results instead of generating style comments that existing tools can settle.
 
+For a changed boundary, look beyond symbol-search results: serialized/wire formats, persisted records, configuration/feature flags, generated clients, cross-language callers, jobs and downstream versions may consume it indirectly. Name the key safety assumption and the best available check that could falsify it. A search with no callers is not proof of no consumers. Scale this investigation to plausible impact; do not mandate a new runtime script or production action for a static/read-only review. Report the evidence level and missing coverage instead.
+
 ## Finding contract
 
 Report a material finding only when supported by a plausible triggering scenario and the inspected artifact. Each finding should include:

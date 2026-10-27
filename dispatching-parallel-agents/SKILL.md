@@ -30,6 +30,8 @@ Before delegating, identify the benefit: independent parallel progress, an actua
 
 Start with the smallest useful set, not a fixed number of specialists or models. Keep sequential tasks that share decisions/data in the same loop unless a real boundary can be defined. Respect the user's delegation and provider choices; this skill does not widen authorization.
 
+On T3 Code, use [t3-workflows delegation](../t3-workflows/references/delegation.md) for the native/delegate distinction, app-owned checkout binding and asynchronous next steps. Do not transplant another client's Task/background/model syntax. For UI workers, establish actual tool/session access and one controller per surface; a shared checkout does not grant shared browser ownership.
+
 Good splits:
 
 - Agent A: investigate current auth flow; Agent B: verify library docs; Agent C: review security risks.

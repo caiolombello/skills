@@ -1,0 +1,7 @@
+# Optional runtime and reusable verification workflows; no always-on expansion.
+computer-use
+t3-workflows
+project-verification
+dispatching-parallel-agents
+context-engineering
+handoff

@@ -37,7 +37,7 @@ Establish a **baseline** before touching anything. Two complementary approaches;
 - **Synthetic** — controlled, reproducible. Lighthouse, DevTools Performance, `wrk`, `k6`, `hyperfine`, benchmark harness. Good for CI regression detection and isolating a specific code path.
 - **Real-user / production** — actual production load. RUM libraries (`web-vitals`), APM (Datadog, New Relic, Honeycomb), Prometheus histograms at the LB. Required to validate that a fix actually improved user experience.
 
-Never optimize on synthetic numbers alone. Real user distributions are uglier — caches cold, networks bad, devices slow.
+Use synthetic results to investigate and compare local changes. To claim a real-user or production improvement, corroborate with suitable end-to-end/production evidence when available: cold caches, network, devices, and load distributions can change the result. Do not turn unavailable production access into a reason to invent evidence or write to active systems.
 
 ### 2. Identify the bottleneck
 
@@ -61,10 +61,20 @@ One change at a time. Re-measure after each. Optimizations that compound are fin
 
 ### 4. Verify
 
-Re-run the same measurement. The improvement must be:
-- **Statistically significant** (run more than once; real deployments have noise).
-- **In production-like conditions** (synthetic benchmarks mislead).
-- **On the metric that matters** (p95 latency, not mean; LCP, not DOMContentLoaded).
+Before trusting a number, check measurement validity:
+
+- Confirm the intended work occurred inside the timed interval and its output is correct. Await promises, consume lazy results, and verify meaningful work counts; a no-op, cache hit, early rejection, or discarded computation can look fast.
+- Count errors, non-success responses, timeouts and retries alongside timing. Fewer successful operations is not a speedup for the same workload.
+- Name the limiting resource/path from evidence and ensure both sides have comparable configuration, inputs and reasonable tuning. Check whether the claimed gain is possible given the optimized part's share of the whole.
+- Repeat under controlled conditions, alternating or randomizing comparisons where useful to reduce warmup/cache/drift bias. Report sample count and spread as well as a central value; choose repetitions/statistics appropriate to noise and cost, not a magic minimum that guarantees significance.
+- Relate a microbenchmark to the end-to-end path a user waits for. If successful work, comparability, or measurement uncertainty cannot be established, report inconclusive and the missing evidence instead of a confident speedup.
+
+Keep raw runs and command/environment/revision pointers in a suitable existing artifact or scratch record. A short report should identify the metric/unit, result, variation, meaningful error/work counts, limiter and scope. See [source credits](../CREDITS.md).
+
+Re-run the same measurement and qualify the conclusion:
+- **Distinguishable from noise** with a suitable uncertainty/statistical analysis; repeating a run alone does not establish significance.
+- **Within the measured environment and workload.** Controlled synthetic/local findings support bounded local claims; user/production claims need suitable end-to-end or production-like evidence and actual production observation when claiming a deployed improvement.
+- **On the relevant metric** for the claim (for example p95 latency or LCP, rather than an unrelated mean or load event).
 
 If the number did not move, undo the change. "Felt faster" is not measurement.
 

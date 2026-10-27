@@ -61,5 +61,6 @@ Before returning it, compare against the source for facts and commitments, read 
 - `write-like-me`, when installed: retrieves relevant personal writing; use its evidence without inventing a voice or copying old facts. Do not modify plugin caches or duplicate that skill under its name.
 - [`blog-posting`](../blog-posting/SKILL.md): specializes in posts and articles. Use this skill for reusable voice and editing decisions.
 - Document, PR, and technical workflows own their required structure and validation. Improve surrounding prose without breaking their contracts.
+- [`technical-writing`](../technical-writing/SKILL.md) owns developer-document purpose, organization and usable examples; this skill retains voice and register. Do not impose that workflow on an everyday message.
 
 Installation makes this skill available for selection; it does not guarantee invocation on every turn. If an always-applied writing preference is requested, put a short preference in the applicable rules file through that file's normal workflow. Do not silently change global instructions while installing a skill.

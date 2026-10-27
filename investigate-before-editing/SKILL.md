@@ -67,6 +67,8 @@ Do the same for internal symbols — read the definition, do not infer it from t
 
 ### 5. Look for prior art inside the repo
 
+When removing a guard, changing an unusual threshold, or replacing a boundary whose reason is unclear, inspect relevant history before treating it as accidental complexity. Use [zoom-out's rationale procedure](../zoom-out/references/design-rationale.md) for the bounded investigation; distinguish documented constraints, inference and gaps. Do not search every connected app or block a routine edit on unrelated history.
+
 Before creating a helper, check if one already exists:
 
 - `rg` for the concept, not only the exact name (`retry`, `Retry`, `backoff`, `withRetry`).

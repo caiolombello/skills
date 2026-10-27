@@ -7,6 +7,8 @@ description: Create a paste-ready continuation briefing when the user asks to ha
 
 Produce a concise briefing that another Codex session can use without reading the full conversation.
 
+In T3 Code, follow [thread continuity](../t3-workflows/references/surfaces-and-context.md) for actual thread reads/links, bounded history and app-owned workspace moves. Writing this brief does not create a thread, move a workspace, or schedule future work. A recalled result still needs reconciliation with current evidence.
+
 Before writing it:
 
 1. Inspect the current workspace, Git status, and relevant diffs when available.

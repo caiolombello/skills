@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "purpose": "Isolated decision scenarios. Withhold expectations from the answering model. No live UI, account, schedule, production or provider certification.",
+  "cases": [
+    {
+      "id": "fast-errors",
+      "prompt": "Benchmark B is twice as fast but rejects half the requests; successful throughput was not counted.",
+      "expectations": [
+        "Do not claim speedup for same useful workload",
+        "Count successes/errors and validate output"
+      ]
+    },
+    {
+      "id": "lazy-noop",
+      "prompt": "The timed region constructs a lazy iterator but does not consume it; the claimed optimization is dramatic.",
+      "expectations": [
+        "Verify work ran inside timed interval",
+        "Treat result invalid/inconclusive and repair measurement"
+      ]
+    },
+    {
+      "id": "five-noisy-runs",
+      "prompt": "Both versions ran five times. The gap is smaller than run-to-run variation. Is five sufficient proof of a speedup?",
+      "expectations": [
+        "No fixed-count guarantee of significance",
+        "Report inconclusive/no measurable difference with spread"
+      ]
+    },
+    {
+      "id": "local-only",
+      "prompt": "A controlled local optimization is repeatable but there is no production access or authorization.",
+      "expectations": [
+        "Report bounded local evidence",
+        "No production improvement claim or active-state writes",
+        "Do not block local finding solely on missing production"
+      ]
+    }
+  ]
+}

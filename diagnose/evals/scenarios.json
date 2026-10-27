@@ -47,6 +47,15 @@
         "Prefer a real seam if available; otherwise disclose limitation",
         "Use original feedback loop for verification without inventing test coverage"
       ]
+    },
+    {
+      "id": "shared-premise-failed-twice",
+      "prompt": "Two fixes assuming stale cache failed the same local check. The agent wants a third cache workaround without measuring that assumption.",
+      "expectations": [
+        "Write shared cache premise",
+        "Run discriminating safe observation before another variation",
+        "Do not substitute more patches for evidence"
+      ]
     }
   ]
 }

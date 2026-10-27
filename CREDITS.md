@@ -22,6 +22,48 @@ required.
 
 ## Upstream projects referenced
 
+### [cursor/plugins pstack](https://github.com/cursor/plugins/tree/519d36aa98955bf680db01bcde5fdfba686dc901/pstack) — MIT
+
+Reviewed snapshot: `519d36aa98955bf680db01bcde5fdfba686dc901` (2026-10-27).
+Lauren Tan (poteto) and Cursor contributors. The repository's MIT license is
+retained upstream; these are rewritten procedural adaptations, not a vendored
+pstack runtime, agent fleet, or executable tool.
+
+| Our skill | Upstream inspiration |
+| --- | --- |
+| `project-verification` | `create-verification-skill`, `maintain-verification-skill` |
+| `technical-writing` | `technical-writing`, its reader/task distinction and Diataxis organization |
+| `zoom-out`, `investigate-before-editing` | `how`, `why`, evidence-backed design rationale |
+| `spec-first-planning` | `architect`, caller sketches and empirical comparison |
+| `code-review` | `blast-radius`, indirect consumers and falsifiable safety assumptions |
+| `diagnose` | `principle-attack-the-premise` |
+| `performance-optimization` | `benchmark-checklist`, `principle-explain-the-number` |
+
+Related authored article: [The Complete Guide to pstack Pt. 2](https://x.com/i/article/2094940651607715840),
+linked by [poteto's post](https://x.com/poteto/status/2114095305910280363).
+The article body was recovered through an X-content mirror when direct access
+was blocked, with its title/id corroborated by X's syndication response.
+Model presets, compulsory multi-agent choreography, automatic external writes,
+blanket comment deletion and the formal-verification/statechart toolchain were
+not imported. [Diataxis](https://diataxis.fr/) is a writing framework reference;
+no manual text was copied.
+
+### [NousResearch/hermes-agent computer-use](https://github.com/NousResearch/hermes-agent/blob/69f73ec5f11f5a945cc864f29c4e2ad2307eaec3/skills/autonomous-ai-agents/computer-use/SKILL.md) — MIT
+
+Reviewed snapshot: `69f73ec5f11f5a945cc864f29c4e2ad2307eaec3`, skill v2.1.0,
+Francesco Bonacci (f-trycua) and Hermes Agent. `computer-use` adapts snapshot
+grounding, effect verification and bounded recovery. No driver, wrapper, native
+focus guarantee, auxiliary vision setup or blocked-command workaround is
+included.
+
+Official technical references reviewed on 2026-10-27:
+[OpenAI computer use](https://developers.openai.com/api/docs/guides/tools-computer-use),
+[OpenAI model guidance](https://developers.openai.com/api/docs/guides/latest-model),
+and [Anthropic computer use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool).
+They are documentation references, not software vendored under our license.
+The T3 adapter is based on tool contracts actually exposed in the authoring
+session; it is dated guidance, not copied SDK schemas or runtime certification.
+
 ### [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — MIT
 
 Copyright (c) 2025 Addy Osmani.

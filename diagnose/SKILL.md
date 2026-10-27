@@ -119,6 +119,8 @@ Do not proceed to Phase 3 until the failure is reproduced and minimized, unless 
 
 ## Phase 3 — Localize + hypothesise
 
+When two attempted fixes sharing one premise fail the same check, pause that line of correction. Write down the shared premise and make a discriminating observation that would differ if it were false before trying another variation. If the probe is unavailable, keep that assumption unverified and report the gap rather than counting repeated guesses as evidence. This diagnoses failed fixes; the separate three-round review-convergence rule still applies to review loops. See [source credits](../CREDITS.md).
+
 First narrow where the failure lives:
 
 ```
