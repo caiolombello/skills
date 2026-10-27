@@ -209,7 +209,7 @@ replacing them.
 | [`codex-claude-resume`](./codex-claude-resume) | **tooling-specific: requires Claude Code local session history.** Lists, inspects and imports local Claude Code sessions so you can continue the work in another agent. |
 | [`natural-writing`](./natural-writing) | Write natural messages, emails, group notices, and everyday replies with appropriate voice and formality. Preserve facts and commitments; optional personal samples through `write-like-me`. |
 | [`technical-writing`](./technical-writing) | Structure developer tutorials, how-to guides, references and explanations around the reader's task, verified examples and version scope; complements natural-writing. |
-| [`content-production`](./content-production) | Create/edit video, demos, campaign images and marketing packages, with free/local and optional paid routes, a business brief, source consistency and export QA. |
+| [`content-production`](./content-production) | Create/edit video, images, voiceovers, podcasts, music/SFX and marketing packages, with local/paid routes, source consistency, audio mixing and export QA. |
 | [`computer-use`](./computer-use) | Operate an actually available UI through observe, act, verify and recovery; preserve session ownership and distinguish input delivery from confirmed effects. |
 | [`t3-workflows`](./t3-workflows) | **tooling-specific: T3 Code.** Route delegation, schedules/webhooks, continuation and supported surfaces through current app-owned tools. |
 | [`blog-posting`](./blog-posting) | Draft and edit articles with a clear purpose, supported claims, and the author's voice. Complements `natural-writing`; the bundled lint offers advisory review, not an authorship test. |

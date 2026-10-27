@@ -10,6 +10,7 @@ Reviewed on 2026-10-27. Verify current availability, capabilities, cost and lice
 | Recordly | Screen-recorded product demos/tutorials with cursor/zoom polish | Optional native app; [platform/account limits](recordly.md) must be checked |
 | Code motion with an available renderer | Explain product flows, animated typography/charts/diagrams | Reuse HTML/canvas/Blender/Remotion tooling when suitable; code alone is not an export |
 | Connected image-generation tool | Raster assets, thumbnails, product visuals | Follow that tool's contract; existing plan usage is different from an external API charge |
+| Audio editor/local TTS or connected speech/music service | Voiceovers, podcasts, cleanup, jingles/SFX, mix/master | [Audio routing](audio-production.md); no required provider and no assumed commercial rights from free access |
 | Higgsfield website/connector/MCP/API | Generative clips, product creatives and multi-model workflows | Optional paid/limited access; [billing and integration](higgsfield.md) vary by entry point |
 | A directly accessible video provider or local generation stack | Generation without Higgsfield | Check actual tool/API, model license, cost and hardware; do not assume setup/access |
 

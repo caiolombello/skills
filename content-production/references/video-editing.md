@@ -32,6 +32,8 @@ For broad MP4 compatibility, H.264 with a suitable pixel format and AAC audio ca
 
 For captions, use speech grounded in the actual audio, correct names/numbers, align to edited timing, and check readable placement at mobile size. Supply SRT/VTT and/or burned-in captions as requested. Do not manufacture a transcript from metadata or assume a speech model/tool is installed. Preserve intelligible voice; check music balance, clipping, silence and sync by actually listening or measuring with a suitable tool. If listening is unavailable, report that limit.
 
+For narration, detailed cleanup, music/SFX creation or a standalone mix, read [audio production](audio-production.md). Preserve meaning and natural speech when cutting, and recheck synchronization/loudness after editing the sound layer.
+
 ## Inspect the exported file
 
 Check container/streams and expected duration, frame geometry/display orientation, codec/pixel format, frame count/rate as relevant, and audio. Decode the export with an available tool when useful; a successful metadata probe alone can miss truncated/corrupt frames. Inspect beginning/end and important cuts/transitions/captions, plus continuous playback when timing/audio requires it. Extract frames/contact sheets for QA when appropriate; do not claim that a few stills verify the entire audio/video.

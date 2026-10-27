@@ -1,6 +1,6 @@
 ---
 name: content-production
-description: "Use to create or edit videos, product demos, campaign visuals, thumbnails, social content, or marketing asset packages for a personal project or venture. Covers production/editing and tool/budget choices; not ordinary messages or product-roadmap decisions."
+description: "Use to create or edit video, images, voiceovers, podcasts, music/SFX and marketing content for a personal project or venture. Covers production, mixing/export and tool/budget choices; not ordinary messages, device troubleshooting or product-roadmap decisions."
 ---
 
 # Content Production
@@ -20,14 +20,15 @@ Read only the relevant procedure:
 | Task | Procedure |
 | --- | --- |
 | Cut, sequence, caption, resize/reframe, mix or export existing footage | [Video editing and QA](references/video-editing.md) |
+| Record/edit spoken audio, produce narration/podcasts, create music/SFX, mix or master | [Audio and sound](references/audio-production.md) |
 | Create/edit images, thumbnails, product visuals or a consistent asset family | [Images and brand](references/images-and-brand.md) |
 | Choose free/local, manual, code-motion or paid generation | [Tools and budget](references/tools-and-budget.md) |
 | Record a real software walkthrough with cursor/zoom polish | [Recordly](references/recordly.md) |
 | Use Higgsfield, its connector/MCP, website or API | [Higgsfield](references/higgsfield.md) |
 
-Keep these roles distinct: an assistant plans/directs or writes animation code; a capture tool records real behavior; a generative model synthesizes footage/images; an editor/renderer assembles and exports. Claude, a Claude-branded workflow, an exposed video tool and a Higgsfield account are not interchangeable capabilities. Choose by actual access and task fit; do not declare one LLM universally best for video.
+Keep these roles distinct: an assistant plans/directs or writes animation code; a capture tool records real behavior; a generative model synthesizes footage/images/audio; an editor/renderer assembles and exports. A language model, speech/music generator, Claude-branded workflow and Higgsfield account are not interchangeable capabilities. Choose by actual access and task fit; do not declare one LLM universally best for media.
 
-If the user asks for a finished asset, produce it with available authorized tools and inspect it. A script, prompt, storyboard, HTML preview, queued generation or project file is not an exported video. Without rendering tools/access, deliver the useful script/edit map/prompts and exact next step, clearly identifying the unrendered artifact. A tool-independent plan is useful; do not pretend it contains encoded media.
+If the user asks for a finished asset, produce it with available authorized tools and inspect it. A script, prompt, storyboard, score, HTML preview, queued generation or project file is not an exported video or audio file. Without rendering tools/access, deliver the useful script/edit map/prompts and exact next step, clearly identifying the unrendered artifact. A tool-independent plan is useful; do not pretend it contains encoded media.
 
 ## Build from one source of truth
 
@@ -50,6 +51,8 @@ Discover integrations before claiming them unavailable. Prefer connected purpose
 ## Inspect and deliver
 
 Review the export at its intended viewing size: opening, legibility, factual/brand accuracy, framing, continuity, audio/caption synchronization and ending/CTA. Inspect actual encoded media and important frames, not only an editor preview or successful render exit. Verify duration, dimensions/aspect/orientation, codecs, audio presence and source/caption coverage as relevant. The optional read-only [media probe](scripts/probe_media.py) assists metadata inspection; it cannot judge visual/audio quality or certify the platform accepts a file.
+
+For audio-only work, verify the actual words/performance, timing, intelligibility, noise/artifacts, balance, clipping/loudness and export format as relevant. Distinguish peak normalization from perceived loudness, and use the intended delivery specification rather than a universal LUFS target. If listening is unavailable, report measured/decoded evidence and that subjective audition remains unrun.
 
 Deliver the requested final files with absolute paths, plus editable project/timeline, captions or provenance notes when useful for reuse. Keep the package proportional; a short asset need not generate a folder of speculative documents. Clearly identify draft, render pending, rendered but unreviewed, technically checked and published states. Creating content does not publish it; if publication to a specified destination is already authorized, complete it using actual tools and report the returned outcome. Never invent posting, approval, reach or conversion results.
 

@@ -48,6 +48,17 @@ software, templates, API clients or manuals:
 The media-probe helper is original standard-library Python invoking an installed
 ffprobe. It does not include FFmpeg code, transcode assets, or judge media quality.
 
+Audio extension references, also reviewed on 2026-10-27:
+[Audacity's noise-reduction manual](https://manual.audacityteam.org/man/noise_reduction.html),
+[amplitude normalization](https://manual.audacityteam.org/man/amplify_and_normalize.html),
+[Piper local TTS](https://github.com/OHF-Voice/piper1-gpl),
+[ElevenLabs speech](https://elevenlabs.io/docs/overview/capabilities/text-to-speech)
+and [creative terms](https://elevenlabs.io/creative-terms),
+[Descript podcasting](https://www.descript.com/podcasting),
+and [Suno commercial/download guidance](https://help.suno.com/en/articles/13614785).
+No audio engine, voice/model weights, service client or licensed media is bundled.
+Software access and rights to the particular audio/voice output remain separate.
+
 ### [cursor/plugins pstack](https://github.com/cursor/plugins/tree/519d36aa98955bf680db01bcde5fdfba686dc901/pstack) — MIT
 
 Reviewed snapshot: `519d36aa98955bf680db01bcde5fdfba686dc901` (2026-10-27).

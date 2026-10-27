@@ -237,6 +237,47 @@
       "avoid": [
         "formal-verification"
       ]
+    },
+    {
+      "id": "audio-podcast-edit",
+      "prompt": "Edit my recorded interview into an audio-only podcast, reduce steady hiss, balance the speakers and export WAV plus MP3.",
+      "primary": "content-production",
+      "avoid": [
+        "blog-posting",
+        "formal-verification"
+      ]
+    },
+    {
+      "id": "audio-voiceover",
+      "prompt": "Produce a PT-BR voiceover for my product launch with natural pronunciation, using an actually available free or paid speech route.",
+      "primary": "content-production",
+      "avoid": [
+        "natural-writing"
+      ]
+    },
+    {
+      "id": "audio-music-sfx",
+      "prompt": "Create a short jingle and interface sound effects for my personal app, then mix them under narration.",
+      "primary": "content-production",
+      "avoid": [
+        "product-management"
+      ]
+    },
+    {
+      "id": "audio-hardware-near-miss",
+      "prompt": "My microphone disappeared from Linux after an update. Diagnose why the input device is missing; I am not producing media.",
+      "primary": "diagnose",
+      "avoid": [
+        "content-production"
+      ]
+    },
+    {
+      "id": "audio-copy-near-miss",
+      "prompt": "Rewrite these three sentences so they sound natural when I read them aloud. I only want the text, with no voice recording or media.",
+      "primary": "natural-writing",
+      "avoid": [
+        "content-production"
+      ]
     }
   ]
 }
