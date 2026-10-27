@@ -239,6 +239,22 @@ The general skill and its message examples are original; optional integration
 with the installed `write-like-me` skill uses its own retrieval workflow and
 does not copy or vendor plugin code, prompts, or private writing samples.
 
+### Risk-based review, agent scope, and PR follow-up
+
+The 2026-10-27 review-policy update was informed by these public sources and an
+audit of this library's existing instructions:
+
+- [How the Claude Code team does code review](https://claude.dev/blog/solving-code-review-at-anthropic/) by Addy Osmani, Morgan Westlee Lunt, and Qing Wang.
+- [Building agents: When to fold subagents into your main agent loop](https://claude.com/resources/articles/building-agents-when-to-fold-subagents-into-your-main-agent-loop) by Diane Sarkis.
+- Theo's [My AGENTS.md & SKILLS.md Breakdown (Don't copy them)](https://www.youtube.com/watch?v=e1snsuY4lTI), consulted through a public timestamped transcript, with examples cross-checked against [t3dotgg/tstack](https://github.com/t3dotgg/tstack) and [T3 Code's project guidance](https://github.com/pingdotgg/t3code/blob/main/AGENTS.md).
+
+The new `pr-followup`, revised workflows, PT-BR quality snippet, and synthetic
+evaluation cases are independently authored adaptations. They do not vendor
+Theo's skill payloads or copy private global instructions. Existing upstream
+attributions/licenses remain in force. No vendor's model-specific performance
+claims are adopted as universal guarantees, and installing these instructions
+does not configure CI, branch protection, approvals, or provider accounts.
+
 ## Skills with no upstream inspiration
 
 The following skills were written from scratch based on SRE, DevOps, API

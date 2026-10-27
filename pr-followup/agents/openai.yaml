@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Follow-up"
+  short_description: "Follow PR checks and review within the agreed scope"
+  default_prompt: "Use $pr-followup to monitor this pull request, verify actionable feedback, and stop at the authorized endpoint."

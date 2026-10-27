@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: Execute an approved implementation plan in controlled batches with checkpoints. Use WHENEVER (1) the user says to implement an existing plan; (2) a docs/plans/* plan, task list, spec, or ticket breakdown already exists; (3) work should proceed task-by-task instead of improvising; (4) the user says "go", "execute the plan", "work through these tasks", or "continue from Task N"; (5) multiple implementation tasks need verification and status tracking. Enforces plan adherence, TDD, small batches, and human checkpoints.
+description: "Use when executing an approved plan. Verify scoped increments, diagnose routine obstacles, and stop at the authorized endpoint without expanding scope."
 ---
 
 <!-- Inspired by obra/superpowers executing-plans (MIT). See ../CREDITS.md -->
@@ -46,7 +46,7 @@ PLAN LOADED
 - Checkpoint cadence: <after each task / after batch>
 ```
 
-If the plan has placeholders, missing verification, or unclear dependencies, ask for correction before coding.
+Resolve routine missing commands/dependencies through the repository and current sources before asking. Ask when an essential decision, explicit boundary, or acceptance criterion remains unresolved. Do not invent requirements or stop for a confirmation already given.
 
 ## Batch size
 
@@ -73,7 +73,7 @@ For each task or batch:
 3. **Red** — write or identify the failing test first when behavior changes.
 4. **Green** — implement the minimum code.
 5. **Refactor** — simplify only within the touched scope.
-6. **Verify** — run the exact commands from the plan.
+6. **Verify** — run applicable plan commands; diagnose environment failures and record unavailable checks. Use a useful bounded substitute where appropriate without pretending it replaces a required gate.
 7. **Report** — status, evidence, files changed, next task.
 
 Do not start the next task while the current task is red.
@@ -82,13 +82,14 @@ Do not start the next task while the current task is red.
 
 Plans are hypotheses. Code can prove them wrong.
 
-Stop and ask when:
+Investigate and surface drift before expanding scope. Ask when a material decision or authorization is actually missing, such as:
 
-- A task requires files not mentioned by the plan.
-- The plan's API or symbol does not exist.
-- The task is much larger than expected.
-- Acceptance criteria conflict with existing behavior.
-- Verification commands are missing or fail for unrelated reasons.
+- A required change crosses an explicit protected-file/scope boundary.
+- A missing API or dependency requires a different approach with unresolved trade-offs.
+- Work materially exceeds the approved scope or resources.
+- Acceptance criteria conflict with verified behavior and no applicable instruction resolves it.
+
+An unlisted dependency file needed within the approved scope, or a recoverable environment failure, is not automatically a new approval gate. Diagnose first. Continue independent safe work when possible, and keep required unavailable gates unresolved. Never silently weaken acceptance criteria.
 
 Use this format:
 
@@ -122,7 +123,7 @@ Remaining:
 Proceeding unless you redirect.
 ```
 
-If commits are part of the workflow, commit only when the user requested commits. Follow `git-hygiene`.
+If commits are part of the workflow, commit only when authorized. Follow `git-hygiene` and preserve authorization already established. Implemented, verified, committed, published, monitored, merged, and deployed are separate states; stop at the requested endpoint without automatically taking the next one.
 
 ## Completion
 

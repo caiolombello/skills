@@ -1,6 +1,6 @@
 ---
 name: project-rules-file
-description: Create, audit, and maintain the project's AI rules file — `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `.windsurfrules`, `.github/copilot-instructions.md`, or equivalent. This is the single highest-leverage context a project can provide to any coding agent. Use WHENEVER (1) the user asks to write, generate, or update a rules file for AI agents; (2) starting work on a new repo that has no rules file, or a stale one; (3) agent output drifts from project conventions (wrong import style, wrong test runner, wrong commit format); (4) the user mentions AGENTS.md, CLAUDE.md, Cursor rules, Windsurf rules, Copilot instructions, or "how should the agent know X about this repo"; (5) onboarding an agent to an unfamiliar codebase. Applies to any language or stack.
+description: "Use when creating or auditing applicable agent rules or project review guidance. Keep verified context and invariants concise; preserve personal preferences and authorization boundaries."
 ---
 
 <!-- Inspired by addyosmani/agent-skills context-engineering (MIT). See ../CREDITS.md -->
@@ -10,6 +10,8 @@ description: Create, audit, and maintain the project's AI rules file — `AGENTS
 The rules file is the persistent, session-level context every coding agent reads first. Get it right once and every future session in that repo starts aligned. Get it wrong and every session starts with the agent hallucinating conventions.
 
 This skill covers: **which file, what goes in it, what stays out, how to keep it current**.
+
+Preserve existing user preferences, provider adaptations, and project policies. A rules audit is not authorization to migrate models, change permissions, set up CI, publish, or create extra documentation. For authorized global quality preferences, [assets/quality-core.pt-BR.md](assets/quality-core.pt-BR.md) supplies a small reusable output snippet; do not install it merely because this skill was read.
 
 ## Which file to use
 
@@ -39,13 +41,13 @@ See [AGENTS.md](../AGENTS.md).
 
 For Cursor `.cursor/rules/*.mdc` (which supports glob-scoped rules), split: one file per concern with `globs:` frontmatter. The root rules still live in `AGENTS.md`.
 
-Check `.gitignore` and commit the rules file. A rules file outside version control cannot be shared with teammates or CI.
+Check `.gitignore` and the requested sharing scope. Commit project rules when version-control publication is authorized. Personal global files remain local unless the user explicitly approves publishing their contents. A redirect must be followed explicitly when the client's native loading does not guarantee it.
 
 ## What goes in it
 
 A rules file answers the questions every coding agent needs resolved before writing a line of code. In order of leverage:
 
-### 1. Tech stack + versions (mandatory)
+### 1. Verified stack and useful versions
 
 Specific versions, not "latest". "React 18" beats "React". `Node 20.11` beats "Node".
 
@@ -59,7 +61,7 @@ Specific versions, not "latest". "React 18" beats "React". `Node 20.11` beats "N
 - Testing: Vitest 1.4, Playwright 1.42
 ```
 
-### 2. Commands (mandatory)
+### 2. Commands the task actually needs
 
 The **exact** commands. Agents guess wrong often; telling them saves a bad `npm test` followed by "command failed".
 
@@ -123,6 +125,8 @@ Point at one existing example for each recurring pattern. Concrete > abstract.
 
 A 5-10 line map so the agent knows where to look without grep-crawling the whole tree.
 
+Prioritize verified invariants, a small domain glossary, and recurring failure paths. Where relevant, identify multiple clients/entry points/providers, shared contracts, remote/local modes, and reverse states such as close/reopen. Do not copy another product's architecture or every possible checklist into a small project.
+
 ```markdown
 ## Architecture
 - `src/app/` — Next.js routes (App Router). One folder per route.
@@ -168,14 +172,16 @@ Rule of thumb: **every line must change the agent's output**. If removing the li
 
 ## Length target
 
-Aim for **80-200 lines**. Under 80 usually means missing critical context. Over 200 usually means essays where bullets would do, or content that belongs in `references/` / ADRs.
+Use the shortest file that supplies the context this project actually needs. There is no minimum line count or universal token quota. Keep important constraints visible and load substantial details through relevant references.
 
-If the file grows past 200 lines, split:
+When a file becomes hard to navigate, use existing focused sources or split within the authorized documentation scope:
 - `AGENTS.md` — stack, commands, conventions, boundaries, pointers.
 - `docs/architecture.md` — architecture map + patterns.
 - `docs/adr/NNNN-*.md` — one decision per file, linked from the rules file.
 
 ## Audit: symptoms of a bad rules file
+
+For reviewer-specific rules, optional `REVIEW.md`, recurring failure prevention, and behavioral evaluation examples, read [references/review-policy.md](references/review-policy.md). This does not configure host gates: required CI, CODEOWNERS, branch protection, scanners, merge queues, and staged rollout need separately authorized project changes and real verification.
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
@@ -195,8 +201,8 @@ Run this when output drift is suspected, or every ~6 months.
 2. **Verify each claim against the code.** Does the project actually use X? Is command Y still the right one?
 3. **Delete stale claims.** Do not "update" — if it was wrong, the correction may also be wrong. Delete, then re-add what you verified.
 4. **Add missing rules.** For each convention you see in recent PRs that is not in the rules file, consider adding it.
-5. **Cut length.** If you added 10 lines, look for 10 to cut. Signal density matters.
-6. **Commit the diff with a clear message:** `docs(agents): audit AGENTS.md — remove stale commands, add validation rule`.
+5. **Cut redundancy.** Keep useful constraints and remove stale/repeated material rather than trading lines against an arbitrary quota.
+6. **When commits are authorized**, use a clear message such as `docs(agents): audit AGENTS.md`. Otherwise leave the verified edits uncommitted at the requested endpoint.
 
 ## Generating a rules file from scratch
 
@@ -209,8 +215,8 @@ When bootstrapping in a new repo:
    - What workflow (branches, PRs, commit format)?
    - Any domain glossary?
 3. **Draft** using the sections above. Mark uncertainties with `<!-- CONFIRM: … -->`.
-4. **Run the commands you listed** to confirm they work on this machine. Fix any that fail.
-5. **Show the draft** to the user before writing. Resolve `CONFIRM` markers.
+4. **Verify commands against current tooling/source.** Run safe authorized checks, diagnose failures, and record unrun or unavailable scope. Do not execute production/mutating commands or repair unrelated infrastructure just to complete the draft.
+5. **Resolve essential uncertainties.** Show a draft when the user asked to approve it first. If the changes are already approved and the facts verified, write within that scope without asking for the same permission again. Do not leave unresolved markers in active instructions.
 6. **Write `AGENTS.md` at the repo root** and optional aliases (`CLAUDE.md`, etc.) as redirects.
 
 ## Minimal working template
@@ -268,11 +274,11 @@ Keep this small and concrete. Expand only with rules the project actually enforc
 Before declaring the rules file done:
 
 - [ ] The file exists at the right path for the project's primary agent (`AGENTS.md` unless otherwise justified).
-- [ ] Every command listed was executed on this machine and succeeded.
+- [ ] Commands match current source/tooling; safe authorized checks were exercised and any unrun or unavailable scope is identified. Production/mutating commands were not run just to fill a checklist.
 - [ ] Tech stack includes specific versions, not "latest".
 - [ ] Boundaries section lists at least one "never" rule appropriate to this project.
 - [ ] At least one `Patterns` entry points at a real, existing file in the repo.
 - [ ] No secrets, tokens, or private URLs are in the file.
-- [ ] Total length is between 80 and 200 lines (or split with clear links to overflow docs).
+- [ ] The file is concise and relevant, with conditional detail behind clear references rather than a length quota.
 - [ ] Aliases for other agents in use (e.g. `CLAUDE.md` if the team uses Claude Code) point back to the canonical file.
-- [ ] File is committed and not in `.gitignore`.
+- [ ] Sharing/version-control actions match the requested scope; local personal instructions were not published by default.

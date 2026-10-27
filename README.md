@@ -14,7 +14,7 @@ body.
 
 **Why this library exists**: most public skill collections are Claude-specific and assume subagents, personas, or slash commands that do not exist in other tools. The skills here drop those assumptions, use plural rules-file vocabulary (`AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` / `.windsurfrules`), and are written to trigger reliably across providers.
 
-**Catalog budget (Codex-class agents):** the initial skill list is capped around **2% of context** (fallback **~8000 characters** for the whole list). If you install dozens of long descriptions, the agent truncates descriptions and then **omits skills**. Prefer a small always-on keep-set; keep the rest in the repo for on-demand install.
+**Catalog/context cost:** clients expose skill descriptions differently and may truncate or omit entries under version-specific limits. Keep descriptions concise and discriminating, load details progressively, and verify the installed client's actual behavior instead of assuming a universal character/token budget. Prefer a focused keep-set; keep the rest available for on-demand use.
 
 ## Quickstart
 
@@ -83,7 +83,7 @@ Then re-link the keep-set from `install-manifests/codex-keep.txt` (+ optional `c
 
 **Do not bulk-symlink the whole library into Codex.** That recreates description truncation and skill omission. The repo is the library; the agent path is a curated projection.
 
-If you truly need a large set in Claude/OpenCode (no hard 8k list budget), still prefer the keep-set first and grow deliberately.
+If you need a larger set in a particular client, verify its current discovery/context behavior and grow deliberately from the keep-set.
 
 ## Full catalog
 
@@ -194,6 +194,7 @@ replacing them.
 | [`codex-claude-resume`](./codex-claude-resume) | **tooling-specific: requires Claude Code local session history.** Lists, inspects and imports local Claude Code sessions so you can continue the work in another agent. |
 | [`natural-writing`](./natural-writing) | Write natural messages, emails, group notices, and everyday replies with appropriate voice and formality. Preserve facts and commitments; optional personal samples through `write-like-me`. |
 | [`blog-posting`](./blog-posting) | Draft and edit articles with a clear purpose, supported claims, and the author's voice. Complements `natural-writing`; the bundled lint offers advisory review, not an authorship test. |
+| [`pr-followup`](./pr-followup) | Follow a requested PR/MR through checks and verified feedback, using native events when available, preserving scope and stopping before any unauthorized merge. |
 | [`backstage-scaffolder-architect`](./backstage-scaffolder-architect) | Generates Backstage Scaffolder templates (template.yaml + skeleton) with correct `${{ ... }}` syntax across all three contexts. Useful if you run a Backstage developer portal. |
 | [`skill-creator`](./skill-creator) | Official Anthropic skill for creating and iteratively improving skills. Vendored from [anthropics/skills](https://github.com/anthropics/skills) under Apache 2.0. |
 | [`skill-creator-opencode`](./skill-creator-opencode) | Adapter that runs the skill-creator trigger-eval loop against OpenCode instead of `claude -p`. Works with any provider / model. |
@@ -206,6 +207,19 @@ turn. Put an explicitly requested universal style preference in the applicable
 rules file rather than relying on skill discovery alone.
 
 ## Install (tiered)
+
+For review, `code-review` owns the risk-based finding policy; `review-code`
+remains a compatibility entry point. `doubt-driven-review` is an optional
+independent challenge for consequential uncertainty, and
+`receiving-code-review` handles verified feedback. Opening a PR belongs to
+`pr-workflow`; ongoing requested monitoring belongs to `pr-followup`.
+
+Optional project review guidance and a PT-BR global-quality output snippet live
+under [project-rules-file](project-rules-file/SKILL.md). They are not installed
+as rules merely by installing a skill. Behavioral exercises live in
+[code-review/evals/scenarios.json](code-review/evals/scenarios.json) and
+[pr-followup/evals/scenarios.json](pr-followup/evals/scenarios.json); they do not
+certify native discovery, host approvals, or production behavior.
 
 | Manifest | Purpose |
 |---|---|
@@ -235,7 +249,7 @@ separate concerns.
 
 - Trigger = **when**, not a workflow essay.
 - Distinct branches only; no synonym lists.
-- Prefer ~120–220 chars for always-on skills; hard max 1024.
+- Prefer concise always-on descriptions; the bundled validator caps them at 1024 characters.
 - YAML-safe (quote if needed); no `<`/`>`.
 - Aggregate catalog budget matters more than per-skill max — see CONTRIBUTING.
 

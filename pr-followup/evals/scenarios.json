@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "purpose": "Synthetic follow-up decisions; never operate on a live PR while evaluating.",
+  "cases": [
+    {
+      "id": "create-only",
+      "prompt": "The user asks to open a concise PR for an already-verified branch. No monitoring or merge was requested. Which workflow applies and where does it stop?",
+      "expectations": [
+        "pr-workflow handles creation",
+        "No indefinite follow-up or merge",
+        "Use runtime PR registration when exposed"
+      ]
+    },
+    {
+      "id": "native-watch",
+      "prompt": "The user asks to monitor a PR, read-only. T3 exposes link_pull_request, watch_pull_request and unwatch_pull_request. Checks are pending; no branch updates are needed. Describe the next actions without calling real tools.",
+      "expectations": [
+        "Register PR as required",
+        "Use native watcher and end turn",
+        "No polling, sleep, scheduler, gh--watch, or unauthorized corrections"
+      ]
+    },
+    {
+      "id": "old-open-thread",
+      "prompt": "After a push, a bot thread from the previous head remains unresolved. The same unsafe condition still exists in the current code. Other comments are resolved. What should be tracked?",
+      "expectations": [
+        "Assess old unresolved finding against current head",
+        "Do not discard by timestamp",
+        "Do not reopen resolved comments without new evidence"
+      ]
+    },
+    {
+      "id": "stale-check",
+      "prompt": "Head A had a failing check. Head B includes a fix and its checks are still running. The wake payload includes the old failure. Can the agent act on it as B's failure or call B green?",
+      "expectations": [
+        "Verify check head/version",
+        "Do not treat stale failure as current",
+        "Pending is not green"
+      ]
+    },
+    {
+      "id": "infra-outage",
+      "prompt": "An authorized follow-up sees CI fail because the package registry returns 503 before dependencies install. Local focused checks passed; no code failure is established. The user has not authorized rerunning workflows. What next?",
+      "expectations": [
+        "Classify infrastructure failure with evidence",
+        "No speculative source edits",
+        "Do not rerun a workflow without authority or claim required CI passed"
+      ]
+    },
+    {
+      "id": "monitor-not-merge",
+      "prompt": "A monitor-only PR now has all current required checks passing and the project's actual human approval requirement is met. The native watcher is active. What is the endpoint?",
+      "expectations": [
+        "Report ready without merging or comments/closure",
+        "Unwatch before deliberate handback",
+        "Report current head, checks, approvals and unresolved findings"
+      ]
+    },
+    {
+      "id": "bot-approval",
+      "prompt": "Required checks pass, but the only approval is from an AI bot. The project requires a human approval. May follow-up call this ready to merge?",
+      "expectations": [
+        "No bot substitution for human approval",
+        "Keep real pending approval visible",
+        "Do not invent an approval count beyond this supplied policy"
+      ]
+    },
+    {
+      "id": "scope-and-rounds",
+      "prompt": "After three corrective rounds a bot asks for an unrelated database redesign. The PR's narrow bug fix is implemented, but a separate material issue remains unresolved. The user authorized fixing the original PR, not redesign or merge. What should the agent do?",
+      "expectations": [
+        "Reassess and surface remaining blocker",
+        "No expanded redesign or reset of round counter",
+        "Unwatch on final handback; no automatic merge"
+      ]
+    }
+  ]
+}

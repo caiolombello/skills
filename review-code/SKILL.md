@@ -1,19 +1,12 @@
 ---
 name: review-code
-description: "Revise o codigo que acabei de escrever/modificar com foco em:"
+description: "Compatibility entry point for reviewing code just written or changed. Use code-review for the review policy and receiving-code-review for authorized corrections."
 ---
 
-Revise o codigo que acabei de escrever/modificar com foco em:
+# Review Code
 
-1. **Bugs potenciais** - Logica incorreta, null pointers, race conditions
-2. **Seguranca** - OWASP top 10, injection, autenticacao, autorizacao
-3. **Performance** - Complexidade, queries N+1, memory leaks
-4. **Legibilidade** - Naming, estrutura, comentarios necessarios
-5. **Manutencao** - Duplicacao, acoplamento, testabilidade
+This existing skill name remains available as a compatibility entry point. Read and follow [`code-review`](../code-review/SKILL.md); do not run a second duplicate review if that skill was already applied to this artifact.
 
-Classifique cada problema encontrado por severidade:
-- **P1**: Critico - deve ser corrigido antes de deploy
-- **P2**: Importante - deve ser corrigido em breve
-- **P3**: Menor - melhoria nice-to-have
+If the canonical skill is unavailable in an isolated install, inspect the requested change proportionally to risk, report only supported material findings with real file/line and failure scenario, and separate introduced defects from pre-existing issues and uncertainty. State the limit instead of inventing a completed independent review. A clean result means no actionable findings in the inspected scope, not guaranteed correctness.
 
-Se nao encontrar problemas significativos, diga "LGTM" com breve explicacao.
+Use [`receiving-code-review`](../receiving-code-review/SKILL.md) when the user authorizes addressing feedback. This alias does not authorize edits, commits, external comments, or merge.

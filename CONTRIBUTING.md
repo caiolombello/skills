@@ -71,7 +71,7 @@ description: <YAML-safe string. See "Writing the description" below.>
 
 ### Writing the description
 
-The description is the **only thing** most agents inject for every skill on every turn (progressive disclosure: name + description + path). Codex-class agents also enforce an **aggregate catalog budget** (~2% of context, fallback **8000 characters** for the whole list). Long descriptions do not make triggers better — they blow the budget, get truncated, then skills are omitted.
+Clients commonly expose name, description, and path before loading the skill body. Keep discovery cheap and discriminating. Aggregate limits, truncation, and invocation behavior depend on the client/version; do not assert a universal 2% or 8000-character budget without current evidence.
 
 **Good descriptions:**
 
@@ -79,7 +79,7 @@ The description is the **only thing** most agents inject for every skill on ever
 2. Encode **distinct branches** only — one real decision surface per clause. Do **not** list synonym bags (`deploy/ship/roll out/promote…`).
 3. Disambiguate neighbors in one short phrase when overlap is real (`Not for LIVE incidents — use incident-response`).
 4. Keep YAML valid: quote the string if it contains `: ` or other plain-scalar breakers. No angle brackets (`<`/`>`).
-5. Spec max is 1024 chars per skill. Prefer **~120–220** for always-on skills so a keep-set of ~20 still fits under the aggregate budget with `.system` skills present.
+5. Respect the target validator's supported fields/limits (the bundled validator caps descriptions at 1024 characters). Prefer a short description that captures distinct intents, not a quota or a guarantee that a particular keep-set fits every client.
 6. **Never** pad with `Keywords:` suffixes or restate the skill body.
 
 **Bad (do not merge):**
@@ -101,18 +101,12 @@ Validate:
 SKILL=incident-triage   # example; set to the skill dir name
 python3 skill-creator/scripts/quick_validate.py ./"$SKILL"
 
-# trigger eval (positive + near-miss). Prefer a real model the agent uses.
-# Discover IDs with: opencode models
-MODEL=$(opencode models 2>/dev/null | awk '/deepseek-v4-flash/{print; exit}')
-MODEL=${MODEL:-opencode/deepseek-v4-flash}
-python3 skill-creator-opencode/scripts/run_eval_opencode.py \
-  --eval-set /tmp/"$SKILL".json \
-  --skill-path ./"$SKILL" \
-  --model "$MODEL" \
-  --runs-per-query 3 --num-workers 1 --timeout 120 --verbose
+# For trigger/behavior evaluation, use an authorized model and the installed
+# client's currently supported interface. Do not infer provider access from
+# an example model ID or mutate a live skill root to install a probe.
 ```
 
-Eval set: at least **2 should-trigger**, **2 near-miss** (adjacent skill), **1 edge**. Aim for stable pass rate before merging description changes.
+Include positive cases, near misses, clean counterexamples, and meaningful edge cases. Evaluate important description/workflow changes with realistic tasks and inspect failures, not just average scores. Small wording edits do not require a new evaluation platform. Label a description-only routing check as such; it does not certify native discovery or runtime behavior in another client. The legacy OpenCode adapter must be checked against the installed version and isolated before use; do not select a fallback provider/model without authorization.
 
 See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md) for methodology. Catalog budget / install tiers: [`install-manifests/`](./install-manifests/) and README.
 
@@ -123,7 +117,7 @@ See [`skill-creator-opencode/SMOKE-AUDIT-2026-05-10.md`](./skill-creator-opencod
 - **Link, don't duplicate.** If another skill covers something, link it from `Interaction with other skills`. Do not restate.
 - **Concrete examples** over abstract explanations. A good SKILL.md has at least one real command or YAML / code snippet.
 - **English.** The repo language is English. Inline code comments can be in another language if the upstream project is; prose should be English.
-- **Max ~250–500 lines** for the SKILL.md itself. Overflow goes into `references/` files linked from the main SKILL.md (progressive disclosure). Agents load those on demand only when the main skill content points to them.
+- Keep the entrypoint as short as the task permits. Put substantial conditional detail in linked references; do not add or remove useful constraints merely to meet a line quota.
 - Include `<!-- Inspired by <upstream>/<project> (MIT). See ../CREDITS.md -->` just below the frontmatter if the skill is adapted from an upstream library. Update [`CREDITS.md`](./CREDITS.md) in the same PR.
 
 ## Install manifests (do not reintroduce bulk install)
@@ -173,7 +167,14 @@ Overlap is inevitable as the library grows. If two skills drift too close:
 
 ## After merging
 
-If you change a skill body significantly, run the trigger eval to confirm you did not regress the description. If you change a description, definitely run the eval — description changes are where most regressions come from.
+For a meaningful skill change, validate metadata/references and exercise relevant behavior/selection cases with an authorized client. Record which checks ran, the version/snapshot they cover, and what was not verified. Keep known-bug and clean cases so reviewer changes do not reward false positives. Prefer deterministic tests/lint for reproducible failures and concise examples/instructions for judgment gaps; compare like tasks before attributing outcomes to a model.
+
+Reusable cases for this review-policy update are in `code-review/evals/scenarios.json`
+and `pr-followup/evals/scenarios.json`. They are behavioral fixtures, not inputs
+for the legacy flat-schema trigger adapter. Change one important rule at a time
+when practical and measure task outcomes, unnecessary work, time/cost, and review
+rounds proportionally to the change. No history-wide personal-data audit is
+implied. Keep vendored `skill-creator` and client/plugin caches unchanged.
 
 If your PR adds a skill that replaces or overlaps an existing one, update both SKILL.md `Interaction with other skills` sections in the same commit.
 

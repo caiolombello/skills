@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: "Coordinate parallel subagents or separate agent sessions safely. Use WHENEVER (1) a task can be split across independent research or implementation tracks; (2) the user asks to use multiple agents, subagents, parallel work, or delegate; (3) codebase exploration, review, docs verification, security audit, or test investigation can run concurrently; (4) you need fresh-context reviewers or specialists; (5) worktrees or branch isolation are needed to avoid collisions. Provider-agnostic: use subagent tools if available, otherwise give copy-pasteable session briefs."
+description: "Use when coordinating authorized subagents for independent parallel work, a genuinely separate review context, or execution isolation. Keep tightly coupled work in the main agent loop."
 ---
 
 <!-- Inspired by obra/superpowers dispatching-parallel-agents and subagent-driven-development (MIT). See ../CREDITS.md -->
@@ -25,6 +25,10 @@ Parallel agents are useful when tasks are independent. They are dangerous when t
 - The user needs one accountable implementation path, not broad exploration.
 
 ## Split by independence, not by layer
+
+Before delegating, identify the benefit: independent parallel progress, an actually separate review context, useful execution/permission isolation, or measurable context overload. Weigh it against startup latency, duplicated reads, lossy summaries, coordination, and integration. If selective skill/source loading or parallel tool calls in the main loop suffice, use those. Do not create a router/planner/domain agent simply because a topic has a name.
+
+Start with the smallest useful set, not a fixed number of specialists or models. Keep sequential tasks that share decisions/data in the same loop unless a real boundary can be defined. Respect the user's delegation and provider choices; this skill does not widen authorization.
 
 Good splits:
 
@@ -62,6 +66,7 @@ Return:
 - Evidence
 - Risks / open questions
 - Exact files touched, if any
+- Actual source/version references, observed results, and uncertainties needed to verify the handoff
 ```
 
 If the provider has no subagent tool, paste this into separate sessions and collect the results manually.
@@ -69,6 +74,8 @@ If the provider has no subagent tool, paste this into separate sessions and coll
 ## Worktree isolation for write tasks
 
 For parallel implementation, use `using-git-worktrees` unless the tasks are read-only.
+
+Use app-owned checkout/isolation tools when required by the runtime; a shell-created checkout does not necessarily bind a child to it. A nominal subagent may inherit parent history: configure a supported clean-context mode when independence is the goal. Do not assume freshness or permission separation from the word "subagent".
 
 Each writing agent gets:
 
@@ -107,12 +114,14 @@ Do not blindly trust subagent output. Fresh context helps, but it can still be w
 
 ## Two-stage review pattern
 
-For generated code, use two review passes:
+Check both concerns for generated code, proportionally to risk:
 
 1. **Spec compliance** — does it satisfy the requested task and acceptance criteria?
 2. **Code quality** — correctness, readability, architecture, security, performance.
 
 Critical spec failures block integration. Quality findings are triaged by severity.
+
+These concerns can be checked in one pass. Separate agents or rounds only when they add useful coverage or independence; there is no universal two-agent/two-round gate. Use the convergence rules in [`code-review`](../code-review/SKILL.md), not repeated full reviews until reviewers agree. A child should not recursively delegate unless its task and the runtime permit that.
 
 ## Anti-patterns
 

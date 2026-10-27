@@ -92,9 +92,9 @@ Downgrade severity when impact shrinks. Upgrade when it grows. Announce the chan
 
 ### The four stabilization levers
 
-Try them in roughly this order. Each is faster than the next.
+Choose the fastest safe, authorized mitigation supported by current evidence. A reversible feature flag can be faster than rollback; the list is not a fixed ordering or permission to alter production.
 
-1. **Rollback.** If a deploy went out in the last N hours and the symptom started after, roll it back. Do this **before** reading any logs — a rollback takes 2 minutes and tells you whether the deploy was the cause. If the symptom clears, you have both stabilized and located the cause.
+1. **Rollback.** When timing and evidence support a recent deploy as the cause, use a known-safe compatible rollback within the incident authorization. Briefly capture volatile evidence that can be preserved without delaying recovery. Check data/schema compatibility and irreversible effects; do not assume every rollback is harmless or that recovery alone proves the root cause.
 2. **Feature flag off.** If the bad code path is behind a flag, flip it off. Often reversible in seconds.
 3. **Scale out / shed load.** If the symptom is load-driven (DB CPU pinned, queue growing, rate-limited downstream), increase replicas, widen queues, raise rate limits, **or** enable load shedding — return 503 to non-critical traffic to save the critical path. Shed before the system collapses entirely.
 4. **Re-route / failover.** DNS to a healthy region, active-passive failover, serve cached responses, switch to a maintenance page. Last resort before "tell everyone we are down".
@@ -108,7 +108,7 @@ Try them in roughly this order. Each is faster than the next.
 
 ### Capture evidence before you fix
 
-Between "confirmed cause" and "applied fix", grab evidence that will survive the fix:
+Before a mitigation that may destroy useful evidence, capture what is quick and safe without delaying urgent recovery. If capture would materially prolong impact, stabilize first and record the evidence gap. Preserve relevant forensic evidence according to the incident's security requirements. A definitive root cause is not required before a safe mitigation. Useful captures include:
 
 - Save the offending log window to a file.
 - Screenshot the dashboards.
@@ -210,7 +210,7 @@ Assume everyone acted in good faith with the information they had. **Ask "what s
 
 - Every action has an **owner** and a **due date**. Orphan actions do not ship.
 - Actions are **tracked in the issue tracker**, not only in the postmortem doc.
-- Prefer **systemic** actions over **procedural** ones. "Add a test" beats "everyone please remember". "Put a safeguard in CI" beats "be more careful".
+- Prefer **systemic** actions over **procedural** ones. Turn reproducible recurring failures into meaningful tests/lint/tool checks when possible; use a short instruction/example for missing context or judgment. Use known-bug and clean cases to assess reviewer changes without rewarding false positives. CI changes and history-wide audits still need their own scope/authorization.
 - Split **repeat-prevention** (systemic) from **impact-reduction** (faster detection, faster mitigation). Both matter.
 
 The [`opsteam-docs`](../opsteam-docs) skill can render this postmortem to the OpsTeam `.docx` template for client delivery.

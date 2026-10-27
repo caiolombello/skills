@@ -1,6 +1,6 @@
 ---
 name: receiving-code-review
-description: Process code review feedback without ego, thrash, or scope creep. Use WHENEVER (1) the user pastes PR/MR review comments; (2) a reviewer/subagent returns findings; (3) CI/code review requests changes; (4) you need to decide which review comments to accept, clarify, defer, or reject; (5) applying review feedback across code, tests, docs, or commits. Complements code-review and pr-workflow by turning feedback into verified follow-up changes.
+description: "Use when handling human, bot, or subagent review feedback. Verify findings, classify them, and make only authorized, in-scope corrections with evidence."
 ---
 
 <!-- Inspired by obra/superpowers receiving-code-review (MIT). See ../CREDITS.md -->
@@ -34,6 +34,7 @@ Capture:
 - Requested change.
 - Severity, if provided.
 - Whether it blocks merge.
+- Reviewed head/base or snapshot, triggering scenario, evidence, and whether the issue is introduced, pre-existing, or uncertain.
 
 ## 2. Classify
 
@@ -46,11 +47,13 @@ Use four buckets:
 | Defer | Valid but outside this change | Track as follow-up if user wants |
 | Reject | Incorrect or harmful | Explain with evidence |
 
-Default to accepting correctness, security, data-loss, and test-coverage findings unless evidence says otherwise.
+Treat every finding as a hypothesis, including comments labeled security, correctness, data loss, or missing coverage. Inspect the current artifact and contract before accepting it. A plausible risk deserves investigation; a label, confident bot, or majority vote does not prove the defect. Separate an unconfirmed question from a supported finding.
+
+Compare against the base when relevant. A pre-existing issue unrelated to the change does not authorize a drive-by fix. Respect an applicable policy that requires resolving a material issue, without pretending this PR introduced it.
 
 ## 3. Plan the response
 
-Before editing, produce a short action list:
+Before editing, establish the dispositions and scope. A short action list is useful for several findings; keep it internal for a routine correction unless the user asks for the plan:
 
 ```markdown
 Review response plan:
@@ -61,6 +64,8 @@ Review response plan:
 ```
 
 If multiple comments affect the same code, resolve them together to avoid churn.
+
+Verify missing context from available sources first. Ask only when an essential decision cannot be resolved within the existing authorization; do not turn every ambiguity into a routine confirmation.
 
 ## 4. Apply surgically
 
@@ -81,11 +86,17 @@ Run the smallest relevant verification first, then the broader suite if appropri
 - Lint/typecheck if code shape changed.
 - Full test/build command required by the repo or PR.
 
-Do not mark a review comment resolved without evidence.
+Do not mark a review comment resolved without evidence and authority to update the host. Revalidate checks affected by new changes and identify the head they cover. Bot approval does not replace a human approval required by the project.
+
+## Re-review and convergence
+
+Use the incremental diff, affected dependencies, and unresolved findings after a correction. Carry forward dispositions so rejected/resolved feedback is not reopened without new evidence. Do not widen scope to chase historical bugs. Follow the bounded corrective loop in [`code-review`](../code-review/SKILL.md): one pass may suffice; after three corrective rounds without convergence, reassess rather than continuing automatically. Ending the loop does not clear a blocker.
 
 ## 6. Respond to reviewers
 
 Responses should be concise and factual:
+
+Post external replies or resolve threads only when authorized by the request or active workflow. Otherwise provide the proposed response to the user. Reuse existing authorization rather than requesting it again for every routine action.
 
 - Accepted: "Fixed in `<commit/file>`; added coverage for `<case>`."
 - Clarify: "I may be missing context. Do you mean `<A>` or `<B>`?"
@@ -118,6 +129,7 @@ Do not pick the easier change silently.
 ## Verification checklist
 
 - [ ] All comments were read before editing.
+- [ ] Findings were checked against the current version and their triggering scenarios, not accepted by label or reviewer authority.
 - [ ] Each comment is classified as accept/clarify/defer/reject.
 - [ ] Accepted comments have targeted changes and tests where needed.
 - [ ] Clarifications are asked before speculative edits.

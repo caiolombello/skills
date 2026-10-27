@@ -20,7 +20,7 @@ Use this before saying "done" on any non-trivial task.
 
 ## The evidence ladder
 
-Prefer the strongest evidence available:
+Choose the evidence that demonstrates this change's behavior; the list below is not a mandate to run every layer or rank a cosmetic screenshot below unrelated lint:
 
 1. **Behavioral test** covering the requested behavior or bug.
 2. **Integration/e2e test** proving components work together.
@@ -29,6 +29,8 @@ Prefer the strongest evidence available:
 5. **Static inspection** only for docs or mechanical changes.
 
 For behavior changes, compilation alone is not enough.
+
+Match evidence to consequences, uncertainty, and reversibility, not just diff size. Focused checks may suffice for a routine change; a one-line authorization change may need additional cases and independent review. A purely visual adjustment can be demonstrated with suitable before/after captures rather than a new test that repeats styling or markup.
 
 ## Select checks deliberately
 
@@ -49,6 +51,10 @@ Match check to change:
 
 Record exact commands and outcomes:
 
+Identify the relevant head/base SHA or working-tree snapshot and environment. For uncommitted work, record enough of the diff/file hashes or artifacts to distinguish the checked bytes. Do not assign a test result to a later materially changed version without rerunning affected checks.
+
+Keep local checks, remote CI, automated review, required human approval, deployed version, and observed production behavior separate. Use explicit outcomes such as PASS, FAIL, NOT RUN, UNAVAILABLE, or NOT CONFIGURED. An absent check is not a passing check, and local tests do not prove deployment or production stability.
+
 ```markdown
 Verified:
 - `pnpm test -- auth.test.ts`: pass
@@ -59,6 +65,8 @@ Not verified:
 ```
 
 If a command fails, completion is blocked unless the failure is clearly unrelated and disclosed with evidence.
+
+After a relevant change, invalidate and rerun affected evidence and reassess approvals according to the actual project/host policy. Do not assume any approval count, CI job, or branch protection exists. Agent review never substitutes for a required human approval. Stop at the requested endpoint: validated, committed, published, merged, or deployed are distinct states.
 
 ## Handling flaky or unavailable checks
 
@@ -75,6 +83,8 @@ If a check cannot run:
 - Explain why.
 - Run the strongest available substitute.
 - Tell the user what remains to be verified elsewhere.
+
+Diagnose whether the failure is in the change, an existing repository problem, or the environment/infrastructure. Run a bounded, supported substitute when it adds evidence, but do not call it equivalent to an unavailable required gate. Do not fix unrelated infrastructure or silently weaken acceptance criteria. Continue independent authorized work while a separate check is blocked, when safe.
 
 ## Manual verification
 

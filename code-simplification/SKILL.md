@@ -1,6 +1,6 @@
 ---
 name: code-simplification
-description: 'Reduce code complexity while preserving exact behavior. The goal is comprehension, not fewer lines. Use WHENEVER (1) a feature is working and tests pass but the implementation feels heavier than it needs to be; (2) code review flags readability, nesting, or complexity issues; (3) the agent encounters deep nesting, long functions, chained ternaries, or generic names; (4) refactoring code written under time pressure; (5) the user asks to "clean up", "simplify", "reduce complexity", "refactor for clarity", "make this more readable". Does NOT apply when: code is already clean; you have not fully understood what the code does yet; the "simpler" version would be measurably slower in a hot path; you are about to rewrite the module entirely. Refactor-only — never combined with a feature or bug fix in the same change.'
+description: "Use when simplifying understood code while preserving behavior. Keep the refactor scoped, use meaningful verification, and avoid unrelated cleanup."
 ---
 
 <!-- Inspired by addyosmani/agent-skills code-simplification (MIT), which in turn is inspired by Anthropic's code-simplifier plugin. See ../CREDITS.md -->
@@ -146,19 +146,19 @@ Each row below is a **concrete signal** — not a vague smell.
 
 ### Step 3: Apply incrementally
 
-**One simplification at a time. Tests after each.**
+**Keep changes attributable and verify meaningful behavior.** Use focused checks first; broader suites follow risk and project policy, not a full-suite ritual after each line.
 
 ```
 For each simplification:
 1. Make one focused change.
-2. Run the test suite.
-3. If green → commit (or continue to the next).
-4. If red → revert and reconsider.
+2. Run relevant checks; expand when the risk or project requires it.
+3. If verified, continue; commit only if already authorized.
+4. If the change causes a failure, undo only your faulty edit and reconsider.
 ```
 
-**Never batch** multiple simplifications into a single untested change. If something breaks you need to know which one caused it.
+Keep batches small enough to attribute failures. Preserve pre-existing work when undoing an edit; do not use destructive Git cleanup to recover. Verification alone does not authorize a commit, push, or PR.
 
-**Split refactor from feature / bug fix.** A change that simplifies **and** adds behavior is two changes — submit them separately. See [`code-review`](../code-review).
+Keep unrelated refactoring separate from a feature/bug fix. A small clarity change necessary to the authorized work can stay with it when behavior is verified. Do not create a new commit or PR solely to satisfy a separation ritual; publication still needs authorization. See [`code-review`](../code-review).
 
 **The rule of 500:** if a refactor touches more than 500 lines, invest in automation — codemods, AST transforms, `sed` with care. Manual edits at that scale are error-prone and exhausting to review.
 
@@ -168,7 +168,7 @@ After the simplifications, step back:
 
 - Is the new version genuinely easier to understand?
 - Would a new teammate read this faster?
-- Do **all** existing tests still pass **unchanged**?
+- Do the relevant existing tests pass unchanged, with broader checks run when required and any unrun scope disclosed?
 - Did you preserve every edge case the original handled?
 - Did you match the project's existing style?
 
@@ -193,8 +193,8 @@ If the answer to any of these is no, revert the change — the simplification wa
 - [`llm-coding-discipline`](../llm-coding-discipline) — "simplicity first", "surgical changes" are the principles this skill operationalizes.
 - [`investigate-before-editing`](../investigate-before-editing) — read the code end-to-end and check `git blame` before changing anything.
 - [`test-driven-development`](../test-driven-development) — existing tests are your oracle for "did behavior change?".
-- [`code-review`](../code-review) — simplification PRs should be reviewed with the same five axes; special attention to correctness (same edge cases) and scope discipline.
-- [`git-hygiene`](../git-hygiene) — one commit per simplification, Conventional Commits (`refactor(scope): …`).
+- [`code-review`](../code-review) — use risk-based review, with particular attention to preserved behavior, relevant dependencies, and scope; no mandatory scorecard or extra reviewer per refactor.
+- [`git-hygiene`](../git-hygiene) — commits only within the approved workflow, Conventional Commits (`refactor(scope): …`).
 - [`incremental-implementation`](../incremental-implementation) — applies to refactors too: small slices, green between.
 
 ## Verification checklist
@@ -204,9 +204,9 @@ Before declaring a simplification done:
 - [ ] I understood why the original code existed before touching it.
 - [ ] The change matches the project's existing conventions (not my preferences).
 - [ ] Every change was made and tested in isolation.
-- [ ] All existing tests pass unchanged (no tests modified to accommodate the refactor).
+- [ ] Relevant existing tests pass unchanged; required broader checks and verification limits are recorded honestly.
 - [ ] The new version is genuinely easier to read — not just shorter.
 - [ ] No behavior changed (inputs, outputs, side effects, error handling, ordering).
-- [ ] The refactor is in its own commit / PR, not bundled with a feature or bug fix.
+- [ ] Unrelated cleanup was kept out of the change; any commit/PR or scope split matches the authorized workflow.
 - [ ] For >500 lines touched, I used automation or split the refactor.
 - [ ] I kept "why" comments; I deleted "what" comments only when the code was already clear.
