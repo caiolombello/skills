@@ -159,7 +159,7 @@ replacing them.
 | [`setup-pre-commit`](./setup-pre-commit) | Install pre-commit hooks (`pre-commit` / lefthook / Husky). Format, lint, typecheck, secret-scan before every commit. |
 | [`gh-cli-workflows`](./gh-cli-workflows) | **tooling-specific: requires `gh`.** Keeps `gh` commands pointed at the right GitHub account when the machine has multiple accounts and SSH host aliases. |
 | [`glab-cli-workflows`](./glab-cli-workflows) | **tooling-specific: requires `glab`.** GitLab CLI companion — correct host + account selection, multi-instance, token scoping. |
-| [`atlassian-acli`](./atlassian-acli) | **tooling-specific: requires `acli`.** Jira/Confluence Cloud via Atlassian CLI — Markdown bodies, no hand-pasted ADF, multi-account OAuth. |
+| [`atlassian-acli`](./atlassian-acli) | **tooling-specific: requires `acli`.** Jira/Confluence Cloud via Atlassian CLI — Markdown bodies converted to ADF via `scripts/md2adf.py` (acli does not render Markdown), multi-account OAuth. |
 | [`pr-workflow`](./pr-workflow) | PRs / MRs that reviewers can actually review. Title + body structure, draft vs ready, pre-flight checklist, merge strategies. Host-agnostic. |
 
 ### Infra & cloud
