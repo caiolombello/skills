@@ -1,6 +1,6 @@
 ---
 name: pr-workflow
-description: "Use when opening or preparing a PR/MR: clear problem-first title/body, appropriate verification, and draft/ready state. Monitoring through later reviews belongs to pr-followup."
+description: "Use when opening or preparing a PR/MR: clear problem-first title/body, appropriate verification, before/after screenshots embedded in the body for visual changes, and draft/ready state. Monitoring through later reviews belongs to pr-followup."
 ---
 # pr-workflow
 
@@ -84,9 +84,74 @@ Rules:
 - Lead with the user's problem and resulting behavior, not an inventory of symbols or files. Scale detail to complexity; a small PR can need only a few sentences and validation.
 - Use bullets when they improve scanning; omit empty template sections.
 - The "why" is more valuable than the "what". The diff shows the what.
-- For a visible change, include suitable captures when useful and authorized; do not upload or publish private artifacts merely to satisfy a template.
+- For a visual change, embed before/after images in the body — see [Visual changes: before/after images](#visual-changes-beforeafter-images).
 - If the PR changes a public API, include a before/after snippet.
 - For meaningful operational/data risk, describe how to reverse or mitigate the change, with actual limitations. Do not invent a tested rollback or demand a production rollout plan for a wording fix.
+
+## Visual changes: before/after images
+
+When the PR changes anything a user sees — layout, styling, copy in the UI, components, charts, email/HTML templates, docs-site pages — the body must show **before and after images side by side**. Reviewers should not have to check out the branch to see the change. Skip it only when nothing rendered changes (pure logic, tests, infra), and say "No visual change" if a template asks.
+
+### 1. Capture comparable pairs
+
+- **Before** = the base branch; **after** = the PR head. Never stash or reset the user's work to get the base: render the base from a separate worktree (`git worktree add /tmp/pr-before origin/<base>`, see [`using-git-worktrees`](../using-git-worktrees/SKILL.md)) or reuse the before views captured earlier per [`frontend-development`](../frontend-development/SKILL.md). Remove the temporary worktree afterwards.
+- Same route, data/fixture, viewport width, theme, and interaction state in both images. One pair per affected screen/state; add a narrow (mobile) pair when the change is responsive.
+- Use the project's own capture tooling when it exists; otherwise the sibling `frontend-design` runner, with identical flags for both runs:
+
+  ```bash
+  node <frontend-design-dir>/scripts/visual_qa.mjs --start "<dev command>" --url <dev url>/<route> \
+    --widths 1440 --themes light --no-full-page --out /tmp/pr-shots/before   # run in the base worktree
+  node <frontend-design-dir>/scripts/visual_qa.mjs --start "<dev command>" --url <dev url>/<route> \
+    --widths 1440 --themes light --no-full-page --out /tmp/pr-shots/after    # run in the PR branch
+  ```
+
+  `<frontend-design-dir>` is the absolute path of the sibling `frontend-design` skill folder. Pick only the relevant images from the run output and copy them to a flat folder with descriptive names (`before-settings-1440.png`, `after-settings-1440.png`). Crop to the changed region when the full page hides it.
+- Keep images **outside the repository** (e.g. `/tmp/pr-shots/`). Never commit screenshots to the branch to host them.
+- Open and look at every image before using it. Discard blank, loading-spinner, error-page, or mismatched pairs and recapture.
+- **Privacy gate:** uploaded attachments are reachable by URL. Use fixtures or test data; never upload images showing real customer data, PII, tokens, internal-only hosts, or secrets. If you cannot avoid it, stop and ask.
+
+### 2. Lay out the body
+
+Add a `## Screenshots` section after `## Summary` (or fill the template's equivalent), one row per screen/state, with alt text that says what is shown:
+
+```markdown
+## Screenshots
+
+| Before | After |
+|---|---|
+| ![Before: settings dialog, 1440px](./before-settings-1440.png) | ![After: settings dialog, 1440px](./after-settings-1440.png) |
+| ![Before: settings dialog, 390px](./before-settings-390.png) | ![After: settings dialog, 390px](./after-settings-390.png) |
+```
+
+For a new screen with no before state, use a single `After` column and say "New screen". For animations or interactions, attach a short video/GIF instead of a still.
+
+### 3. Upload with the host CLI
+
+**GitHub** — `gh` ≥ 2.103 uploads images with `--attach` and rewrites `./file.png` references in the body to the uploaded asset. Paths in `--body-file` resolve relative to the body file's directory, so put `body.md` in the same folder as the images:
+
+```bash
+gh pr create --base <base> --title "..." --body-file /tmp/pr-shots/body.md --draft \
+  --attach /tmp/pr-shots/before-settings-1440.png \
+  --attach /tmp/pr-shots/after-settings-1440.png
+
+# Existing PR: same flags on edit (or `gh pr comment --attach` for a follow-up comment)
+gh pr edit <n> --body-file /tmp/pr-shots/body.md --attach /tmp/pr-shots/before-settings-1440.png --attach /tmp/pr-shots/after-settings-1440.png
+```
+
+If `gh pr create --help` has no `--attach`, the CLI is too old: create the PR, then tell the user to drag the images into the description in the web UI. Do not host images in the repo or a third-party image host instead.
+
+**GitLab** — `glab mr` has no attach flag. Upload each file through the project uploads API and paste the returned `markdown` into the description:
+
+```bash
+before=$(glab api --method POST "projects/:fullpath/uploads" --form "file=@/tmp/pr-shots/before-settings-1440.png" | jq -r .markdown)
+after=$(glab api --method POST "projects/:fullpath/uploads" --form "file=@/tmp/pr-shots/after-settings-1440.png" | jq -r .markdown)
+# Write the table into the description file using "$before" / "$after", then:
+glab mr create ... --description-file /tmp/pr-shots/body.md
+```
+
+### 4. Verify
+
+Re-read the published body (`gh pr view <n> --json body -q .body` / `glab mr view <n>`). No `./*.png` local references may remain; every image must point to an uploaded asset. If capture was impossible (app does not run, needs credentials, no fixture), say so explicitly in `## Testing` with the reason. Never present a mockup, an old screenshot, or a different state as the before/after.
 
 ## Problem-first examples
 
@@ -273,6 +338,7 @@ Before `gh pr create` / `glab mr create`:
 - [ ] Diff contains only the files the change requires (no stray edits).
 - [ ] Title follows Conventional Commits, under 70 chars.
 - [ ] Body leads with the problem and result, records meaningful verification, and follows any required project template.
+- [ ] Visual change: comparable before/after images are embedded in the body as uploaded assets (none committed, none with real data), or the reason they could not be captured is stated.
 - [ ] Draft vs ready is the correct state for where the work is.
 - [ ] Base branch is the project's real default (not always `main`).
 - [ ] Labels / reviewers match the project's convention.
