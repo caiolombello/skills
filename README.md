@@ -166,6 +166,7 @@ replacing them.
 
 | Skill | What it does |
 |-------|--------------|
+| [`architecture-diagrams`](./architecture-diagrams) | Create and review professional, editable Draw.io or Excalidraw diagrams for software, cloud, Kubernetes, C4, topology, sequence, BPMN, and infrastructure, with official icon provenance and structural/visual validation. |
 | [`awscli-workflows`](./awscli-workflows) | **tooling-specific: requires `aws`.** Safety rules: explicit `--profile`/`--region`, read-before-write, dry-run patterns, IAM key rotation, assume-role chains. |
 | [`aws-security-architecture`](./aws-security-architecture) | Preventive AWS security architecture and review across accounts, identity, network, data, logging, workloads, and cross-account automation. |
 | [`aws-security-posture`](./aws-security-posture) | Security Hub CSPM and compliance-control governance: validate findings, prioritize contextual risk, manage exceptions, plan remediation, and revalidate. |

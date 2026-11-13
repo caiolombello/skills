@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Diagrams"
+  short_description: "Create professional editable architecture diagrams"
+  default_prompt: "Use $architecture-diagrams to create a professional, editable architecture diagram with the right notation, official icons, and validated exports."

@@ -1,0 +1,12 @@
+{
+  "package": "@excalidraw/excalidraw",
+  "package_version": "0.18.1",
+  "package_npm_integrity": "sha512-6i5Gt7IDTOH//qa0Z315Ly5iVRhjWpu2whrlQFqkuwrkKUWgRsMk0P5qdE7bpyDpai7jeLeWYkyj1eVAfni1lw==",
+  "react_version": "18.3.1",
+  "esbuild_version": "0.25.9",
+  "bundle_sha256": "0682e161317a7aa7588f8132d041e35cc960dec19c99f7b2316c4b0a422d7304",
+  "built_on": "2026-08-18",
+  "build_source": "assets/excalidraw-renderer-entry.js",
+  "build_lockfile": "references/excalidraw-runtime-build/package-lock.json",
+  "third_party_notices": "references/licenses/excalidraw-renderer-third-party-notices.txt"
+}

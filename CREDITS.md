@@ -10,15 +10,17 @@ This repository is a curated, provider-agnostic library of Agent Skills. Several
 Rewriting — not vendoring — keeps the library maintainable and self-consistent. The upstream authors deserve credit regardless.
 
 Most non-vendored upstream projects used as inspiration are under the MIT
-license. Exceptions are called out explicitly below: AWS Agent Toolkit is
-Apache-2.0, AI-DLC uses MIT-0, and Revenue-Centric Design uses custom
-source-available terms. Authoritative standards and government publications
-used as technical sources are identified separately. Our original and adapted
-skill text is MIT unless a skill directory says otherwise (see
-[LICENSE](LICENSE)). Vendored projects retain their original license; see
-[Vendored projects](#vendored-projects-distinct-from-the-above) below. We
-acknowledge every source because provenance matters even when attribution is not
-required.
+license. Exceptions are called out explicitly below: AWS Agent Toolkit and the
+Draw.io shape index are Apache-2.0, AI-DLC uses MIT-0, Revenue-Centric Design
+uses custom source-available terms, and the Cole Medin Excalidraw reference had
+no declared license at the reviewed snapshot and was therefore used only for
+high-level concepts. Authoritative standards and government publications used
+as technical sources are identified separately. Our original and adapted skill
+text is MIT unless a skill directory says otherwise (see [LICENSE](LICENSE)).
+Vendored projects retain their original license; see
+[Vendored skills and assets](#vendored-skills-and-assets-distinct-from-the-above)
+below. We acknowledge every source because provenance matters even when
+attribution is not required.
 
 ## Upstream projects referenced
 
@@ -256,6 +258,64 @@ meaningful product shape. The local workflow is independently written for
 AI-native product interaction and does not vendor Hallmark's themes, component
 catalog, or slop-test rule set.
 
+### [Agents365-ai/drawio-skill](https://github.com/Agents365-ai/drawio-skill) — MIT
+
+Copyright (c) 2026 Agents365-ai.
+Commit referenced: `2ee141e` (reviewed 2026-08-18).
+
+`architecture-diagrams` adapts a deliberately small architecture-focused
+subset: graph auto-layout, C4 multipage generation, Terraform configuration and
+state importers, Kubernetes import, shape search, edge-port routing, Draw.io
+validation, and PNG repair. The local skill omits the upstream PR bot, AI-logo
+CDNs, animation, reverse-conversion, presentation, and other peripheral tools.
+Modified files carry an attribution header and the upstream MIT license is
+preserved at
+`architecture-diagrams/references/licenses/Agents365-drawio-skill-MIT.txt`.
+
+The bundled `shape-index.json.gz` originated in
+[jgraph/drawio-mcp](https://github.com/jgraph/drawio-mcp) and the official
+diagrams.net shape libraries under Apache-2.0. Its notice is preserved at
+`architecture-diagrams/references/licenses/shape-index-notice.md`; the full
+Apache-2.0 text is preserved beside it.
+
+### [coleam00/excalidraw-diagram-skill](https://github.com/coleam00/excalidraw-diagram-skill) — no license declared
+
+Commit reviewed: `8646fcc` (reviewed 2026-08-18).
+
+The repository informed only high-level ideas used in
+`architecture-diagrams`: match spatial structure to meaning, distinguish
+conceptual from evidence-rich technical views, build large scenes in sections,
+and require a render-inspect-refine loop. No text, templates, palette, Python,
+HTML, or other file was copied because the reviewed repository contained no
+`LICENSE`, `COPYING`, or `NOTICE`.
+
+The local Excalidraw validator and renderer integration are original. The
+renderer uses a vendored, SHA-256-verified bundle built from the official
+[Excalidraw](https://github.com/excalidraw/excalidraw) browser package
+`@excalidraw/excalidraw@0.18.1` (MIT) with an exact lockfile. The browser is
+offline before page content or a scene is injected. Bundle provenance,
+rebuild instructions, and complete included-package notices are preserved
+under `architecture-diagrams/references/`.
+
+### Architecture diagram standards and official icon sources
+
+`architecture-diagrams` uses the
+[C4 model](https://c4model.com/diagrams) for software zoom levels,
+[OMG UML 2.5.1](https://www.omg.org/spec/UML/2.5.1) for sequence semantics,
+[OMG BPMN](https://www.omg.org/bpmn/) for business-process semantics, and
+[WCAG 2.2](https://www.w3.org/WAI/WCAG22/) as the baseline for screen contrast
+and non-color-only communication. C4 site material is CC BY 4.0; local guidance
+is newly written and does not reproduce its examples.
+
+Official icon and brand sources are
+[AWS Architecture Icons](https://aws.amazon.com/architecture/icons/),
+[Azure Architecture Icons](https://learn.microsoft.com/azure/architecture/icons/),
+[Google Cloud product icons](https://cloud.google.com/icons), and the
+[CNCF artwork repository](https://github.com/cncf/artwork) plus
+[CNCF brand guidelines](https://www.cncf.io/brand-guidelines/). No complete
+vendor icon pack is vendored locally; agents must review current asset and
+trademark terms for external distribution.
+
 ### [modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol) — MIT
 
 Stable specification reviewed: `2025-11-25` (checked 2026-07-23).
@@ -382,13 +442,25 @@ of the upstream projects above. They are noted here only for completeness:
 - `frontend-development` (W3C WCAG, WAI-ARIA Authoring Practices, web.dev, Testing Library, Playwright, and Storybook documentation)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
 
-## Vendored projects (distinct from the above)
+## Vendored skills and assets (distinct from the above)
 
-Some skills in this repository are vendored from upstream projects under their original license. Those directories retain the upstream license and a `README.md` documenting local modifications. Current exceptions include:
+Some skills and generated assets in this repository are vendored from upstream
+projects under their original licenses. As of this writing:
 
 - [`skill-creator/`](skill-creator/) — vendored from [anthropics/skills](https://github.com/anthropics/skills), Apache 2.0. See [`skill-creator/README.md`](skill-creator/README.md) for details.
+- `architecture-diagrams/assets/drawio/shape-index.json.gz` — generated shape
+  catalog from jgraph/drawio-mcp and diagrams.net, Apache-2.0, with notice and
+  full license under `architecture-diagrams/references/licenses/`.
+- `architecture-diagrams/assets/excalidraw-renderer.bundle.js` — locally built,
+  hash-pinned browser bundle from `@excalidraw/excalidraw@0.18.1` and its
+  included dependencies, with lockfile, provenance, and complete notices under
+  `architecture-diagrams/references/`.
 
 Vendored projects keep their upstream license, copyright and per-file modification notices. The local 2026-10-27 skill-creator patches address evaluator, viewer and benchmark safety/correctness; they are documented in its README and tested offline. Original/adapted skill text is MIT unless the skill directory provides different terms, including the AI-interface source-available exception.
+
+The difference matters: vendored material keeps its upstream license and
+notice obligations. Inspired skills are new works under the applicable license
+stated above.
 
 ## How to acknowledge in individual skills
 

@@ -14,6 +14,7 @@ database-migrations
 cost-optimization-aws
 observability
 spec-first-planning
+architecture-diagrams
 aws-security-architecture
 aws-security-posture
 aws-security-incident-response
