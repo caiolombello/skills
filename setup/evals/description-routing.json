@@ -278,6 +278,19 @@
       "avoid": [
         "content-production"
       ]
+    },
+    {
+      "id": "security-audit-positive",
+      "prompt": "Run a comprehensive security audit of this repository and give me a findings report with severities and fixes.",
+      "primary": "security-audit"
+    },
+    {
+      "id": "security-audit-near-miss",
+      "prompt": "Add CSRF protection and server-side input validation to this new Express form handler.",
+      "primary": "security-hardening",
+      "avoid": [
+        "security-audit"
+      ]
     }
   ]
 }

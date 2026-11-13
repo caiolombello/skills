@@ -135,6 +135,7 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`receiving-code-review`](./receiving-code-review) | Process PR/MR review feedback: classify accept/clarify/defer/reject, apply surgically, verify, and respond with evidence. |
 | [`code-simplification`](./code-simplification) | Reduce complexity while preserving exact behavior. Chesterton's Fence; rule of three; refactor split from feature work. |
 | [`security-hardening`](./security-hardening) | Application-layer security — OWASP Top 10 patterns for input validation, authn/authz, injection, SSRF, CSP. Separate from container/IaC/secret storage. |
+| [`security-audit`](./security-audit) | Source-first vulnerability review and, on explicit request, a full multi-phase audit: candidate gate, `confirmed`/`needs_validation`/`rejected` verdicts, sandboxed execution only, coverage ledger, independent verification, and validated findings. |
 | [`doubt-driven-review`](./doubt-driven-review) | Independently challenge consequential decisions or uncertain correctness claims when the risk justifies it. |
 | [`dispatching-parallel-agents`](./dispatching-parallel-agents) | Coordinate parallel subagents or sessions safely with tight briefs, file ownership, worktree isolation, and result synthesis. |
 | [`no-docs-unless-asked`](./no-docs-unless-asked) | Blocks the reflex to create `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md` etc. "to be helpful". Updates to existing docs are fine. |
@@ -290,6 +291,7 @@ to be provider-agnostic and consistent with the rest of the library. See
 [awslabs/aidlc-workflows](https://github.com/awslabs/aidlc-workflows),
 [heliocosta-dev/revenue-centric-design](https://github.com/heliocosta-dev/revenue-centric-design),
 [modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol),
+[cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill),
 the [NSA MCP security design guide](https://media.defense.gov/2026/Jun/02/2003943289/-1/-1/0/CSI_MCP_SECURITY.PDF),
 and the other reviewed sources.
 

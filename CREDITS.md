@@ -414,6 +414,27 @@ attributions/licenses remain in force. No vendor's model-specific performance
 claims are adopted as universal guarantees, and installing these instructions
 does not configure CI, branch protection, approvals, or provider accounts.
 
+### 2026-11-13 additions
+
+Reviewed on 2026-11-13. Prose in every case below is independently written in
+this repository's voice; only the files listed under
+[Vendored skills and assets](#vendored-skills-and-assets-distinct-from-the-above)
+are copied.
+
+#### [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill/tree/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8) — MIT
+
+Copyright (c) 2025-2026 Cloudflare, Inc. Snapshot
+`c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`.
+
+`security-audit` adapts its guidance/full-audit modes, candidate gate,
+`confirmed`/`needs_validation`/`rejected` verdicts, severity anchors, sandboxed
+execution boundary, coverage ledger, independent verification, and domain
+attack classes. The findings schema and the two zero-dependency validators with
+their tests are vendored under the upstream MIT license (see the skill's
+`LICENSE` and `NOTICE.md`). The candidate gate and severity anchors also
+informed the local `security-reviewer` agent definition, which lives outside
+this repository.
+
 ## Skills with no upstream inspiration
 
 The following skills were written from scratch based on SRE, DevOps, API
@@ -448,6 +469,10 @@ Some skills and generated assets in this repository are vendored from upstream
 projects under their original licenses. As of this writing:
 
 - [`skill-creator/`](skill-creator/) — vendored from [anthropics/skills](https://github.com/anthropics/skills), Apache 2.0. See [`skill-creator/README.md`](skill-creator/README.md) for details.
+- `security-audit/` findings schema, `validate-findings.cjs`,
+  `validate-coverage-ledger.cjs`, and their tests — vendored from
+  cloudflare/security-audit-skill at `c1c8a8c`, MIT; license and file list in
+  [`security-audit/NOTICE.md`](security-audit/NOTICE.md).
 - `architecture-diagrams/assets/drawio/shape-index.json.gz` — generated shape
   catalog from jgraph/drawio-mcp and diagrams.net, Apache-2.0, with notice and
   full license under `architecture-diagrams/references/licenses/`.

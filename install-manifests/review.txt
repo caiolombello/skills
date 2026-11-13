@@ -5,3 +5,4 @@ doubt-driven-review
 verification-before-completion
 pr-workflow
 pr-followup
+security-audit
