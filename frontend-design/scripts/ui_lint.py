@@ -223,6 +223,11 @@ class Linter:
             if re.fullmatch(r"100vh", decls.get(prop, "")) and not any("dvh" in v or "svh" in v for v in decls.values()):
                 self.report("viewport-height", "info", "100vh is taller than the visible area on mobile browsers.",
                             "Use min-height: 100dvh (or 100svh) with a 100vh fallback.", rel, line, selector)
+        for prop in ("width", "min-width", "inline-size", "min-inline-size"):
+            if re.search(r"(?<![\w.-])100vw\b", decls.get(prop, "")):
+                self.report("viewport-width", "info", "100vw includes the vertical scrollbar and causes horizontal overflow on many desktops.",
+                            "Use 100% or container-relative widths; for full-bleed sections, break out of the container without 100vw.", rel, line, selector)
+                break
         z = re.fullmatch(r"(\d+)", decls.get("z-index", ""))
         if z and int(z.group(1)) >= 100:
             self.report("z-index-scale", "info", "Large z-index values signal a missing layering scale.",

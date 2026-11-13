@@ -251,12 +251,20 @@ public web standards and official testing documentation. See the upstream
 
 Copyright (c) 2026 Hallmark contributors.
 Commit referenced: `aeb42fb`.
+Latest review snapshot: `04977e15f3dfd6ee4b74c887dac3eb52665d6c92` (v2.0.0, 2026-11-13).
 
 `ai-interface-design` adapts Hallmark's brief-led structural variety,
 anti-template review posture, and distinction between visual novelty and
 meaningful product shape. The local workflow is independently written for
 AI-native product interaction and does not vendor Hallmark's themes, component
 catalog, or slop-test rule set.
+
+The 2026-11-13 review compared Hallmark v2's deterministic "Floor" with
+`frontend-design`'s existing lint and audit scripts, which already covered most
+of it. One original lint rule (`viewport-width`, flagging `100vw` widths) was
+added from that comparison. Hallmark's stylistic bans (eyebrows, tracked
+capitals, per-screen word limits, the CSS stamp) are not adopted as universal
+requirements.
 
 ### [Agents365-ai/drawio-skill](https://github.com/Agents365-ai/drawio-skill) — MIT
 
@@ -435,6 +443,25 @@ their tests are vendored under the upstream MIT license (see the skill's
 informed the local `security-reviewer` agent definition, which lives outside
 this repository.
 
+#### [GoogleChrome/modern-web-guidance-src](https://github.com/GoogleChrome/modern-web-guidance-src/tree/9e3f3f65c8a6aac2b1029869ee8a05d4cd461f73) — Apache-2.0
+
+Snapshot `9e3f3f65c8a6aac2b1029869ee8a05d4cd461f73`; CLI `modern-web-guidance`
+1.0.0. `frontend-development/references/web-platform-baseline.md` adopts its
+Baseline-default support policy, native-first framing, fallback rules, and
+framework adaptation notes, and documents the CLI as an optional pinned source.
+No guide text is vendored; the mandatory-first trigger and unpinned `@latest`
+execution are deliberately not adopted.
+
+#### [pbakaus/impeccable](https://github.com/pbakaus/impeccable/tree/c4cd1924c389f68d37c687d9c2bbf13f12547c41) — Apache-2.0
+
+Snapshot `c4cd1924c389f68d37c687d9c2bbf13f12547c41`. `frontend-design` adds
+surface intent (operate, persuade, read, showcase) to its brief and a scoped
+[refinement-moves](frontend-design/references/refinement-moves.md) reference
+inspired by Impeccable's visitor modes and steering vocabulary (bolder, quieter,
+distill, harden, clarify, adapt). No upstream text, detector rules, launcher
+binary, hooks, or live-editing mode are included; the live mode's
+sandbox-bypassing agent fallback is a reason it is not recommended here.
+
 #### [AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo/tree/cca7e4a267991aca880efade1fd12e8498caf2ce) — MIT
 
 Copyright (c) 2026 agricidaniel. Snapshot
@@ -443,6 +470,14 @@ technical SEO, structured data, Core Web Vitals, AI search, and agent-readiness
 coverage and its honest-reporting rules into one provider-agnostic skill. Its
 sub-skills, subagents, Python launcher, scripts, and paid-API integrations are
 not included; time-sensitive facts are dated and point to official sources.
+
+#### [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes/tree/f01209d4aebf8768aca5cd2d0f8c2130cc51b423) — Apache-2.0
+
+Snapshot `f01209d4aebf8768aca5cd2d0f8c2130cc51b423`, CLI 0.9.42.
+`content-production/references/hyperframes.md` summarizes when to use it, its
+composition contract, work loop, telemetry and paid-feature boundaries, and
+transferable motion principles. No HyperFrames source, skills, registry blocks,
+or templates are vendored.
 
 ## Skills with no upstream inspiration
 
@@ -468,8 +503,8 @@ of the upstream projects above. They are noted here only for completeness:
 - `karpenter-workflows` (follows Karpenter core + provider docs, especially NodePools, NodeClasses, disruption, drift, consolidation, and provider-specific node supply)
 - `cost-optimization-aws` (FinOps Foundation principles + AWS CUR + AWS Cost Optimization Pillar)
 - `monorepo-strategy` (Turborepo / Nx / Bazel official docs + pnpm / Yarn / uv / Cargo workspace docs)
-- `frontend-design` (W3C WCAG, WAI-ARIA Authoring Practices, and web.dev responsive-design guidance; OpenAI and Anthropic frontend guidance reviewed as described above)
-- `frontend-development` (W3C WCAG, WAI-ARIA Authoring Practices, web.dev, Testing Library, Playwright, and Storybook documentation)
+- `frontend-design` (W3C WCAG, WAI-ARIA Authoring Practices, and web.dev responsive-design guidance; OpenAI and Anthropic frontend guidance reviewed as described above; Impeccable and Hallmark influences listed above)
+- `frontend-development` (W3C WCAG, WAI-ARIA Authoring Practices, web.dev, Testing Library, Playwright, and Storybook documentation; Modern Web Guidance influence listed above)
 - `awscli-workflows`, `kubectl-workflows`, `gh-cli-workflows`, `git-hygiene`, `pr-workflow`, `no-docs-unless-asked`, `container-image-hardening`, `pass-cli-secrets`, `terraform-iac-expert`, `backstage-scaffolder-architect`, `codex-claude-resume`, `handoff`, `investigate-before-editing`, `rtk-token-optimized-cli`
 
 ## Vendored skills and assets (distinct from the above)

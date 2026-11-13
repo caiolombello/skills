@@ -66,7 +66,7 @@ Keep it to about 12 lines in your notes or reply:
 ```text
 Brief
 - User, job, success signal:
-- Surface: app workspace | dashboard | form flow | marketing page | editorial | other
+- Surface: app workspace | dashboard | form flow | marketing page | editorial | other — intent: operate | persuade | read | showcase
 - Source material: supplied product facts, domain objects/workflows, assets actually available; important unknowns
 - First viewport: what it must show; primary action:
 - Direction: <name from the catalog, or "inherit existing"> — three mood words; why it fits
@@ -80,6 +80,17 @@ Brief
 ```
 
 For a small change inside an existing product, three lines suffice: what changes, which existing patterns it reuses, and which states it touches. Choose the direction with [references/visual-direction.md](references/visual-direction.md).
+
+Set ambition from the surface's intent — what the visitor's success looks like on this screen — not from the product or the brand:
+
+| Intent | Visitor succeeds by | Where expression goes |
+|---|---|---|
+| **Operate** (app, dashboard, editor, admin, settings) | Completing a task | Type, palette, density, and at most one signature detail; navigation, controls, and layout stay the category's familiar ones |
+| **Persuade** (landing, pricing, campaign) | Understanding the offer and acting | Composition, imagery, and type may carry the page, as long as the offer, the primary action, and reading order stay plain |
+| **Read** (docs, articles, guides, changelogs) | Finding and understanding an answer | The frame (masthead, rail, headings, code and table styling); the reading column stays calm at a real measure |
+| **Showcase** (portfolio, gallery, case study) | Experiencing the work | The work leads from the first viewport; the interface recedes |
+
+A tool's marketing page is Persuade; the same product's docs are Read. Do not dress an Operate screen as a costume of the domain (a terminal, a ledger, an instrument panel) — borrow its type, color, and density, not its controls.
 
 ### 3. Structure before style
 
@@ -161,6 +172,10 @@ Models drift toward the statistical center of the web. Default away from these; 
 3. **Report** a table of location, issue, user impact, evidence label (Observed, Specified, Inferred, Preference — see [design-review](references/design-review.md#evidence-levels)), fix, and severity (blocker, major, minor, polish). Lead with the three highest-impact fixes and include the rubric scores; score "n/a" where the evidence cannot show a dimension (screenshots alone cannot prove keyboard access or other widths).
 
 Distinguish defects from preferences. Never present inferred user behavior, research, or analytics as observed.
+
+## Directional refinements
+
+For a scoped request such as "bolder", "quieter", "simplify", "make it production-ready", "clearer copy", or "fix it on mobile", apply the matching move from [references/refinement-moves.md](references/refinement-moves.md): name the target, keep everything else, and verify on before/after renders.
 
 ## Anti-patterns
 

@@ -26,7 +26,7 @@ Implement production frontend behavior in the project’s stack without inventin
 1. **Inspect before editing.** Learn the exact framework, version, routing, state, styling, test, and build conventions.
 2. **Use the existing design system.** Compose established primitives and tokens before adding variants, abstractions, or dependencies.
 3. **Implement complete behavior.** Loading, empty, error, partial, permission, disabled, and success states are not optional cleanup.
-4. **Use semantic native controls first.** A styled `button` is safer than recreating button behavior on a `div`.
+4. **Use semantic native controls and platform features first.** A styled `button` is safer than recreating button behavior on a `div`; a native `<dialog>`, `popover`, or `<details>` beats a hand-rolled overlay when the browser-support policy allows it. See [references/web-platform-baseline.md](references/web-platform-baseline.md).
 5. **Preserve user work.** Late async responses, refreshes, validation, and retries must not silently overwrite manual input.
 6. **Do not invent contracts.** Read generated clients, schemas, API types, fixtures, and actual call sites.
 7. **Verify with observable evidence.** Compilation alone does not prove interaction, layout, or accessibility.
@@ -44,6 +44,7 @@ Read the project rules file (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, or equi
 - State management, forms, validation, API clients, schemas, and error shapes.
 - Nearby implementations of the same interaction.
 - Project-defined lint, typecheck, test, build, story, and end-to-end commands.
+- The browser-support policy (rules file, `browserslist`, build targets, runtime). Without one, default to Baseline widely available and feature-detect newer features, per [references/web-platform-baseline.md](references/web-platform-baseline.md).
 
 Use [`investigate-before-editing`](../investigate-before-editing) for unfamiliar code. Use [`docs-verified-coding`](../docs-verified-coding) before relying on version-sensitive framework or library behavior.
 
@@ -52,7 +53,7 @@ Use [`investigate-before-editing`](../investigate-before-editing) for unfamiliar
 - Static page or small site: semantic HTML and modern CSS with a tokens file — no framework needed.
 - Application: the framework the user names; otherwise React + TypeScript on Vite (client app) or Next.js (server rendering, routing, SEO).
 - Styling: Tailwind CSS with the design tokens in its theme, or CSS Modules with custom properties — one approach, not both.
-- Interactive primitives: an accessible headless library (Radix or shadcn/ui, React Aria) instead of hand-rolled menus, dialogs, comboboxes, or date pickers.
+- Interactive primitives: native `<dialog>`, `popover`, `<details>`, and constraint validation where they meet the requirement and support policy; otherwise an accessible headless library (Radix or shadcn/ui, React Aria) instead of hand-rolled menus, comboboxes, or date pickers.
 - Icons: Lucide unless the brand has a set. Motion: CSS first; the Motion library only for choreography CSS cannot express.
 - Pin versions in the lockfile and add lint, typecheck, and test commands on day one.
 
@@ -185,6 +186,7 @@ Do not say “responsive,” “accessible,” or “all tests pass” unless th
 |---|---|
 | Inventing a component API from memory | Version and project conventions differ |
 | Adding a new UI library for one component | Expands bundle, maintenance, and visual inconsistency |
+| Rebuilding a platform feature from training-data habits | Ships more JavaScript and loses built-in focus, dismissal, and accessibility behavior |
 | Testing implementation details | Refactors break tests without changing behavior |
 | Happy-path-only UI | Failure and permission states reach users anyway |
 | Hiding unauthorized actions as the only control | The client is not a trust boundary |

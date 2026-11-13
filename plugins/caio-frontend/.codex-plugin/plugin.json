@@ -1,6 +1,6 @@
 {
   "name": "caio-frontend",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Frontend design, implementation and AI interface workflows",
   "author": { "name": "caiolombello" },
   "skills": "./skills/",

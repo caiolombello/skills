@@ -8,6 +8,7 @@ Reviewed on 2026-10-27. Verify current availability, capabilities, cost and lice
 | Existing footage + local FFmpeg/ffprobe | Repeatable cuts, assembly, resizing, audio and technical checks | No required paid generation; needs installed binaries/codecs and local compute |
 | Kdenlive or another available editor | Interactive timeline edits, titles, captions and mixing | Kdenlive is free/open source; installed GUI/control access is still required |
 | Recordly | Screen-recorded product demos/tutorials with cursor/zoom polish | Optional native app; [platform/account limits](recordly.md) must be checked |
+| HyperFrames | Deterministic HTML-to-video motion graphics, charts, titles, captions/overlays | Optional Node 22+/FFmpeg CLI; local render documented without a paid plan; cloud/Pro/HeyGen features need an account; [telemetry and limits](hyperframes.md) |
 | Code motion with an available renderer | Explain product flows, animated typography/charts/diagrams | Reuse HTML/canvas/Blender/Remotion tooling when suitable; code alone is not an export |
 | Connected image-generation tool | Raster assets, thumbnails, product visuals | Follow that tool's contract; existing plan usage is different from an external API charge |
 | Audio editor/local TTS or connected speech/music service | Voiceovers, podcasts, cleanup, jingles/SFX, mix/master | [Audio routing](audio-production.md); no required provider and no assumed commercial rights from free access |

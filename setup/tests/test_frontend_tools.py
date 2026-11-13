@@ -25,7 +25,8 @@ export function Hero() {
   );
 }
 """
-BAD_CSS = "button:focus { outline: none; }\n.title { -webkit-background-clip: text; color: transparent; }\n"
+BAD_CSS = ("button:focus { outline: none; }\n.title { -webkit-background-clip: text; color: transparent; }\n"
+           ".bleed { width: 100vw; }\n")
 BAD_HTML = '<!doctype html><html><head><meta name="viewport" content="width=device-width, user-scalable=no"></head><body></body></html>\n'
 GOOD_COMPONENT = """\
 import { Download } from "lucide-react";
@@ -71,7 +72,7 @@ class FrontendToolTests(unittest.TestCase):
                      "positive-tabindex", "zoom-disabled"):
             self.assertEqual(rules.get(rule), "error", rule)
         for rule in ("purple-gradient", "gradient-text", "placeholder-copy", "emoji-ui", "dead-link",
-                     "outline-removed-unverified", "html-lang-missing"):
+                     "outline-removed-unverified", "html-lang-missing", "viewport-width"):
             self.assertIn(rule, rules)
         self.assertIn("cliche-copy", rules)
 

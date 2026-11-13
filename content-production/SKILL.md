@@ -24,6 +24,7 @@ Read only the relevant procedure:
 | Create/edit images, thumbnails, product visuals or a consistent asset family | [Images and brand](references/images-and-brand.md) |
 | Choose free/local, manual, code-motion or paid generation | [Tools and budget](references/tools-and-budget.md) |
 | Record a real software walkthrough with cursor/zoom polish | [Recordly](references/recordly.md) |
+| Write motion graphics, animated charts/type or overlays as HTML and render them to video | [HyperFrames](references/hyperframes.md) |
 | Use Higgsfield, its connector/MCP, website or API | [Higgsfield](references/higgsfield.md) |
 
 Keep these roles distinct: an assistant plans/directs or writes animation code; a capture tool records real behavior; a generative model synthesizes footage/images/audio; an editor/renderer assembles and exports. A language model, speech/music generator, Claude-branded workflow and Higgsfield account are not interchangeable capabilities. Choose by actual access and task fit; do not declare one LLM universally best for media.
@@ -56,4 +57,4 @@ For audio-only work, verify the actual words/performance, timing, intelligibilit
 
 Deliver the requested final files with absolute paths, plus editable project/timeline, captions or provenance notes when useful for reuse. Keep the package proportional; a short asset need not generate a folder of speculative documents. Clearly identify draft, render pending, rendered but unreviewed, technically checked and published states. Creating content does not publish it; if publication to a specified destination is already authorized, complete it using actual tools and report the returned outcome. Never invent posting, approval, reach or conversion results.
 
-[Decision cases](evals/scenarios.json) test routing and limits; live Recordly/Higgsfield/provider access requires a real integration run.
+[Decision cases](evals/scenarios.json) test routing and limits; live Recordly/HyperFrames/Higgsfield/provider access requires a real integration run.

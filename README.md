@@ -293,7 +293,10 @@ to be provider-agnostic and consistent with the rest of the library. See
 [heliocosta-dev/revenue-centric-design](https://github.com/heliocosta-dev/revenue-centric-design),
 [modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol),
 [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill),
+[GoogleChrome/modern-web-guidance-src](https://github.com/GoogleChrome/modern-web-guidance-src),
+[pbakaus/impeccable](https://github.com/pbakaus/impeccable),
 [AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo),
+[heygen-com/hyperframes](https://github.com/heygen-com/hyperframes),
 the [NSA MCP security design guide](https://media.defense.gov/2026/Jun/02/2003943289/-1/-1/0/CSI_MCP_SECURITY.PDF),
 and the other reviewed sources.
 

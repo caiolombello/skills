@@ -82,7 +82,7 @@ Fetch the **specific page** for the feature. Not the homepage, not the whole doc
 | 2 | Official migration guide for that version | "Upgrading to v5", release blog post |
 | 3 | Official changelog / release notes | `CHANGELOG.md` in the upstream repo |
 | 4 | Web-standards references | MDN, `web.dev`, `html.spec.whatwg.org` |
-| 5 | Runtime / browser compatibility tables | `caniuse.com`, `node.green` |
+| 5 | Runtime / browser compatibility tables | MDN compat data and Baseline status (`webstatus.dev`), `caniuse.com`, `node.green` |
 
 **Not authoritative — never cite as the primary source:**
 
