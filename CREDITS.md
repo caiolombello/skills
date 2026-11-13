@@ -435,6 +435,15 @@ their tests are vendored under the upstream MIT license (see the skill's
 informed the local `security-reviewer` agent definition, which lives outside
 this repository.
 
+#### [AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo/tree/cca7e4a267991aca880efade1fd12e8498caf2ce) — MIT
+
+Copyright (c) 2026 agricidaniel. Snapshot
+`cca7e4a267991aca880efade1fd12e8498caf2ce`. `web-discoverability` condenses its
+technical SEO, structured data, Core Web Vitals, AI search, and agent-readiness
+coverage and its honest-reporting rules into one provider-agnostic skill. Its
+sub-skills, subagents, Python launcher, scripts, and paid-API integrations are
+not included; time-sensitive facts are dated and point to official sources.
+
 ## Skills with no upstream inspiration
 
 The following skills were written from scratch based on SRE, DevOps, API

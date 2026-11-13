@@ -291,6 +291,19 @@
       "avoid": [
         "security-audit"
       ]
+    },
+    {
+      "id": "web-discoverability-positive",
+      "prompt": "Our Next.js docs pages dropped out of Google; check robots.txt, canonicals, noindex and the sitemap.",
+      "primary": "web-discoverability"
+    },
+    {
+      "id": "web-discoverability-near-miss",
+      "prompt": "The checkout API got 800ms slower after the last deploy; profile it and fix the regression.",
+      "primary": "performance-optimization",
+      "avoid": [
+        "web-discoverability"
+      ]
     }
   ]
 }

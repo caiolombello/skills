@@ -119,6 +119,7 @@ Every skill below is independent — pick exactly what you need. Skills marked *
 | [`frontend-design`](./frontend-design) | Design, build, or review user-facing UI to an explicit quality bar: design brief, visual direction, craft defaults, states, accessibility, and a screenshot-critique loop with bundled lint, audit, and contrast tools. |
 | [`ai-interface-design`](./ai-interface-design) | Extend frontend design for AI-native products: model states, streaming, tools, generated artifacts, trust, user control, visual specificity, and value evidence. Custom source-available terms exclude gambling use. |
 | [`frontend-development`](./frontend-development) | Implement production frontend UI in the project’s stack (or a minimal new one) and design system, with complete states, accessibility, security, tests, and frontend-design's visual gate. |
+| [`web-discoverability`](./web-discoverability) | SEO and discoverability review/fixes: indexing, robots.txt, canonicals, sitemaps, hreflang, JSON-LD, Core Web Vitals, AI search and crawlers, agent readiness — read-only by default, no ranking promises. |
 | [`docs-verified-coding`](./docs-verified-coding) | Detect version → fetch official docs → implement as documented → cite the source. Prevents the "library API invented from memory" failure mode. |
 | [`investigate-before-editing`](./investigate-before-editing) | Forces the agent to read relevant code and learn repo conventions before changing anything. Match house style, never invent symbols. |
 | [`incremental-implementation`](./incremental-implementation) | Build in small usable slices, verify each, and commit only within the authorized workflow. |
@@ -292,6 +293,7 @@ to be provider-agnostic and consistent with the rest of the library. See
 [heliocosta-dev/revenue-centric-design](https://github.com/heliocosta-dev/revenue-centric-design),
 [modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol),
 [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill),
+[AgriciDaniel/claude-seo](https://github.com/AgriciDaniel/claude-seo),
 the [NSA MCP security design guide](https://media.defense.gov/2026/Jun/02/2003943289/-1/-1/0/CSI_MCP_SECURITY.PDF),
 and the other reviewed sources.
 

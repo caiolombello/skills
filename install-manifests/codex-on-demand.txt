@@ -27,3 +27,4 @@ formal-verification
 technical-writing
 content-production
 security-audit
+web-discoverability
